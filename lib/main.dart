@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/view/splash_screen.dart';
+import 'package:flutter/services.dart';
+
 
 void main() {
+   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  ));
   runApp(const VivahBharathApp());
 }
 

@@ -30,14 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFf9e0dd),
-              Color.fromARGB(255, 228, 154, 143),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: AppColors.kBgGradient,
         ),
         child: Stack(
           children: [
@@ -81,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 Text(
                   "VivahBharath",
                   style: GoogleFonts.playfairDisplay(
-                    color: AppColors.primary,
+                    color: AppColors.kCardBg,
                     fontSize: 42,
                     fontWeight: FontWeight.bold,
                   ),
@@ -92,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 Text(
                   "FIND YOUR PERFECT LIFE PARTNER",
                   style: GoogleFonts.poppins(
-                    color: AppColors.secondary,
+                    color: AppColors.kCardBg,
                     letterSpacing: 2,
                     fontSize: 13,
                   ),
@@ -104,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   width: 45,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.gold,
+                    color: AppColors.kAccent,
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),

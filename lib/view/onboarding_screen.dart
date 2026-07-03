@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/initial_info_screen.dart';
-
 
 class OnboardingPage {
   final String imagePath;
@@ -29,7 +29,7 @@ final List<OnboardingPage> onboardingPages = [
     title: 'Start Meaningful\nConversations',
     subtitle:
         'Break the ice effortlessly. Chat with compatible matches and let your story unfold, one message at a time.',
-    accentColor: Color(0xFFE8876A),
+    accentColor: AppColors.primary,
     bgTop:  Color(0xFFFFF5F2),
     bgBottom: Color(0xFFFFEDE8),
   ),
@@ -39,7 +39,7 @@ final List<OnboardingPage> onboardingPages = [
     title: 'Find Your\nPerfect Partner',
     subtitle:
         'Discover someone who shares your values, dreams, and heart. True compatibility, not just profiles.',
-    accentColor: Color(0xFFE8876A),
+    accentColor: AppColors.primary,
     bgTop: Color(0xFFFFF5F2),
     bgBottom: Color(0xFFFFEDE8),
   ),
@@ -49,7 +49,7 @@ final List<OnboardingPage> onboardingPages = [
     title: "Don't Miss Your\nChance at Love",
     subtitle:
         'Every day brings new possibilities. People near you are looking for the same thing — a forever bond.',
-    accentColor: Color(0xFFE8876A),
+    accentColor: AppColors.primary,
     bgTop: Color(0xFFFFF0EC),
     bgBottom: Color(0xFFFFE4DC),
   ),
@@ -208,7 +208,7 @@ class _TopBar extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.favorite_rounded,
-                  color: isDark ? const Color(0xFFE8876A) : const Color(0xFFE8876A),
+                  color: isDark ? AppColors.primary :  AppColors.primary,
                   size: 22),
               const SizedBox(width: 8),
               Text(

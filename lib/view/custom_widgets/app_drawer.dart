@@ -3,8 +3,11 @@
 // ═══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/interest_screen.dart';
 import 'package:matrimony_app/view/login_screen.dart';
+import 'package:matrimony_app/view/manage_photo_screen.dart';
 import 'package:matrimony_app/view/subscription_plan_screen.dart';
+import 'package:matrimony_app/view/trust_badge_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   /// Pass the active plan name (e.g. 'Premium') if the user has a paid
@@ -13,8 +16,8 @@ class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key, this.activePlan});
 
   static const _menuItems = [
-    _DrawerMenuItem('Edit Profile', Icons.edit_outlined),
-    _DrawerMenuItem('Manage photos', Icons.photo_library_outlined),
+    //_DrawerMenuItem('Edit Profile', Icons.edit_outlined),
+    _DrawerMenuItem('Manage photos', Icons.photo_library_outlined,),
     _DrawerMenuItem('Add trust badge', Icons.shield_outlined),
     _DrawerMenuItem('Edit partner preference', Icons.favorite_border_rounded),
     _DrawerMenuItem('Verify your profile', Icons.fact_check_outlined),
@@ -26,12 +29,47 @@ class AppDrawer extends StatelessWidget {
     _DrawerMenuItem('Safe matrimony', Icons.favorite_border_rounded),
   ];
 
+  void _onMenuTap(BuildContext context, String label) {
+    Navigator.pop(context);
+    switch (label) {
+      case 'Manage photos':
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) =>  ManagePhotosScreen()));
+        break;
+      case 'Add trust badge':
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const TrustBadgeScreen()));
+        break;
+      case 'Manage interest':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => const InterestsScreen(initialTabIndex: 0)),
+        );
+        break;
+      case 'Manage request':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => const InterestsScreen(initialTabIndex: 1)),
+        );
+        break;
+      case 'View subscriptions':
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const SubscriptionPlanScreen()));
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$label — coming soon')),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasActivePlan = activePlan != null && activePlan!.isNotEmpty;
     return Drawer(
       backgroundColor: Colors.transparent,
-      width: MediaQuery.of(context).size.width * 0.78,
+      width: (MediaQuery.of(context).size.width * 0.78).clamp(260.0, 360.0),
       child: Container(
         decoration: const BoxDecoration(gradient: AppColors.gradPrimary),
         child: SafeArea(
@@ -99,10 +137,7 @@ class AppDrawer extends StatelessWidget {
                     final item = _menuItems[i];
                     return _DrawerTile(
                       item: item,
-                      onTap: () {
-                        Navigator.pop(context);
-                        // TODO: route to the relevant screen for `item.label`.
-                      },
+                      onTap: () => _onMenuTap(context, item.label),
                     );
                   },
                 ),

@@ -215,11 +215,17 @@ class _HeroPhoto extends StatelessWidget {
                   children: [
                     const Icon(Icons.location_on_outlined, color: Colors.white70, size: 13),
                     const SizedBox(width: 3),
-                    Text(profile.city, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                    Flexible(
+                      flex: 2,
+                      child: Text(profile.city,
+                          style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500),
+                          overflow: TextOverflow.ellipsis),
+                    ),
                     const SizedBox(width: 10),
                     const Icon(Icons.work_outline_rounded, color: Colors.white70, size: 13),
                     const SizedBox(width: 3),
                     Flexible(
+                      flex: 3,
                       child: Text(profile.profession,
                           style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500),
                           overflow: TextOverflow.ellipsis),

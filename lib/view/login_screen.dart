@@ -12,7 +12,7 @@ import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
 import 'package:matrimony_app/view/custom_widgets/section_header.dart';
 import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 import 'package:matrimony_app/view/initial_info_screen.dart';
-import 'package:matrimony_app/view/main_screen.dart';
+import 'package:matrimony_app/view/otp_verify_screen.dart';
 import 'package:matrimony_app/view/subscription_plan_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,7 +24,38 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _showPass = false;
-  String _loginWith = 'Email';
+  String _loginWith = 'OTP'; // 'OTP' or 'Password'
+
+  final _phoneCtrl = TextEditingController();
+  final _identifierCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _phoneCtrl.dispose();
+    _identifierCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  void _sendOtp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OtpVerifyScreen(
+          mobile: _phoneCtrl.text,
+          nextScreen: const SubscriptionPlanScreen(),
+        ),
+      ),
+    );
+  }
+
+  void _loginWithPassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SubscriptionPlanScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SectionHeader(
                     tag: 'WELCOME BACK',
-                    title: 'Login to your\naccount',
+                    title: 'Login to Your\nAccount',
                     subtitle:
                         'Continue your journey to find your perfect match',
                   ),
@@ -65,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Email / Mobile toggle
+                        // OTP / Password toggle
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
@@ -74,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             border: Border.all(color: AppColors.kBorder),
                           ),
                           child: Row(
-                            children: ['Email', 'Mobile'].map((opt) {
+                            children: ['OTP', 'Password'].map((opt) {
                               final sel = _loginWith == opt;
                               return Expanded(
                                 child: GestureDetector(
@@ -100,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             ]
                                           : [],
                                     ),
-                                    child: Text(opt,
+                                    child: Text('Login with $opt',
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,
@@ -116,93 +147,95 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 18),
 
-                        // Email or mobile field
-                        FieldWrap(
-                          _loginWith == 'Email'
-                              ? 'Email Address'
-                              : 'Mobile Number',
-                          required: true,
-                          child: Field(
-                            hint: _loginWith == 'Email'
-                                ? 'Enter your email'
-                                : 'Enter mobile number',
-                            keyboardType: _loginWith == 'Email'
-                                ? TextInputType.emailAddress
-                                : TextInputType.phone,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-
-                        // Password
-                        FieldWrap('Password',
+                        if (_loginWith == 'OTP') ...[
+                          // Phone number field
+                          FieldWrap(
+                            'Phone Number',
                             required: true,
                             child: Field(
-                              hint: '••••••••',
-                              obscure: !_showPass,
-                              suffix: IconButton(
-                                icon: Icon(
-                                  _showPass
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  color: AppColors.kTextMuted, size: 20,
-                                ),
-                                onPressed: () =>
-                                    setState(() => _showPass = !_showPass),
-                              ),
-                            )),
-                        const SizedBox(height: 8),
-
-                        // Forgot password
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: const Text('Forgot Password?',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.kAccent,
-                                    fontWeight: FontWeight.w600)),
+                              controller: _phoneCtrl,
+                              hint: 'Enter mobile number',
+                              keyboardType: TextInputType.phone,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 20),
+
+                          CTAButton(label: 'Send OTP', onTap: _sendOtp),
+                        ] else ...[
+                          // Phone / email field
+                          FieldWrap(
+                            'Phone Number / Email',
+                            required: true,
+                            child: Field(
+                              controller: _identifierCtrl,
+                              hint: 'you@example.com or +91XXXXXXXXXX',
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Password
+                          FieldWrap('Enter Password',
+                              required: true,
+                              child: Field(
+                                controller: _passwordCtrl,
+                                hint: '••••••••',
+                                obscure: !_showPass,
+                                suffix: IconButton(
+                                  icon: Icon(
+                                    _showPass
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: AppColors.kTextMuted, size: 20,
+                                  ),
+                                  onPressed: () =>
+                                      setState(() => _showPass = !_showPass),
+                                ),
+                              )),
+                          const SizedBox(height: 8),
+
+                          // Forgot password
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: const Text('Forgot Password?',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.kAccent,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          CTAButton(
+                              label: 'Proceed', onTap: _loginWithPassword),
+                        ],
                         const SizedBox(height: 20),
 
-                        CTAButton(label: 'Login', onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    const SubscriptionPlanScreen()),
-                          );
-                        }),
-                        const SizedBox(height: 18),
-
-                        // Divider
-                        Row(children: [
-                          Expanded(
-                              child: Divider(
-                                  color: AppColors.kAccent.withOpacity(0.2))),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('or',
+                        Center(
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const InitialInfoScreen()),
+                            ),
+                            child: RichText(
+                              text: const TextSpan(
+                                text: 'Not a member? ',
                                 style: TextStyle(
-                                    color: AppColors.kTextMuted.withOpacity(0.6),
-                                    fontSize: 12)),
-                          ),
-                          Expanded(
-                              child: Divider(
-                                  color: AppColors.kAccent.withOpacity(0.2))),
-                        ]),
-                        const SizedBox(height: 16),
-
-                        CTAButton(
-                          label: 'Create New Account',
-                          outlined: true,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    const InitialInfoScreen()),
+                                    fontSize: 13,
+                                    color: AppColors.kTextMuted),
+                                children: [
+                                  TextSpan(
+                                    text: 'Register Free',
+                                    style: TextStyle(
+                                        color: AppColors.kAccent,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],

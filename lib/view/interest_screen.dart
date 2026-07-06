@@ -6,7 +6,8 @@ import 'package:matrimony_app/view/custom_widgets/profile_image.dart';
 import 'package:matrimony_app/view/user_detail_screen.dart';
 
 class InterestsScreen extends StatefulWidget {
-  const InterestsScreen({super.key});
+  final int initialTabIndex;
+  const InterestsScreen({super.key, this.initialTabIndex = 0});
   @override
   State<InterestsScreen> createState() => _InterestsScreenState();
 }
@@ -24,7 +25,8 @@ class _InterestsScreenState extends State<InterestsScreen>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this);
+    _tab = TabController(
+        length: 3, vsync: this, initialIndex: widget.initialTabIndex);
     _tab.addListener(() => setState(() {}));
   }
 

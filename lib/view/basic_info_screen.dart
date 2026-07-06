@@ -94,29 +94,29 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                           ]),
                           const SizedBox(height: 14),
 
-                          // Religion + Mother Tongue
-                          Row(children: [
-                            Expanded(
-                              child: FieldWrap('Religion',
-                                  required: true,
-                                  child: Drop(
-                                      hint: 'Select',
-                                      items: const [
-                                        'Hindu', 'Muslim', 'Christian',
-                                        'Sikh', 'Jain', 'Buddhist', 'Other'
-                                      ])),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: FieldWrap('Mother Tongue',
-                                  required: true,
-                                  child: Drop(hint: 'Select', items: const [
-                                    'Malayalam', 'Hindi', 'Tamil',
-                                    'Telugu', 'Kannada', 'Punjabi', 'Other'
-                                  ])),
-                            ),
-                          ]),
-                          const SizedBox(height: 14),
+                          // // Religion + Mother Tongue
+                          // Row(children: [
+                          //   Expanded(
+                          //     child: FieldWrap('Religion',
+                          //         required: true,
+                          //         child: Drop(
+                          //             hint: 'Select',
+                          //             items: const [
+                          //               'Hindu', 'Muslim', 'Christian',
+                          //               'Sikh', 'Jain', 'Buddhist', 'Other'
+                          //             ])),
+                          //   ),
+                          //   const SizedBox(width: 12),
+                          //   Expanded(
+                          //     child: FieldWrap('Mother Tongue',
+                          //         required: true,
+                          //         child: Drop(hint: 'Select', items: const [
+                          //           'Malayalam', 'Hindi', 'Tamil',
+                          //           'Telugu', 'Kannada', 'Punjabi', 'Other'
+                          //         ])),
+                          //   ),
+                          // ]),
+                          // const SizedBox(height: 14),
 
                           // Email
                           FieldWrap('Email',

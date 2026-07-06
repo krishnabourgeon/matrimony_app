@@ -217,9 +217,10 @@ class _InfoRow extends StatelessWidget {
             const SizedBox(height: 4),
             Text(value, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.5)),
           ])
-        : Row(children: [
-            SizedBox(width: 130, child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textHint, fontWeight: FontWeight.w500))),
-            Expanded(child: Text(value, style: const TextStyle(fontSize: 12, color: AppColors.textPrimary, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis)),
+        : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(flex: 5, child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textHint, fontWeight: FontWeight.w500))),
+            const SizedBox(width: 8),
+            Expanded(flex: 6, child: Text(value, style: const TextStyle(fontSize: 12, color: AppColors.textPrimary, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis)),
           ]),
     );
   }

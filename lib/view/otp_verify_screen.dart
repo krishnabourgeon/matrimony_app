@@ -11,7 +11,8 @@ import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 
 class OtpVerifyScreen extends StatefulWidget {
   final String mobile;
-  const OtpVerifyScreen({super.key, required this.mobile});
+  final Widget? nextScreen;
+  const OtpVerifyScreen({super.key, required this.mobile, this.nextScreen});
 
   @override
   State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
@@ -166,7 +167,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const BasicInfoScreen()),
+                              builder: (_) =>
+                                  widget.nextScreen ?? const BasicInfoScreen()),
                         ),
                       ),
                       const SizedBox(height: 16),

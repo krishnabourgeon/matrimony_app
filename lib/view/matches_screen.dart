@@ -174,8 +174,12 @@ class _ProfileCard extends StatelessWidget {
               Positioned(left: 0, right: 0, bottom: 0, child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                  Text('${profile.name}, ${profile.age}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.4)),
-                  Text('${profile.profession} · ${profile.city}', style: const TextStyle(color: Color(0xCCFFFFFF), fontSize: 13)),
+                  Text('${profile.name}, ${profile.age}',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.4)),
+                  Text('${profile.profession} · ${profile.city}',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Color(0xCCFFFFFF), fontSize: 13)),
                 ]),
               )),
             ]),

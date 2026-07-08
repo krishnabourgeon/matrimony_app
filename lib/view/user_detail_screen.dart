@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:matrimony_app/model/profile_model.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/custom_widgets/profile_image.dart';
+import 'package:matrimony_app/view/message_screen.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final Profile profile;
@@ -12,13 +13,17 @@ class UserDetailScreen extends StatefulWidget {
   State<UserDetailScreen> createState() => _UserDetailScreenState();
 }
 
-class _UserDetailScreenState extends State<UserDetailScreen> with SingleTickerProviderStateMixin {
+class _UserDetailScreenState extends State<UserDetailScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ac;
 
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 700))..forward();
+    _ac = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..forward();
   }
 
   @override
@@ -30,12 +35,19 @@ class _UserDetailScreenState extends State<UserDetailScreen> with SingleTickerPr
   Widget _fade(double start, Widget child) {
     final a = CurvedAnimation(
       parent: _ac,
-      curve: Interval(start.clamp(0.0, .85), (start + .4).clamp(0.0, 1.0), curve: Curves.easeOut),
+      curve: Interval(
+        start.clamp(0.0, .85),
+        (start + .4).clamp(0.0, 1.0),
+        curve: Curves.easeOut,
+      ),
     );
     return FadeTransition(
       opacity: a,
       child: SlideTransition(
-        position: Tween<Offset>(begin: const Offset(0, .03), end: Offset.zero).animate(a),
+        position: Tween<Offset>(
+          begin: const Offset(0, .03),
+          end: Offset.zero,
+        ).animate(a),
         child: child,
       ),
     );
@@ -58,12 +70,20 @@ class _UserDetailScreenState extends State<UserDetailScreen> with SingleTickerPr
                 ),
               ),
               SliverToBoxAdapter(child: _fade(0.0, _IdentityCard(profile: p))),
-              SliverToBoxAdapter(child: _fade(0.08, _QuickStatsRow(profile: p))),
+              SliverToBoxAdapter(
+                child: _fade(0.08, _QuickStatsRow(profile: p)),
+              ),
               if (p.about.isNotEmpty)
-                SliverToBoxAdapter(child: _fade(0.14, _AboutCard(about: p.about))),
-              SliverToBoxAdapter(child: _fade(0.20, _BasicInfoCard(profile: p))),
+                SliverToBoxAdapter(
+                  child: _fade(0.14, _AboutCard(about: p.about)),
+                ),
+              SliverToBoxAdapter(
+                child: _fade(0.20, _BasicInfoCard(profile: p)),
+              ),
               if (p.hobbies.isNotEmpty)
-                SliverToBoxAdapter(child: _fade(0.26, _HobbiesCard(hobbies: p.hobbies))),
+                SliverToBoxAdapter(
+                  child: _fade(0.26, _HobbiesCard(hobbies: p.hobbies)),
+                ),
               const SliverToBoxAdapter(child: SizedBox(height: 110)),
             ],
           ),
@@ -81,7 +101,12 @@ class _UserDetailScreenState extends State<UserDetailScreen> with SingleTickerPr
             right: 0,
             child: _BottomBar(
               interested: p.interested,
-              onMessage: () {},
+              onMessage: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MessageScreen()),
+                );
+              },
               onInterest: () => setState(() => p.interested = !p.interested),
             ),
           ),
@@ -112,7 +137,11 @@ class _HeroPhoto extends StatelessWidget {
             fit: BoxFit.cover,
             errorWidget: Container(
               color: AppColors.primaryLight,
-              child: const Icon(Icons.person, size: 90, color: AppColors.primary),
+              child: const Icon(
+                Icons.person,
+                size: 90,
+                color: AppColors.primary,
+              ),
             ),
           ),
           Positioned.fill(
@@ -142,12 +171,16 @@ class _HeroPhoto extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: profile.liked ? AppColors.primary : Colors.white.withOpacity(.90),
+                  color: profile.liked
+                      ? AppColors.primary
+                      : Colors.white.withOpacity(.90),
                   borderRadius: BorderRadius.circular(AppColors.r12),
                   boxShadow: AppColors.shadowSm,
                 ),
                 child: Icon(
-                  profile.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  profile.liked
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
                   color: profile.liked ? Colors.white : AppColors.primary,
                   size: 18,
                 ),
@@ -160,7 +193,10 @@ class _HeroPhoto extends StatelessWidget {
               top: MediaQuery.of(context).padding.top + 12,
               right: 66,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 7,
+                ),
                 decoration: BoxDecoration(
                   gradient: AppColors.gradGold,
                   borderRadius: BorderRadius.circular(AppColors.r12),
@@ -169,10 +205,20 @@ class _HeroPhoto extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.favorite_rounded, color: Colors.white, size: 11),
+                    const Icon(
+                      Icons.favorite_rounded,
+                      color: Colors.white,
+                      size: 11,
+                    ),
                     const SizedBox(width: 4),
-                    Text('${profile.matchPct}% match',
-                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
+                    Text(
+                      '${profile.matchPct}% match',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -189,22 +235,45 @@ class _HeroPhoto extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
-                      child: Text('${profile.name}, ${profile.age}',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5),
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        '${profile.name}, ${profile.age}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     if (profile.verified)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                        decoration: BoxDecoration(color: AppColors.blue, borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.blue,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.verified_rounded, color: Colors.white, size: 11),
+                            Icon(
+                              Icons.verified_rounded,
+                              color: Colors.white,
+                              size: 11,
+                            ),
                             SizedBox(width: 3),
-                            Text('Verified', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700)),
+                            Text(
+                              'Verified',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -213,22 +282,42 @@ class _HeroPhoto extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, color: Colors.white70, size: 13),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.white70,
+                      size: 13,
+                    ),
                     const SizedBox(width: 3),
                     Flexible(
                       flex: 2,
-                      child: Text(profile.city,
-                          style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500),
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        profile.city,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: 10),
-                    const Icon(Icons.work_outline_rounded, color: Colors.white70, size: 13),
+                    const Icon(
+                      Icons.work_outline_rounded,
+                      color: Colors.white70,
+                      size: 13,
+                    ),
                     const SizedBox(width: 3),
                     Flexible(
                       flex: 3,
-                      child: Text(profile.profession,
-                          style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500),
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        profile.profession,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -265,9 +354,15 @@ class _IdentityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Profile ID · ${profile.profileId}', style: AppColors.caption),
+                Text(
+                  'Profile ID · ${profile.profileId}',
+                  style: AppColors.caption,
+                ),
                 const SizedBox(height: 2),
-                Text(profile.income.isEmpty ? 'Income not shared' : profile.income, style: AppColors.h4),
+                Text(
+                  profile.income.isEmpty ? 'Income not shared' : profile.income,
+                  style: AppColors.h4,
+                ),
               ],
             ),
           ),
@@ -282,9 +377,23 @@ class _IdentityCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 7, height: 7, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: AppColors.success,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                   const SizedBox(width: 5),
-                  Text(profile.lastSeen, style: const TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w700)),
+                  Text(
+                    profile.lastSeen,
+                    style: const TextStyle(
+                      color: AppColors.success,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -304,37 +413,77 @@ class _QuickStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      (Icons.height_rounded, profile.height.isEmpty ? '—' : profile.height, 'Height', AppColors.primaryLight, AppColors.primary),
-      (Icons.auto_awesome_outlined, profile.religion.isEmpty ? '—' : profile.religion, 'Religion', AppColors.goldLight, AppColors.goldDark),
-      (Icons.people_outline_rounded, profile.caste.isEmpty ? '—' : profile.caste, 'Community', AppColors.blueLight, AppColors.blue),
-      (Icons.school_outlined, profile.education.isEmpty ? '—' : profile.education.split('–').first.trim(), 'Education', AppColors.successLight, AppColors.success),
+      (
+        Icons.height_rounded,
+        profile.height.isEmpty ? '—' : profile.height,
+        'Height',
+        AppColors.primaryLight,
+        AppColors.primary,
+      ),
+      (
+        Icons.auto_awesome_outlined,
+        profile.religion.isEmpty ? '—' : profile.religion,
+        'Religion',
+        AppColors.goldLight,
+        AppColors.goldDark,
+      ),
+      (
+        Icons.people_outline_rounded,
+        profile.caste.isEmpty ? '—' : profile.caste,
+        'Community',
+        AppColors.blueLight,
+        AppColors.blue,
+      ),
+      (
+        Icons.school_outlined,
+        profile.education.isEmpty
+            ? '—'
+            : profile.education.split('–').first.trim(),
+        'Education',
+        AppColors.successLight,
+        AppColors.success,
+      ),
     ];
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Row(
         children: items
-            .map((s) => Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 4),
-                    decoration: BoxDecoration(color: s.$4, borderRadius: BorderRadius.circular(AppColors.r16)),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(s.$1, color: s.$5, size: 17),
-                        const SizedBox(height: 6),
-                        Text(s.$2,
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: s.$5)),
-                        const SizedBox(height: 2),
-                        Text(s.$3, style: AppColors.caption),
-                      ],
-                    ),
+            .map(
+              (s) => Expanded(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 13,
+                    horizontal: 4,
                   ),
-                ))
+                  decoration: BoxDecoration(
+                    color: s.$4,
+                    borderRadius: BorderRadius.circular(AppColors.r16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(s.$1, color: s.$5, size: 17),
+                      const SizedBox(height: 6),
+                      Text(
+                        s.$2,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: s.$5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(s.$3, style: AppColors.caption),
+                    ],
+                  ),
+                ),
+              ),
+            )
             .toList(),
       ),
     );
@@ -355,7 +504,10 @@ class _AboutCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardTitle(icon: Icons.person_outline_rounded, label: 'About Me'),
+          const _CardTitle(
+            icon: Icons.person_outline_rounded,
+            label: 'About Me',
+          ),
           const SizedBox(height: 10),
           Text(about, style: AppColors.body1),
         ],
@@ -388,7 +540,10 @@ class _BasicInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardTitle(icon: Icons.list_alt_rounded, label: 'Basic Information'),
+          const _CardTitle(
+            icon: Icons.list_alt_rounded,
+            label: 'Basic Information',
+          ),
           const SizedBox(height: 12),
           ...rows.asMap().entries.map((e) {
             final r = e.value;
@@ -402,14 +557,26 @@ class _BasicInfoCard extends StatelessWidget {
                       Container(
                         width: 30,
                         height: 30,
-                        decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryLight,
+                          shape: BoxShape.circle,
+                        ),
                         child: Icon(r.$1, color: AppColors.primary, size: 14),
                       ),
                       const SizedBox(width: 12),
-                      SizedBox(width: 88, child: Text(r.$2, style: AppColors.body2)),
+                      SizedBox(
+                        width: 88,
+                        child: Text(r.$2, style: AppColors.body2),
+                      ),
                       Expanded(
-                        child: Text(r.$3,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                        child: Text(
+                          r.$3,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -446,7 +613,10 @@ class _HobbiesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardTitle(icon: Icons.interests_outlined, label: 'Hobbies & Interests'),
+          const _CardTitle(
+            icon: Icons.interests_outlined,
+            label: 'Hobbies & Interests',
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -454,13 +624,23 @@ class _HobbiesCard extends StatelessWidget {
             children: hobbies.asMap().entries.map((e) {
               final c = _combos[e.key % _combos.length];
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 13,
+                  vertical: 7,
+                ),
                 decoration: BoxDecoration(
                   color: c.$1,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: c.$2.withOpacity(.25)),
                 ),
-                child: Text(e.value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: c.$2)),
+                child: Text(
+                  e.value,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: c.$2,
+                  ),
+                ),
               );
             }).toList(),
           ),
@@ -476,12 +656,21 @@ class _HobbiesCard extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   final bool interested;
   final VoidCallback onMessage, onInterest;
-  const _BottomBar({required this.interested, required this.onMessage, required this.onInterest});
+  const _BottomBar({
+    required this.interested,
+    required this.onMessage,
+    required this.onInterest,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 14, 20, MediaQuery.of(context).padding.bottom + 14),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        14,
+        20,
+        MediaQuery.of(context).padding.bottom + 14,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: const Border(top: BorderSide(color: AppColors.divider)),
@@ -499,7 +688,11 @@ class _BottomBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppColors.r16),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.textSecondary, size: 22),
+              child: const Icon(
+                Icons.chat_bubble_outline_rounded,
+                color: AppColors.textSecondary,
+                size: 22,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -514,14 +707,18 @@ class _BottomBar extends StatelessWidget {
                   gradient: interested ? null : AppColors.gradPrimary,
                   color: interested ? AppColors.primaryLight : null,
                   borderRadius: BorderRadius.circular(AppColors.r16),
-                  border: interested ? Border.all(color: AppColors.primary) : null,
+                  border: interested
+                      ? Border.all(color: AppColors.primary)
+                      : null,
                   boxShadow: interested ? null : AppColors.shadowPrimary,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      interested ? Icons.check_circle_rounded : Icons.favorite_border_rounded,
+                      interested
+                          ? Icons.check_circle_rounded
+                          : Icons.favorite_border_rounded,
                       color: interested ? AppColors.primary : Colors.white,
                       size: 18,
                     ),
@@ -529,7 +726,10 @@ class _BottomBar extends StatelessWidget {
                     Text(
                       interested ? 'Interest Sent!' : 'Express Interest',
                       style: TextStyle(
-                          color: interested ? AppColors.primary : Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
+                        color: interested ? AppColors.primary : Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -579,7 +779,10 @@ class _CardTitle extends StatelessWidget {
         Container(
           width: 28,
           height: 28,
-          decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+            color: AppColors.primaryLight,
+            shape: BoxShape.circle,
+          ),
           child: Icon(icon, color: AppColors.primary, size: 14),
         ),
         const SizedBox(width: 10),

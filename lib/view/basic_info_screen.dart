@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/view/communtiy_location_screen.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-import 'package:matrimony_app/view/custom_widgets/dropdown.dart';
 import 'package:matrimony_app/view/custom_widgets/field.dart';
 import 'package:matrimony_app/view/custom_widgets/field_warp.dart';
 import 'package:matrimony_app/view/custom_widgets/floating_card.dart';

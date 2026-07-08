@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 
 class BlushScaffold extends StatelessWidget {
   final Widget child;

@@ -36,7 +36,7 @@ class _InterestsScreenState extends State<InterestsScreen>
     super.dispose();
   }
 
-  List<Profile> get _current => [_sent, _received, _mutual][_tab.index];
+  //List<Profile> get _current => [_sent, _received, _mutual][_tab.index];
 
   @override
   Widget build(BuildContext context) {

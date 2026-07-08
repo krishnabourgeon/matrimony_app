@@ -9,7 +9,6 @@ import 'package:matrimony_app/view/custom_widgets/field_warp.dart';
 import 'package:matrimony_app/view/custom_widgets/floating_card.dart';
 import 'package:matrimony_app/view/custom_widgets/primary_button.dart';
 import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
-import 'package:matrimony_app/view/custom_widgets/section_header.dart';
 import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 import 'package:matrimony_app/view/initial_info_screen.dart';
 import 'package:matrimony_app/view/otp_verify_screen.dart';
@@ -84,12 +83,45 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  const SectionHeader(
-                    tag: 'WELCOME BACK',
-                    title: 'Login to Your\nAccount',
-                    subtitle:
-                        'Continue your journey to find your perfect match',
-                  ),
+                  // const SectionHeader(
+                  //   tag: 'WELCOME BACK',
+                  //   title: 'Login to Your\nAccount',
+                  //   subtitle:
+                  //       'Continue your journey to find your perfect match',
+                  //   centerAligned: true,
+                  // ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.kAccent.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.kAccent.withOpacity(0.3)),
+                        ),
+                        child: Text('WELCOME BACK',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 2,
+                              color: AppColors.kAccent,
+                            )),
+                      ),
+                  const SizedBox(height: 8),
+                  Text('Login to Your Account',
+                      style: const TextStyle(
+                        fontFamily: 'Georgia',
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.kDarkSlate,
+                        height: 1.2,
+                      )),
+                  const SizedBox(height: 4),
+                  Text('Continue your journey to find your perfect match',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.kTextMuted, height: 1.4)),
+                ]),
                   const SizedBox(height: 24),
 
                   FloatingCard(

@@ -5,7 +5,6 @@ import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/custom_widgets/floating_card.dart';
 import 'package:matrimony_app/view/custom_widgets/primary_button.dart';
 import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
-import 'package:matrimony_app/view/custom_widgets/section_header.dart';
 import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 
 
@@ -93,7 +92,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                           height: 1.2,
                         )),
                     const SizedBox(height: 4),
-                    Text('We sent a 6-digit code to',
+                    Text('We sent a 4-digit code to',
                         style: const TextStyle(
                             fontSize: 12, color: AppColors.kTextMuted, height: 1.4)),
                   ]),
@@ -112,7 +111,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                       // OTP boxes
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(6, (i) {
+                        children: List.generate(4, (i) {
                           return Container(
                             width: 44, height: 52,
                             margin: const EdgeInsets.symmetric(horizontal: 4),

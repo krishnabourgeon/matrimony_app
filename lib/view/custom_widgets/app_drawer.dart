@@ -1,29 +1,32 @@
-// ═══════════════════════════════════════════════════════════════
-//  APP DRAWER — subscription status + profile management menu
-// ═══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/edit_partner_preference_screen.dart';
 import 'package:matrimony_app/view/interest_screen.dart';
 import 'package:matrimony_app/view/login_screen.dart';
 import 'package:matrimony_app/view/manage_photo_screen.dart';
+import 'package:matrimony_app/view/manage_request_screen.dart';
+import 'package:matrimony_app/view/message_list_screen.dart';
+import 'package:matrimony_app/view/privacy_setting_screen.dart';
+import 'package:matrimony_app/view/safe_matrimony.dart';
 import 'package:matrimony_app/view/subscription_plan_screen.dart';
 import 'package:matrimony_app/view/trust_badge_screen.dart';
+import 'package:matrimony_app/view/verify_profile_screen.dart';
 
 class AppDrawer extends StatelessWidget {
-  /// Pass the active plan name (e.g. 'Premium') if the user has a paid
-  /// subscription. Leave null to show the "No active subscription" state.
+
   final String? activePlan;
   const AppDrawer({super.key, this.activePlan});
 
   static const _menuItems = [
     //_DrawerMenuItem('Edit Profile', Icons.edit_outlined),
-    _DrawerMenuItem('Manage photos', Icons.photo_library_outlined,),
+    _DrawerMenuItem('Manage photos', Icons.photo_library_outlined),
     _DrawerMenuItem('Add trust badge', Icons.shield_outlined),
     _DrawerMenuItem('Edit partner preference', Icons.favorite_border_rounded),
     _DrawerMenuItem('Verify your profile', Icons.fact_check_outlined),
     _DrawerMenuItem('Manage request', Icons.tune_rounded),
     _DrawerMenuItem('Manage interest', Icons.tune_rounded),
     _DrawerMenuItem('Message', Icons.chat_bubble_outline_rounded),
+    _DrawerMenuItem('Manage Password',Icons.lock_outlined),
     _DrawerMenuItem('Privacy Settings', Icons.tune_rounded),
     _DrawerMenuItem('View subscriptions', Icons.thumb_up_outlined),
     _DrawerMenuItem('Safe matrimony', Icons.favorite_border_rounded),
@@ -33,34 +36,72 @@ class AppDrawer extends StatelessWidget {
     Navigator.pop(context);
     switch (label) {
       case 'Manage photos':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) =>  ManagePhotosScreen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ManagePhotosScreen()),
+        );
         break;
       case 'Add trust badge':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const TrustBadgeScreen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TrustBadgeScreen()),
+        );
+        break;
+      case 'Verify your profile':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const VerifyProfileScreen()),
+        );
+        break;
+      case 'Edit partner preference':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const EditPartnerPreferenceScreen(),
+          ),
+        );
         break;
       case 'Manage interest':
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => const InterestsScreen(initialTabIndex: 0)),
+            builder: (_) => const InterestsScreen(initialTabIndex: 0),
+          ),
         );
         break;
       case 'Manage request':
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (_) => const InterestsScreen(initialTabIndex: 1)),
+          MaterialPageRoute(builder: (_) => const ManageRequestScreen()),
+        );
+        break;
+      case 'Message':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MessagesListScreen()),
+        );
+        break;
+      case 'Privacy Settings':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PrivacySettingsScreen()),
         );
         break;
       case 'View subscriptions':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SubscriptionPlanScreen()));
-        break;
-      default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label — coming soon')),
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SubscriptionPlanScreen()),
         );
+        break;
+      case 'Safe matrimony':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SafeMatrimony()),
+        );
+      default:
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$label — coming soon')));
     }
   }
 
@@ -88,7 +129,9 @@ class AppDrawer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppColors.r32),
                       ),
                       child: Text(
-                        hasActivePlan ? '$activePlan Member' : 'No active subscription.',
+                        hasActivePlan
+                            ? '$activePlan Member'
+                            : 'No active subscription.',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -103,7 +146,8 @@ class AppDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const SubscriptionPlanScreen()),
+                            builder: (_) => const SubscriptionPlanScreen(),
+                          ),
                         );
                       },
                       child: Container(
@@ -116,7 +160,9 @@ class AppDrawer extends StatelessWidget {
                           border: Border.all(color: AppColors.gold, width: 1.2),
                         ),
                         child: Text(
-                          hasActivePlan ? 'Manage Subscription' : 'Subscribe Now',
+                          hasActivePlan
+                              ? 'Manage Subscription'
+                              : 'Subscribe Now',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -164,7 +210,11 @@ class AppDrawer extends StatelessWidget {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.logout_rounded, color: Colors.white, size: 16),
+                        Icon(
+                          Icons.logout_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'Logout',

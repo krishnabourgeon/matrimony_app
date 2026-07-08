@@ -260,7 +260,6 @@ import 'package:matrimony_app/view/custom_widgets/primary_button.dart';
 import 'package:matrimony_app/view/custom_widgets/progress_indicator.dart';
 import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
 import 'package:matrimony_app/view/custom_widgets/section_header.dart';
-import 'package:matrimony_app/view/custom_widgets/toggle_button.dart';
 import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 import 'package:matrimony_app/view/professional_details_screen.dart';
 
@@ -274,7 +273,7 @@ class CommunityLocationScreen extends StatefulWidget {
 }
 
 class _CommunityLocationState extends State<CommunityLocationScreen> {
-  int _ancestorCount = 0;
+  //int _ancestorCount = 0;
 
   final _homeAddressCtrl = TextEditingController();
   final _homePinCtrl = TextEditingController();

@@ -7,7 +7,7 @@ class PageHeader extends StatelessWidget {
   final List<Widget>? actions;
   final bool showBack;
   const PageHeader(
-      {required this.title, this.actions, this.showBack = false});
+      {super.key, required this.title, this.actions, this.showBack = false});
 
   @override
   Widget build(BuildContext context) {
@@ -47,38 +47,38 @@ class PageHeader extends StatelessWidget {
 }
 
 /// Accent icon button
-Widget _iconBtn(IconData icon, {VoidCallback? onTap, int badge = 0}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.kWhite.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.kBorder),
-          ),
-          child: Icon(icon, color: AppColors.kAccent, size: 20),
-        ),
-        if (badge > 0)
-          Positioned(
-            top: -4,
-            right: -4,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                  color: AppColors.kAccent, shape: BoxShape.circle),
-              child: Text('$badge',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800)),
-            ),
-          ),
-      ],
-    ),
-  );
-}
+// Widget _iconBtn(IconData icon, {VoidCallback? onTap, int badge = 0}) {
+//   return GestureDetector(
+//     onTap: onTap,
+//     child: Stack(
+//       clipBehavior: Clip.none,
+//       children: [
+//         Container(
+//           width: 40,
+//           height: 40,
+//           decoration: BoxDecoration(
+//             color: AppColors.kWhite.withOpacity(0.8),
+//             borderRadius: BorderRadius.circular(12),
+//             border: Border.all(color: AppColors.kBorder),
+//           ),
+//           child: Icon(icon, color: AppColors.kAccent, size: 20),
+//         ),
+//         if (badge > 0)
+//           Positioned(
+//             top: -4,
+//             right: -4,
+//             child: Container(
+//               padding: const EdgeInsets.all(4),
+//               decoration: const BoxDecoration(
+//                   color: AppColors.kAccent, shape: BoxShape.circle),
+//               child: Text('$badge',
+//                   style: const TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 9,
+//                       fontWeight: FontWeight.w800)),
+//             ),
+//           ),
+//       ],
+//     ),
+//   );
+// }

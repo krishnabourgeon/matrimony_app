@@ -6,12 +6,20 @@ class SectionHeader extends StatelessWidget {
   final String tag;
   final String title;
   final String subtitle;
+  final bool centerAligned;
   const SectionHeader(
-      {super.key, required this.tag, required this.title, required this.subtitle});
+      {super.key,
+      required this.tag,
+      required this.title,
+      required this.subtitle,
+      this.centerAligned = false});
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(

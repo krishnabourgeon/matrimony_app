@@ -592,7 +592,7 @@ final List<OnboardingPage> onboardingPages = [
     bgBottom: Color(0xFFFFE4DC),
   ),
   const OnboardingPage(
-    imagePath: 'assets/image/chat_bot.jpg',
+    imagePath: 'assets/image/chat_bot.png',
     tag: 'STEP 4',
     title: 'Connect & Converse',
     subtitle:

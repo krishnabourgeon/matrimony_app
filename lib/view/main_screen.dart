@@ -5,7 +5,6 @@ import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/dashboard_screen.dart';
 import 'package:matrimony_app/view/interest_screen.dart';
 import 'package:matrimony_app/view/matches_screen.dart';
-import 'package:matrimony_app/view/notification_screen.dart';
 import 'package:matrimony_app/view/profile_screen.dart';
 import 'package:matrimony_app/view/search_screen.dart';
 

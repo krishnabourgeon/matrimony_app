@@ -1,16 +1,29 @@
-// ════════════════════════════════════════════════════════════════
-//  STEP 6 — PHOTOS & ABOUT
-// ════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+//  PHOTOS & ABOUT
+// ═══════════════════════════════════════════════════════════════
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-import 'package:matrimony_app/view/custom_widgets/floating_card.dart';
-import 'package:matrimony_app/view/custom_widgets/primary_button.dart';
-import 'package:matrimony_app/view/custom_widgets/progress_indicator.dart';
-import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
-import 'package:matrimony_app/view/custom_widgets/section_header.dart';
-import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:matrimony_app/view/family_details_screen.dart';
 import 'package:matrimony_app/view/hobbies_screen.dart';
+import 'package:matrimony_app/view/main_screen.dart';
+
+/// Brand colors used on this screen — mirrors the other onboarding screens' palette.
+class _Palette {
+  _Palette._();
+  static const Color coral = Color(0xFFFF3356);
+  static const Color ink = Color(0xFF1A1A1A);
+  static const Color subtleWhite = Color(0xFFFFFFFF);
+
+  static const Color fieldBg = Color(0xFFF5F5F7);
+  static const Color hintText = Color(0xFF8A8A8E);
+  static const Color trackBg = Color(0xFFECECEE);
+  static const Color grey = Color(0xFFBDBDBD);
+}
 
 class PhotosAboutScreen extends StatefulWidget {
   const PhotosAboutScreen({super.key});
@@ -20,318 +33,429 @@ class PhotosAboutScreen extends StatefulWidget {
 }
 
 class _PhotosAboutState extends State<PhotosAboutScreen> {
+  static const List<String> _slotLabels = [
+    'Close-Up',
+    'Full-Length',
+    'Traditional',
+    'Candid',
+    'Professional',
+    'Casual',
+    'Formal',
+  ];
+
+  // Slot 0 is the primary profile photo (unlabeled); slots 1-7 map to _slotLabels.
+  final List<File?> _photos = List<File?>.filled(8, null);
+  final _picker = ImagePicker();
+
   int _aboutCount = 0;
-  // In production replace with real image picker + file list
-  final List<bool> _uploaded = [true, false, false, false];
+  final _aboutCtrl = TextEditingController();
+
+  bool _isSubmitting = false;
+  bool _isSubmittingProfile = false;
+
+  @override
+  void dispose() {
+    _aboutCtrl.dispose();
+    super.dispose();
+  }
+
+  // Required: at least one photo uploaded.
+  bool get _isFormValid => _photos.any((f) => f != null);
+
+  Future<void> _pickPhoto(int index) async {
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+    setState(() => _photos[index] = File(picked.path));
+  }
+
+  void _removePhoto(int index) {
+    setState(() => _photos[index] = null);
+  }
+
+  void _handleContinue() {
+    FocusScope.of(context).unfocus();
+
+    setState(() => _isSubmitting = true);
+
+    // TODO: wire up actual save/continue API call here.
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => FamilyDetailsScreen()),
+      );
+    });
+  }
+
+  // Submits the profile now with whatever's filled so far, skipping the
+  // remaining onboarding steps, straight to the app's main screen.
+  void _handleSubmit() {
+    FocusScope.of(context).unfocus();
+
+    setState(() => _isSubmittingProfile = true);
+
+    // TODO: wire up actual submit-profile API call here.
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (!mounted) return;
+      setState(() => _isSubmittingProfile = false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MainShell()),
+        (route) => false,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlushScaffold(
-      child: Column(
-        children: [
-          TopBar(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: StepBar(current: 6, total: 8),
-          ),
-          const SizedBox(height: 14),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SectionHeader(
-                    tag: 'STEP 6 OF 8',
-                    title: 'Photos & About Me',
-                    subtitle:
-                        'Medium close-up photographs are preferred as primary image',
-                  ),
-                  const SizedBox(height: 20),
-                  FloatingCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ── Upload section label ──
-                        const Text(
-                          'Upload Photos',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.kDarkSlate,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Medium close-up photographs are preferable as primary image',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.kTextMuted,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-
-                        // ── Photo Grid ──
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            final width = constraints.maxWidth;
-                            final crossAxisCount = width > 700
-                                ? 6
-                                : width > 500
-                                ? 5
-                                : width > 300
-                                ? 4
-                                : 3;
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: 4,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: crossAxisCount,
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                    childAspectRatio: 0.85,
-                                  ),
-                              itemBuilder: (ctx, i) {
-                                final filled = _uploaded[i];
-                                return GestureDetector(
-                                  onTap: () => setState(
-                                    () => _uploaded[i] = !_uploaded[i],
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: AppColors.kCardBg,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: filled
-                                            ? AppColors.kAccent.withOpacity(0.5)
-                                            : AppColors.kBorder,
-                                        width: filled ? 2 : 1,
-                                        style: filled
-                                            ? BorderStyle.solid
-                                            : BorderStyle.solid,
-                                      ),
-                                    ),
-                                    child: filled
-                                        ? Stack(
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(11),
-                                                child: Container(
-                                                  color: AppColors.kAccent
-                                                      .withOpacity(0.15),
-                                                  child: const Center(
-                                                    child: Icon(
-                                                      Icons.person,
-                                                      size: 40,
-                                                      color: AppColors.kAccent,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 4,
-                                                right: 4,
-                                                child: Container(
-                                                  width: 20,
-                                                  height: 20,
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                        color:
-                                                            AppColors.kAccent,
-                                                        shape: BoxShape.circle,
-                                                      ),
-                                                  child: const Icon(
-                                                    Icons.close,
-                                                    size: 12,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                              if (i == 0)
-                                                Positioned(
-                                                  bottom: 0,
-                                                  left: 0,
-                                                  right: 0,
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          vertical: 3,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.kAccent,
-                                                      borderRadius:
-                                                          const BorderRadius.vertical(
-                                                            bottom:
-                                                                Radius.circular(
-                                                                  10,
-                                                                ),
-                                                          ),
-                                                    ),
-                                                    child: const Text(
-                                                      'Primary',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 9,
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          )
-                                        : Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                width: 32,
-                                                height: 32,
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.kAccent
-                                                      .withOpacity(0.1),
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: AppColors.kBorder,
-                                                    style: BorderStyle.solid,
-                                                  ),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.add,
-                                                  color: AppColors.kAccent,
-                                                  size: 18,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                i == 1
-                                                    ? 'Close-Up'
-                                                    : 'Add Photo',
-                                                style: const TextStyle(
-                                                  fontSize: 9,
-                                                  color: AppColors.kTextMuted,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-
-                        // ── About Me ──
-                        const Text(
-                          'About Me',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.kDarkSlate,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          maxLines: 5,
-                          maxLength: 255,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.kDarkSlate,
-                          ),
-                          onChanged: (v) =>
-                              setState(() => _aboutCount = v.length),
-                          decoration: InputDecoration(
-                            hintText: 'Describe yourself...',
-                            hintStyle: const TextStyle(
-                              color: AppColors.kTextMuted,
-                              fontSize: 13,
-                            ),
-                            contentPadding: const EdgeInsets.all(14),
-                            filled: true,
-                            fillColor: AppColors.kCardBg,
-                            counterText: '${_aboutCount}/255',
-                            counterStyle: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.kTextMuted,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.kBorder,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.kBorder,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.kAccent,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 22),
-
-                        // ── Buttons ──
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CTAButton(
-                                label: 'Submit',
-                                outlined: true,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HobbiesScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: CTAButton(
-                                label: 'Continue →',
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HobbiesScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        const Center(
-                          child: Text(
-                            'In the next three stages, you can enter your family details, hobbies, interests, and horoscope details.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: AppColors.kTextMuted,
-                            ),
-                          ),
-                        ),
-                      ],
+    return Scaffold(
+      backgroundColor: _Palette.subtleWhite,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 35.h),
+                    Text(
+                      'Photos & About',
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w800,
+                        color: _Palette.ink,
+                        letterSpacing: -0.6,
+                        height: 1.25,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
+                    SizedBox(height: 20.h),
+
+                    _FieldLabel('Upload Photos'),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Medium close-up photographs are preferred as profile image',
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        color: _Palette.coral,
+                      ),
+                    ),
+                    SizedBox(height: 14.h),
+
+                    _buildPhotoGrid(),
+
+                    SizedBox(height: 20.h),
+                    _FieldLabel('About Me'),
+                    SizedBox(height: 8.h),
+                    _buildTextAreaField(
+                      controller: _aboutCtrl,
+                      hint: 'Describe yourself...',
+                      maxLength: 255,
+                      count: _aboutCount,
+                      onChanged: (v) => setState(() => _aboutCount = v.length),
+                    ),
+
+                    SizedBox(height: 32.h),
+                  ],
+                ),
+              ),
+            ),
+            _buildBottomArea(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Top bar: back button + progress track
+  // ---------------------------------------------------------------------
+  Widget _buildTopBar() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: 36.w,
+              height: 36.w,
+              decoration: const BoxDecoration(
+                color: _Palette.fieldBg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+            ),
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4.r),
+              child: LinearProgressIndicator(
+                value: 7 / 8,
+                minHeight: 6.h,
+                backgroundColor: _Palette.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Photo grid: slot 0 = primary photo, slots 1-7 = labeled categories.
+  // ---------------------------------------------------------------------
+  Widget _buildPhotoGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _photos.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        mainAxisSpacing: 10.w,
+        crossAxisSpacing: 10.w,
+        childAspectRatio: 0.85,
+      ),
+      itemBuilder: (context, index) {
+        final label = index == 0 ? null : _slotLabels[index - 1];
+        return _PhotoSlot(
+          file: _photos[index],
+          label: label,
+          onTap: () => _pickPhoto(index),
+          onRemove: () => _removePhoto(index),
+        );
+      },
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Text area field with character counter
+  // ---------------------------------------------------------------------
+  Widget _buildTextAreaField({
+    required TextEditingController controller,
+    required String hint,
+    required int maxLength,
+    required int count,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _Palette.fieldBg,
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: TextFormField(
+        controller: controller,
+        maxLines: 4,
+        maxLength: maxLength,
+        onChanged: onChanged,
+        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+          border: InputBorder.none,
+          errorBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+          counterText: '$count/$maxLength',
+          counterStyle: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Bottom area: Continue (filled) + Submit (outlined)
+  // ---------------------------------------------------------------------
+  Widget _buildBottomArea() {
+    final bool busy = _isSubmitting || _isSubmittingProfile;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 20.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 40.h,
+              child: ElevatedButton(
+                onPressed: busy ? null : _handleContinue,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
+                  disabledBackgroundColor:
+                      (_isFormValid ? _Palette.coral : _Palette.grey).withOpacity(0.6),
+                  foregroundColor: _Palette.subtleWhite,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.r),
+                  ),
+                ),
+                child: _isSubmitting
+                    ? SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            _Palette.subtleWhite,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        'Continue',
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: SizedBox(
+              height: 40.h,
+              child: OutlinedButton(
+                onPressed: busy ? null : _handleSubmit,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _Palette.coral,
+                  disabledForegroundColor: _Palette.coral.withOpacity(0.6),
+                  side: BorderSide(color: _Palette.coral, width: 1.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.r),
+                  ),
+                ),
+                child: _isSubmittingProfile
+                    ? SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            _Palette.coral,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        'Submit',
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small reusable field label used above every input on this screen.
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  const _FieldLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: GoogleFonts.tasaOrbiter(
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w700,
+        color: _Palette.ink,
+      ),
+    );
+  }
+}
+
+/// A single photo tile: dashed border + "+" and an optional label when
+/// empty, or the picked image with a coral highlight border once filled.
+class _PhotoSlot extends StatelessWidget {
+  const _PhotoSlot({
+    required this.file,
+    required this.label,
+    required this.onTap,
+    required this.onRemove,
+  });
+
+  final File? file;
+  final String? label;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool filled = file != null;
+
+    return GestureDetector(
+      onTap: filled ? null : onTap,
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: _Palette.subtleWhite,
+              borderRadius: BorderRadius.circular(10.r),
+              border: Border.all(
+                color: filled ? _Palette.coral : _Palette.trackBg,
+                width: filled ? 1.6 : 1,
+              ),
+              image: filled
+                  ? DecorationImage(image: FileImage(file!), fit: BoxFit.cover)
+                  : null,
+            ),
+            child: filled
+                ? null
+                : Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add, color: _Palette.hintText, size: 18.sp),
+                        if (label != null) ...[
+                          SizedBox(height: 4.h),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                            child: Text(
+                              label!,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 9.5.sp,
+                                fontWeight: FontWeight.w600,
+                                color: _Palette.hintText,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+          ),
+          if (filled)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: GestureDetector(
+                onTap: onRemove,
+                child: Container(
+                  padding: EdgeInsets.all(2.r),
+                  decoration: const BoxDecoration(
+                    color: _Palette.ink,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.close, size: 12.sp, color: _Palette.subtleWhite),
+                ),
+              ),
+            ),
         ],
       ),
     );

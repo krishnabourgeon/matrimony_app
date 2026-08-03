@@ -38,7 +38,7 @@ class AppColors {
   static const Color successDark    = Color(0xFF1F5A38);
   static const Color warning        = Color(0xFFF59E0B);
   static const Color warningLight   = Color(0xFFFFFBEB);
-  static const Color error          = Color(0xFFDC2626);
+  //static const Color error          = Color(0xFFDC2626);
   static const Color errorLight     = Color(0xFFFEF2F2);
 
   // Gold
@@ -57,6 +57,20 @@ class AppColors {
   // Border
   static const Color border         = Color(0xFFE8DDD5);
   static const Color divider        = Color(0xFFF2EAE4);
+
+
+
+  static const Color coral = Color(0xFFFF3356);
+  static const Color coralDark = Color(0xFFE01F42);
+  static const Color ink = Color(0xFF1A1A1A);
+  static const Color subtleWhite = Color(0xFFFFFFFF);
+
+
+  static const Color fieldBg = Color(0xFFF5F5F7);
+  static const Color hintText = Color(0xFF8A8A8E);
+  static const Color trackBg = Color(0xFFECECEE);
+  static const Color error = Color(0xFFE53935);
+  static const Color grey = Color(0xFFBDBDBD);
 
   // Shadows
   static List<BoxShadow> get shadowXs => [

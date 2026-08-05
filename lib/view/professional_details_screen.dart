@@ -628,7 +628,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
           onPressed: _isSubmitting ? null : _handleContinue,
           style: ElevatedButton.styleFrom(
             backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-            disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
+            disabledBackgroundColor: _Palette.coral,
             foregroundColor: _Palette.subtleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(

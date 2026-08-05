@@ -1527,7 +1527,7 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           onPressed: _isSubmitting ? null : _handleContinue,
           style: ElevatedButton.styleFrom(
             backgroundColor: _isFormValid ? AppColors.coral : AppColors.grey,
-            disabledBackgroundColor: AppColors.coral.withOpacity(0.6),
+            disabledBackgroundColor: AppColors.coral,
             foregroundColor: AppColors.subtleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(

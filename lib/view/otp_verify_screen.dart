@@ -205,6 +205,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/basic_info_screen.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
@@ -336,12 +337,15 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
               ),
               const SizedBox(height: 28),
 
-              _CTAButton(
-                label: 'Continue',
-                isEnabled: _isFormValid,
-                isLoading: _isSubmitting,
-                onTap: _isSubmitting ? null : _handleContinue,
-              ),
+              _buildBottomArea(),
+              const SizedBox(height: 20),
+
+              // _CTAButton(
+              //   label: 'Continue',
+              //   isEnabled: _isFormValid,
+              //   isLoading: _isSubmitting,
+              //   onTap: _isSubmitting ? null : _handleContinue,
+              // ),
               const SizedBox(height: 20),
 
               Center(
@@ -393,7 +397,51 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       ),
     );
   }
+
+   Widget _buildBottomArea() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 20.h),
+      child: SizedBox(
+        width: double.infinity,
+        height: 40.h,
+        child: ElevatedButton(
+          onPressed: _isSubmitting ? null : _handleContinue,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _isFormValid ? AppColors.coral : AppColors.grey,
+            disabledBackgroundColor: AppColors.coral,
+            foregroundColor: AppColors.subtleWhite,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28.r),
+            ),
+          ),
+          child: _isSubmitting
+              ? SizedBox(
+                  width: 22.w,
+                  height: 22.w,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.subtleWhite,
+                    ),
+                  ),
+                )
+              : Text(
+                  'Verify Otp ',
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
 }
+
+
 
 // ── Shared local widgets ─────────────────────────────────────────
 
@@ -526,7 +574,7 @@ class _CTAButton extends StatelessWidget {
         height: 56,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isEnabled ? AppColors.coral : AppColors.grey,
+          color: isEnabled ? AppColors.coral : AppColors.grey,         
           borderRadius: BorderRadius.circular(28),
           boxShadow: isEnabled
               ? [

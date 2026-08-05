@@ -286,9 +286,12 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
               child: ElevatedButton(
                 onPressed: busy ? null : _handleContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-                  disabledBackgroundColor:
-                      (_isFormValid ? _Palette.coral : _Palette.grey).withOpacity(0.6),
+                  // backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
+                  // disabledBackgroundColor:
+                  //     (_isFormValid ? _Palette.coral : _Palette.grey).withOpacity(0.6),
+                  // foregroundColor: _Palette.subtleWhite,
+                  backgroundColor: _Palette.coral,
+                  disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
                   foregroundColor: _Palette.subtleWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(

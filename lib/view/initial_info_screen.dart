@@ -956,7 +956,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
               onPressed: _isSubmitting ? null : _handleSendOtp,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isFormValid ? AppColors.coral : AppColors.grey,
-                disabledBackgroundColor: AppColors.coral.withOpacity(0.6),
+                disabledBackgroundColor: AppColors.coral,
                 foregroundColor: AppColors.subtleWhite,
                 elevation: 0,
                 shape: RoundedRectangleBorder(

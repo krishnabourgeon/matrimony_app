@@ -344,6 +344,8 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   int _brothersMarried = 0;
   int _sisters         = 0;
   int _sistersMarried  = 0;
+  bool _isSkipping = false;
+
 
   bool _whatsapp  = false;
   bool _telegram  = false;
@@ -387,11 +389,26 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
     });
   }
 
+  // void _handleSkip() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => const HobbiesScreen()),
+  //   );
+  // }
   void _handleSkip() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const HobbiesScreen()),
-    );
+    FocusScope.of(context).unfocus();
+
+    setState(() => _isSkipping = true);
+
+    // TODO: wire up actual skip/continue API call here.
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (!mounted) return;
+      setState(() => _isSkipping = false);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const HobbiesScreen()),
+      );
+    });
   }
 
   void _showSnack(String message) {
@@ -831,66 +848,142 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   Widget _buildBottomArea() {
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 20.h),
+      // child: Row(
+      //   children: [
+      //     Expanded(
+      //       child: SizedBox(
+      //         height: 40.h,
+      //         child: OutlinedButton(
+      //           onPressed: _handleSkip,
+      //           style: OutlinedButton.styleFrom(
+      //             foregroundColor: _Palette.ink,
+      //             side: const BorderSide(color: _Palette.trackBg, width: 1.4),
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(28.r),
+      //             ),
+      //           ),
+      //           child: Text(
+      //             'Skip',
+      //             style: GoogleFonts.tasaOrbiter(fontSize: 16.sp, fontWeight: FontWeight.w700),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //     SizedBox(width: 12.w),
+      //     Expanded(
+      //       child: SizedBox(
+      //         height: 40.h,
+      //         child: ElevatedButton(
+      //           onPressed: _isSubmitting ? null : _handleContinue,
+      //           style: ElevatedButton.styleFrom(
+      //             backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
+      //             disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
+      //             foregroundColor: _Palette.subtleWhite,
+      //             elevation: 0,
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(28.r),
+      //             ),
+      //           ),
+      //           child: _isSubmitting
+      //               ? SizedBox(
+      //                   width: 22.w,
+      //                   height: 22.w,
+      //                   child: const CircularProgressIndicator(
+      //                     strokeWidth: 2.4,
+      //                     valueColor: AlwaysStoppedAnimation<Color>(
+      //                       _Palette.subtleWhite,
+      //                     ),
+      //                   ),
+      //                 )
+      //               : Text(
+      //                   'Continue',
+      //                   style: GoogleFonts.tasaOrbiter(
+      //                     fontSize: 16.sp,
+      //                     fontWeight: FontWeight.w700,
+      //                     letterSpacing: 0.1,
+      //                   ),
+      //                 ),
+      //         ),
+      //       ),
+      //     ),
+      //   ],
+      // ),
       child: Row(
         children: [
-          Expanded(
-            child: SizedBox(
-              height: 40.h,
-              child: OutlinedButton(
-                onPressed: _handleSkip,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: _Palette.ink,
-                  side: const BorderSide(color: _Palette.trackBg, width: 1.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28.r),
-                  ),
-                ),
-                child: Text(
-                  'Skip',
-                  style: GoogleFonts.tasaOrbiter(fontSize: 16.sp, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: SizedBox(
-              height: 40.h,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _handleContinue,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-                  disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
-                  foregroundColor: _Palette.subtleWhite,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28.r),
-                  ),
-                ),
-                child: _isSubmitting
-                    ? SizedBox(
-                        width: 22.w,
-                        height: 22.w,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2.4,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.subtleWhite,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        'Continue',
-                        style: GoogleFonts.tasaOrbiter(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.1,
-                        ),
+              Expanded(
+                child: SizedBox(
+                  height: 40.h,
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : _handleContinue,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _Palette.coral,
+                      disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
+                      foregroundColor: _Palette.subtleWhite,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28.r),
                       ),
+                    ),
+                    child: _isSubmitting
+                        ? SizedBox(
+                            width: 22.w,
+                            height: 22.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _Palette.subtleWhite,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'Continue',
+                            style: GoogleFonts.tasaOrbiter(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                  ),
+                ),
               ),
-            ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: SizedBox(
+                  height: 40.h,
+                  child: OutlinedButton(
+                    onPressed: _handleSkip,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _Palette.coral,
+                      disabledForegroundColor: _Palette.coral.withOpacity(0.6),
+                      side: BorderSide(color: _Palette.coral, width: 1.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28.r),
+                      ),
+                    ),
+                    child: _isSkipping
+                        ? SizedBox(
+                            width: 22.w,
+                            height: 22.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _Palette.coral,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'Skip',
+                            style: GoogleFonts.tasaOrbiter(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

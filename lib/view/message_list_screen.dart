@@ -24,7 +24,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
     ),
     _Conversation(
       name: 'Ananya Reddy',
-      image: 'assets/image/ananya.png',
+      image: 'assets/image/archana.png',
       lastMessage: 'Sounds good, talk soon!',
       time: 'Yesterday',
       unreadCount: 0,
@@ -32,7 +32,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
     ),
     _Conversation(
       name: 'Meera Nair',
-      image: 'assets/image/meera.png',
+      image: 'assets/image/riys.png',
       lastMessage: 'Typing…',
       time: '9:40 AM',
       unreadCount: 0,
@@ -41,7 +41,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
     ),
     _Conversation(
       name: 'Kavya Iyer',
-      image: 'assets/image/kavya.png',
+      image: 'assets/image/user2.png',
       lastMessage: 'Thank you for accepting my interest 😊',
       time: 'Mon',
       unreadCount: 5,
@@ -49,7 +49,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
     ),
     _Conversation(
       name: 'Divya Menon',
-      image: 'assets/image/divya.png',
+      image: 'assets/image/user3.png',
       lastMessage: 'Can we connect on a call tomorrow?',
       time: 'Sun',
       unreadCount: 0,

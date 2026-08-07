@@ -62,6 +62,7 @@ class AppColors {
 
   static const Color coral = Color(0xFFFF3356);
   static const Color coralDark = Color(0xFFE01F42);
+  static const Color coralLight = Color(0xFFFFEEF1);
   static const Color ink = Color(0xFF1A1A1A);
   static const Color subtleWhite = Color(0xFFFFFFFF);
 

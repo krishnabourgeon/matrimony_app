@@ -1,12 +1,12 @@
 // ─── Main Shell — Floating Bottom Navigation ──────────────────────────────────
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:matrimony_app/view/chat_screen.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/dashboard_screen.dart';
-import 'package:matrimony_app/view/interest_screen.dart';
+import 'package:matrimony_app/view/manage_request_screen.dart';
 import 'package:matrimony_app/view/matches_screen.dart';
-import 'package:matrimony_app/view/profile_screen.dart';
-import 'package:matrimony_app/view/search_screen.dart';
+import 'package:matrimony_app/view/message_list_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -20,9 +20,8 @@ class _MainShellState extends State<MainShell> {
   final List<Widget> _pages = const [
     DashboardScreen(),
     MatchesScreen(),
-    SearchScreen(),
-    InterestsScreen(),
-    MyProfileScreen(),
+    ManageRequestScreen(),
+    ChatListScreen()
   ];
 
   @override
@@ -34,7 +33,6 @@ class _MainShellState extends State<MainShell> {
       ),
       child: Scaffold(
         backgroundColor: AppColors.background,
-        extendBody: true,
         body: IndexedStack(index: _currentIndex, children: _pages),
         bottomNavigationBar: _FloatingBottomNav(
           currentIndex: _currentIndex,
@@ -45,7 +43,7 @@ class _MainShellState extends State<MainShell> {
   }
 }
 
-// ─── Floating Pill-style Bottom Navigation ────────────────────────────────────
+// ─── Flat Bottom Navigation — Home / Matches / Inbox / Chat ──────────────────
 
 class _FloatingBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -53,85 +51,68 @@ class _FloatingBottomNav extends StatelessWidget {
   const _FloatingBottomNav({required this.currentIndex, required this.onTap});
 
   static const _items = [
-    _NavItem(Icons.home_rounded,           Icons.home_outlined,           'Home'),
-    _NavItem(Icons.favorite_rounded,       Icons.favorite_border_rounded, 'Matches'),
-    _NavItem(Icons.search_rounded,         Icons.search_rounded,          'Search'),
-    _NavItem(Icons.volunteer_activism,     Icons.volunteer_activism_outlined, 'Interests'),
-    _NavItem(Icons.person_rounded,         Icons.person_outline_rounded,  'Profile'),
+    _NavItem(label: 'Home', icon: Icons.home_rounded),
+    _NavItem(label: 'Matches', asset: 'assets/image/heart_check.png'),
+    _NavItem(label: 'Inbox', asset: 'assets/image/supervisor_account.png'),
+    _NavItem(label: 'Chat', asset: 'assets/image/supervisor_account (1).png'),
   ];
 
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).padding.bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, bottom + 12),
-      child: Container(
-        height: 64,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppColors.r32),
-          boxShadow: AppColors.shadowNav,
-        ),
-        child: Row(
-          children: List.generate(_items.length, (i) {
-            final item = _items[i];
-            final selected = i == currentIndex;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => onTap(i),
-                behavior: HitTestBehavior.opaque,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOutCubic,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOutCubic,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: selected ? 16 : 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppColors.primaryLight
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(
-                          selected ? item.activeIcon : item.icon,
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.textHint,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                          color: selected ? AppColors.primary : AppColors.textHint,
-                        ),
-                        child: Text(item.label),
-                      ),
-                    ],
-                  ),
-                ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.divider)),
+      ),
+      padding: EdgeInsets.fromLTRB(8, 10, 8, bottom + 10),
+      child: Row(
+        children: List.generate(_items.length, (i) {
+          final item = _items[i];
+          final selected = i == currentIndex;
+          final color = selected ? AppColors.coral : AppColors.textHint;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onTap(i),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  item.asset != null
+                      ? _NavIcon(item.asset!, color: color)
+                      : Icon(item.icon, color: color, size: 23),
+                  const SizedBox(height: 4),
+                  Text(item.label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        color: color,
+                      )),
+                ],
               ),
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ),
     );
   }
 }
 
+// ── Tints a flat icon asset (heart_check.png etc.) to the given color via its alpha mask ──
+class _NavIcon extends StatelessWidget {
+  final String asset;
+  final Color color;
+  const _NavIcon(this.asset, {required this.color});
+  @override
+  Widget build(BuildContext context) => ColorFiltered(
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+        child: Image.asset(asset, width: 23, height: 23, fit: BoxFit.contain),
+      );
+}
+
 class _NavItem {
-  final IconData activeIcon;
-  final IconData icon;
   final String label;
-  const _NavItem(this.activeIcon, this.icon, this.label);
+  final IconData? icon;
+  final String? asset;
+  const _NavItem({required this.label, this.icon, this.asset});
 }

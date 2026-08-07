@@ -14,7 +14,6 @@
 // import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 // import 'package:matrimony_app/view/login_screen.dart';
 
-
 // class HoroscopeScreen extends StatefulWidget {
 //   const HoroscopeScreen({super.key});
 
@@ -320,9 +319,6 @@
 //   }
 // }
 
-
-
-
 // ════════════════════════════════════════════════════════════════
 //  HOROSCOPE DETAILS
 // ════════════════════════════════════════════════════════════════
@@ -331,6 +327,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/login_screen.dart';
+import 'package:matrimony_app/view/success_screen.dart';
 
 /// Brand colors used on this screen — mirrors the other onboarding screens' palette.
 class _Palette {
@@ -361,17 +358,40 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   String? _sudha; // 'Yes' | 'No' | 'Dont Know'
   String? _dosha; // 'Yes' | 'No' | 'Dont Know'
   String? _starOnly; // 'Yes' | 'No'
-  String? _horoMatch; // 'Important' | 'Preferable' | "Don't Want" | 'Not Necessary'
+  String?
+  _horoMatch; // 'Important' | 'Preferable' | "Don't Want" | 'Not Necessary'
 
   bool _isSubmitting = false;
   bool _isSkipping = false;
 
   static const List<String> _birthStars = [
-    'Ashwathi', 'Bharani', 'Karthika', 'Rohini', 'Makayiram', 'Thiruvathira',
-    'Punartham', 'Pooyam', 'Ayilyam', 'Makam', 'Pooram', 'Uthram',
-    'Atham', 'Chithira', 'Chothi', 'Vishakham', 'Anizham', 'Thrikketta',
-    'Moolam', 'Pooradam', 'Uthradam', 'Thiruvonam', 'Avittam', 'Chathayam',
-    'Pooruruttathi', 'Uthrattathi', 'Revathi',
+    'Ashwathi',
+    'Bharani',
+    'Karthika',
+    'Rohini',
+    'Makayiram',
+    'Thiruvathira',
+    'Punartham',
+    'Pooyam',
+    'Ayilyam',
+    'Makam',
+    'Pooram',
+    'Uthram',
+    'Atham',
+    'Chithira',
+    'Chothi',
+    'Vishakham',
+    'Anizham',
+    'Thrikketta',
+    'Moolam',
+    'Pooradam',
+    'Uthradam',
+    'Thiruvonam',
+    'Avittam',
+    'Chathayam',
+    'Pooruruttathi',
+    'Uthrattathi',
+    'Revathi',
   ];
 
   @override
@@ -392,6 +412,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
       //_showSuccess();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AllSetScreen()),
+      );
     });
   }
 
@@ -404,6 +428,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
     Future.delayed(const Duration(milliseconds: 900), () {
       if (!mounted) return;
       setState(() => _isSkipping = false);
+       Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AllSetScreen()),
+      );
       //_showSuccess();
     });
   }
@@ -412,7 +440,9 @@ class _HoroscopeState extends State<HoroscopeScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
         backgroundColor: _Palette.subtleWhite,
         title: Row(
           children: [
@@ -430,7 +460,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         ),
         content: Text(
           'Your registration is complete. Login to find your perfect match!',
-          style: GoogleFonts.tasaOrbiter(color: _Palette.hintText, fontSize: 13.sp),
+          style: GoogleFonts.tasaOrbiter(
+            color: _Palette.hintText,
+            fontSize: 13.sp,
+          ),
         ),
         actions: [
           TextButton(
@@ -492,7 +525,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                             children: [
                               _FieldLabel('Date of Birth as per horoscope'),
                               SizedBox(height: 8.h),
-                              _buildTextField(controller: _dobCtrl, hint: 'DD-MM-YYYY'),
+                              _buildTextField(
+                                controller: _dobCtrl,
+                                hint: 'DD-MM-YYYY',
+                              ),
                             ],
                           ),
                         ),
@@ -507,7 +543,8 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                                 hint: 'Select Birth Star',
                                 value: _birthStar,
                                 items: _birthStars,
-                                onChanged: (v) => setState(() => _birthStar = v),
+                                onChanged: (v) =>
+                                    setState(() => _birthStar = v),
                               ),
                             ],
                           ),
@@ -528,7 +565,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildTextField(controller: _timeCtrl, hint: ''),
+                                    child: _buildTextField(
+                                      controller: _timeCtrl,
+                                      hint: '',
+                                    ),
                                   ),
                                   SizedBox(width: 8.w),
                                   SizedBox(
@@ -537,7 +577,8 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                                       hint: 'AM',
                                       value: _amPm,
                                       items: const ['AM', 'PM'],
-                                      onChanged: (v) => setState(() => _amPm = v ?? 'AM'),
+                                      onChanged: (v) =>
+                                          setState(() => _amPm = v ?? 'AM'),
                                     ),
                                   ),
                                 ],
@@ -552,7 +593,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                             children: [
                               _FieldLabel('Location of birth'),
                               SizedBox(height: 8.h),
-                              _buildTextField(controller: _locCtrl, hint: 'Enter the location'),
+                              _buildTextField(
+                                controller: _locCtrl,
+                                hint: 'Enter the location',
+                              ),
                             ],
                           ),
                         ),
@@ -586,7 +630,12 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                     SizedBox(height: 18.h),
                     _buildRadioQuestion(
                       question: 'Horoscope Matches',
-                      options: const ['Important', 'Preferable', "Don't Want", 'Not Necessary'],
+                      options: const [
+                        'Important',
+                        'Preferable',
+                        "Don't Want",
+                        'Not Necessary',
+                      ],
                       selected: _horoMatch,
                       onSelect: (v) => setState(() => _horoMatch = v),
                     ),
@@ -620,7 +669,11 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 color: _Palette.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: _Palette.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -657,12 +710,20 @@ class _HoroscopeState extends State<HoroscopeScreen> {
       ),
       child: TextField(
         controller: controller,
-        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          color: _Palette.ink,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           isDense: true,
           isCollapsed: true,
           hintText: hint,
-          hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+          hintStyle: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            color: _Palette.hintText,
+            fontWeight: FontWeight.w400,
+          ),
           border: InputBorder.none,
         ),
       ),
@@ -690,7 +751,11 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         child: DropdownButtonFormField<String>(
           initialValue: value,
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: _Palette.ink,
+            size: 22.sp,
+          ),
           decoration: InputDecoration(
             border: InputBorder.none,
             isDense: true,
@@ -698,13 +763,24 @@ class _HoroscopeState extends State<HoroscopeScreen> {
           ),
           hint: Text(
             hint,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: _Palette.hintText,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            color: _Palette.ink,
+            fontWeight: FontWeight.w500,
+          ),
           dropdownColor: _Palette.subtleWhite,
           borderRadius: BorderRadius.circular(14.r),
           items: items
-              .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))
+              .map(
+                (item) =>
+                    DropdownMenuItem<String>(value: item, child: Text(item)),
+              )
               .toList(),
           onChanged: onChanged,
         ),
@@ -761,7 +837,9 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                       option,
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 12.sp,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                         color: _Palette.ink,
                       ),
                     ),

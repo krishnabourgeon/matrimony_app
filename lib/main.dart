@@ -3,15 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:matrimony_app/view/splash_screen.dart';
 import 'package:flutter/services.dart';
 
-
 void main() {
-   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
   runApp(const VivahBharathApp());
 }
-
 
 class VivahBharathApp extends StatelessWidget {
   const VivahBharathApp({super.key});
@@ -22,10 +22,7 @@ class VivahBharathApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: child,
-        );
+        return MaterialApp(debugShowCheckedModeBanner: false, home: child);
       },
       child: SplashScreen(),
     );
@@ -74,7 +71,7 @@ class VivahBharathApp extends StatelessWidget {
 //       title: 'VivahBharath',
 //       debugShowCheckedModeBanner: false,
 //       theme: ThemeData(
-//         fontFamily: 'Poppins',
+//         fontFamily: 'tasaOrbiter',
 //         useMaterial3: true,
 //         colorScheme: ColorScheme.fromSeed(
 //           seedColor: C.primaryDark,
@@ -87,7 +84,7 @@ class VivahBharathApp extends StatelessWidget {
 //           elevation: 0,
 //           iconTheme: IconThemeData(color: C.primaryDark),
 //           titleTextStyle: TextStyle(
-//             fontFamily: 'Poppins',
+//             fontFamily: 'tasaOrbiter',
 //             fontSize: 16,
 //             fontWeight: FontWeight.w700,
 //             color: C.primaryDark,
@@ -137,12 +134,12 @@ class VivahBharathApp extends StatelessWidget {
 //       text: TextSpan(children: [
 //         TextSpan(
 //           text: 'vivah',
-//           style: TextStyle(fontFamily: 'Poppins', fontSize: fontSize,
+//           style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: fontSize,
 //               fontWeight: FontWeight.w300, color: C.primary),
 //         ),
 //         TextSpan(
 //           text: 'bharath',
-//           style: TextStyle(fontFamily: 'Poppins', fontSize: fontSize,
+//           style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: fontSize,
 //               fontWeight: FontWeight.w800, color: C.primaryDark),
 //         ),
 //       ]),
@@ -189,7 +186,7 @@ class VivahBharathApp extends StatelessWidget {
 //         ),
 //         child: Text(label,
 //           textAlign: TextAlign.center,
-//           style: const TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//           style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //               fontWeight: FontWeight.w700, color: Colors.white)),
 //       ),
 //     );
@@ -214,7 +211,7 @@ class VivahBharathApp extends StatelessWidget {
 //         ),
 //         child: Text(label,
 //           textAlign: TextAlign.center,
-//           style: const TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//           style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //               fontWeight: FontWeight.w600, color: C.primary)),
 //       ),
 //     );
@@ -258,7 +255,7 @@ class VivahBharathApp extends StatelessWidget {
 //         borderRadius: BorderRadius.circular(20),
 //       ),
 //       child: Text(label,
-//         style: TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //             fontWeight: FontWeight.w600,
 //             color: active ? Colors.white : C.primaryDark)),
 //     );
@@ -275,7 +272,7 @@ class VivahBharathApp extends StatelessWidget {
 //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
 //       decoration: BoxDecoration(color: C.greenBg, borderRadius: BorderRadius.circular(20)),
 //       child: Text(label,
-//         style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//         style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //             fontWeight: FontWeight.w700, color: C.green)),
 //     );
 //   }
@@ -295,7 +292,7 @@ class VivahBharathApp extends StatelessWidget {
 //         borderRadius: BorderRadius.circular(20),
 //       ),
 //       child: Text(label,
-//         style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//         style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //             fontWeight: FontWeight.w700, color: Colors.white)),
 //     );
 //   }
@@ -322,10 +319,10 @@ class VivahBharathApp extends StatelessWidget {
 //         controller: controller,
 //         obscureText: obscure,
 //         keyboardType: keyboardType,
-//         style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.primaryDark),
+//         style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.primaryDark),
 //         decoration: InputDecoration(
 //           hintText: hint,
-//           hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textLight),
+//           hintStyle: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textLight),
 //           prefixIcon: prefixIcon != null
 //               ? Icon(prefixIcon, color: C.secondary, size: 18)
 //               : null,
@@ -359,10 +356,10 @@ class VivahBharathApp extends StatelessWidget {
 //         child: DropdownButton<String>(
 //           value: value,
 //           hint: Text(hint,
-//             style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textLight)),
+//             style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textLight)),
 //           isExpanded: true,
 //           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: C.secondary),
-//           style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.primaryDark),
+//           style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.primaryDark),
 //           dropdownColor: Colors.white,
 //           borderRadius: BorderRadius.circular(12),
 //           items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
@@ -392,13 +389,13 @@ class VivahBharathApp extends StatelessWidget {
 //         controller: controller,
 //         maxLines: 4,
 //         maxLength: maxLength,
-//         style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.primaryDark),
+//         style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.primaryDark),
 //         decoration: InputDecoration(
 //           hintText: hint,
-//           hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textLight),
+//           hintStyle: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textLight),
 //           border: InputBorder.none,
 //           contentPadding: const EdgeInsets.all(14),
-//           counterStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 10, color: C.textLight),
+//           counterStyle: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10, color: C.textLight),
 //         ),
 //       ),
 //     );
@@ -424,7 +421,7 @@ class VivahBharathApp extends StatelessWidget {
 //           borderRadius: BorderRadius.circular(10),
 //         ),
 //         child: Text(label,
-//           style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//           style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //               fontWeight: FontWeight.w600,
 //               color: active ? Colors.white : C.primaryDark)),
 //       ),
@@ -451,7 +448,7 @@ class VivahBharathApp extends StatelessWidget {
 //           borderRadius: BorderRadius.circular(8),
 //         ),
 //         child: Text(label,
-//           style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//           style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //               fontWeight: FontWeight.w500,
 //               color: active ? C.primary : C.primaryDark)),
 //       ),
@@ -495,7 +492,7 @@ class VivahBharathApp extends StatelessWidget {
 //                     Icon(icon, color: active ? C.primary : C.textLight, size: 22),
 //                     const SizedBox(height: 2),
 //                     Text(label,
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                           fontWeight: FontWeight.w500,
 //                           color: active ? C.primary : C.textLight)),
 //                     if (active) ...[
@@ -534,7 +531,7 @@ class VivahBharathApp extends StatelessWidget {
 //             Icon(Icons.arrow_back_ios_rounded, color: C.primary, size: 16),
 //             SizedBox(width: 6),
 //             Text('Create your profile',
-//               style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textMuted)),
+//               style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textMuted)),
 //           ]),
 //         ),
 //         const SizedBox(height: 16),
@@ -562,7 +559,7 @@ class VivahBharathApp extends StatelessWidget {
 //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //           children: _labels.asMap().entries.map((e) => Text(e.value,
 //             style: TextStyle(
-//               fontFamily: 'Poppins', fontSize: 9,
+//               fontFamily: 'tasaOrbiter', fontSize: 9,
 //               color: e.key <= currentStep ? C.primary : C.textMuted,
 //               fontWeight: e.key == currentStep ? FontWeight.w700 : FontWeight.w400,
 //             ))).toList(),
@@ -587,7 +584,7 @@ class VivahBharathApp extends StatelessWidget {
 //             color: active ? C.primary : C.border, width: 2) : null,
 //       ),
 //       child: Center(child: Text(label,
-//         style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //             fontWeight: FontWeight.w700,
 //             color: done ? Colors.white : active ? C.primary : C.textLight))),
 //     );
@@ -616,7 +613,7 @@ class VivahBharathApp extends StatelessWidget {
 //       child: Row(children: [
 //         Expanded(
 //           child: Text(title,
-//             style: const TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//             style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                 fontWeight: FontWeight.w700, color: Colors.white)),
 //         ),
 //         const Text('👫', style: TextStyle(fontSize: 32)),
@@ -687,15 +684,15 @@ class VivahBharathApp extends StatelessWidget {
 //                   const SizedBox(height: 24),
 //                   RichText(text: const TextSpan(children: [
 //                     TextSpan(text: 'vivah',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 28,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 28,
 //                           fontWeight: FontWeight.w300, color: Color(0xFFFFD0CB))),
 //                     TextSpan(text: 'bharath',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 28,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 28,
 //                           fontWeight: FontWeight.w800, color: Colors.white)),
 //                   ])),
 //                   const SizedBox(height: 6),
 //                   Text('TRUSTED KERALA MATRIMONY',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                         letterSpacing: 2.5, color: Colors.white.withOpacity(0.7))),
 //                   const SizedBox(height: 20),
 //                   Row(
@@ -782,7 +779,7 @@ class VivahBharathApp extends StatelessWidget {
 //               child: TextButton(
 //                 onPressed: _goLogin,
 //                 child: const Text('Skip',
-//                   style: TextStyle(fontFamily: 'Poppins', color: C.textMuted, fontSize: 13)),
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', color: C.textMuted, fontSize: 13)),
 //               ),
 //             ),
 //           ],
@@ -834,12 +831,12 @@ class VivahBharathApp extends StatelessWidget {
 //             const SizedBox(height: 18),
 //             Text(title,
 //               textAlign: TextAlign.center,
-//               style: const TextStyle(fontFamily: 'Poppins', fontSize: 25,
+//               style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 25,
 //                   fontWeight: FontWeight.w700, color: C.primaryDark)),
 //             const SizedBox(height: 8),
 //             Text(desc,
 //               textAlign: TextAlign.center,
-//               style: const TextStyle(fontFamily: 'Poppins', fontSize: 18,
+//               style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 18,
 //                   color: C.textMuted, height: 1.6)),
 //             const SizedBox(height: 20),
 //             PrimaryBtn(label: btnLabel, onTap: state?.nextPage),
@@ -865,9 +862,9 @@ class VivahBharathApp extends StatelessWidget {
 //           MaterialPageRoute(builder: (_) => const LoginScreen())),
 //       child: const Text.rich(TextSpan(children: [
 //         TextSpan(text: 'Already have account? ',
-//           style: TextStyle(fontFamily: 'Poppins', color: C.textMuted, fontSize: 13)),
+//           style: TextStyle(fontFamily: 'tasaOrbiter', color: C.textMuted, fontSize: 13)),
 //         TextSpan(text: 'Sign In',
-//           style: TextStyle(fontFamily: 'Poppins', color: C.primary,
+//           style: TextStyle(fontFamily: 'tasaOrbiter', color: C.primary,
 //               fontWeight: FontWeight.w700, fontSize: 13)),
 //       ])),
 //     ),
@@ -1082,7 +1079,7 @@ class VivahBharathApp extends StatelessWidget {
 //               const LogoTitle(fontSize: 22),
 //               const SizedBox(height: 4),
 //               const Text('KERALA MATRIMONY',
-//                 style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                 style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                     letterSpacing: 1.5, color: C.textMuted)),
 //             ]),
 //             const SizedBox(height: 36),
@@ -1097,21 +1094,21 @@ class VivahBharathApp extends StatelessWidget {
 //               padding: const EdgeInsets.all(24),
 //               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                 const Text('Welcome back ',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 22,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 22,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                 const SizedBox(height: 4),
 //                 const Text('Sign in to continue your journey',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textMuted)),
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textMuted)),
 //                 const SizedBox(height: 22),
 //                 const Text('Mobile / Email',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                       fontWeight: FontWeight.w600, color: C.primaryDark)),
 //                 const SizedBox(height: 6),
 //                 const AppInput(hint: '+91 98765 43210',
 //                     prefixIcon: Icons.phone_android_rounded),
 //                 const SizedBox(height: 14),
 //                 const Text('Password',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                       fontWeight: FontWeight.w600, color: C.primaryDark)),
 //                 const SizedBox(height: 6),
 //                 const AppInput(hint: '••••••••',
@@ -1121,7 +1118,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   alignment: Alignment.centerRight,
 //                   child: TextButton(onPressed: () {},
 //                     child: const Text('Forgot Password?',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                           fontWeight: FontWeight.w600, color: C.primary))),
 //                 ),
 //                 PrimaryBtn(
@@ -1138,11 +1135,11 @@ class VivahBharathApp extends StatelessWidget {
 //                   ),
 //                   padding: const EdgeInsets.all(13),
 //                   child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-//                     Text('G  ', style: TextStyle(fontFamily: 'Poppins',
+//                     Text('G  ', style: TextStyle(fontFamily: 'tasaOrbiter',
 //                         fontSize: 14, fontWeight: FontWeight.w700,
 //                         color: Color(0xFFEA4335))),
 //                     Text('Continue with Google',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                           fontWeight: FontWeight.w600, color: C.primaryDark)),
 //                   ]),
 //                 ),
@@ -1153,10 +1150,10 @@ class VivahBharathApp extends StatelessWidget {
 //                         MaterialPageRoute(builder: (_) => const RegisterBasicScreen())),
 //                     child: const Text.rich(TextSpan(children: [
 //                       TextSpan(text: 'New here? ',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                             color: C.textMuted)),
 //                       TextSpan(text: 'Create Account',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                             fontWeight: FontWeight.w700, color: C.primary)),
 //                     ])),
 //                   ),
@@ -1210,7 +1207,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
 //                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                   const Text('Provide your basic information',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 15,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 15,
 //                         fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                   const SizedBox(height: 18),
 
@@ -1273,7 +1270,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   ),
 //                   const SizedBox(height: 4),
 //                   const Text('eg. Abcd@123 minimum 8 characters – maximum 20',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: C.textLight)),
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10, color: C.textLight)),
 //                   const SizedBox(height: 14),
 
 //                   // Confirm Password
@@ -1309,7 +1306,7 @@ class VivahBharathApp extends StatelessWidget {
 //     return Padding(
 //       padding: const EdgeInsets.only(bottom: 6),
 //       child: Text(text,
-//         style: const TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//         style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //             fontWeight: FontWeight.w600, color: C.primaryDark)),
 //     );
 //   }
@@ -1336,10 +1333,10 @@ class VivahBharathApp extends StatelessWidget {
 //           child: TextField(
 //             controller: controller,
 //             obscureText: !show,
-//             style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.primaryDark),
+//             style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.primaryDark),
 //             decoration: InputDecoration(
 //               hintText: hint,
-//               hintStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textLight),
+//               hintStyle: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textLight),
 //               border: InputBorder.none,
 //               prefixIcon: const Icon(Icons.lock_rounded, color: C.secondary, size: 18),
 //               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
@@ -1402,7 +1399,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
 //                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                   const Text('Tell about your Community & Location',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 15,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 15,
 //                         fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                   const SizedBox(height: 18),
 
@@ -1428,7 +1425,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   Row(children: [
 //                     const Expanded(child: Text(
 //                       'Looking for matches from other castes\n(other than own sub castes)?',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 11, color: C.primaryDark))),
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11, color: C.primaryDark))),
 //                     const SizedBox(width: 8),
 //                     SizedBox(
 //                       width: 100,
@@ -1506,7 +1503,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   // Current address toggle
 //                   Row(children: [
 //                     const Expanded(child: Text('Is this your current address?',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 12, color: C.primaryDark))),
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12, color: C.primaryDark))),
 //                     ToggleBtn(label: 'Yes', active: _isSameAddress,
 //                       onTap: () => setState(() => _isSameAddress = true)),
 //                     const SizedBox(width: 8),
@@ -1522,7 +1519,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   ),
 //                   const SizedBox(height: 10),
 //                   const Text('After completing the registration, you can edit the profile from your personal dashboard.',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: C.primary)),
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10, color: C.primary)),
 //                 ]),
 //               ),
 //             ),
@@ -1579,7 +1576,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
 //                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                   const Text('Professional Details help us to find the best companion',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 15,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 15,
 //                         fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                   const SizedBox(height: 18),
 
@@ -1697,7 +1694,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   ),
 //                   const SizedBox(height: 10),
 //                   const Text('After completing the registration you can edit the profile from your personal dashboard',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: C.primary)),
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10, color: C.primary)),
 //                 ]),
 //               ),
 //             ),
@@ -1752,7 +1749,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
 //                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                   const Text('Personal & Physical Details',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 15,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 15,
 //                         fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                   const SizedBox(height: 18),
 
@@ -1794,7 +1791,7 @@ class VivahBharathApp extends StatelessWidget {
 //                         borderRadius: BorderRadius.circular(8),
 //                       ),
 //                       child: Center(child: Text('$_children',
-//                         style: const TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//                         style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //                             fontWeight: FontWeight.w700, color: C.primaryDark))),
 //                     ),
 //                     GestureDetector(
@@ -1914,7 +1911,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   ]),
 //                   const SizedBox(height: 10),
 //                   const Text('After completing the registration you can edit the profile from your personal dashboard.',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 10, color: C.primary)),
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10, color: C.primary)),
 //                 ]),
 //               ),
 //             ),
@@ -1948,21 +1945,21 @@ class VivahBharathApp extends StatelessWidget {
 //               padding: const EdgeInsets.all(22),
 //               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                 const Text('Education & Career',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                 const SizedBox(height: 18),
 //                 const Text('Highest Qualification',
-//                   style: TextStyle(fontFamily:'Poppins', fontSize: 11, color: C.textMuted)),
+//                   style: TextStyle(fontFamily:'tasaOrbiter', fontSize: 11, color: C.textMuted)),
 //                 const SizedBox(height: 6),
 //                 const AppInput(hint: 'B.Tech — Computer Science'),
 //                 const SizedBox(height: 14),
 //                 const Text('Occupation',
-//                   style: TextStyle(fontFamily:'Poppins', fontSize: 11, color: C.textMuted)),
+//                   style: TextStyle(fontFamily:'tasaOrbiter', fontSize: 11, color: C.textMuted)),
 //                 const SizedBox(height: 6),
 //                 const AppInput(hint: 'Software Engineer'),
 //                 const SizedBox(height: 14),
 //                 const Text('Annual Income',
-//                   style: TextStyle(fontFamily:'Poppins', fontSize: 11, color: C.textMuted)),
+//                   style: TextStyle(fontFamily:'tasaOrbiter', fontSize: 11, color: C.textMuted)),
 //                 const SizedBox(height: 6),
 //                 const AppInput(hint: '₹8 – 12 Lakhs'),
 //                 const Spacer(),
@@ -2006,16 +2003,16 @@ class VivahBharathApp extends StatelessWidget {
 //             ),
 //             const SizedBox(height: 22),
 //             const Text('Verify Mobile',
-//               style: TextStyle(fontFamily: 'Poppins', fontSize: 22,
+//               style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 22,
 //                   fontWeight: FontWeight.w700, color: C.primaryDark)),
 //             const SizedBox(height: 8),
 //             const Text.rich(
 //               TextSpan(children: [
 //                 TextSpan(text: "We've sent a 6-digit OTP to\n",
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                       color: C.textMuted, height: 1.7)),
 //                 TextSpan(text: '+91 98765 43210',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //               ]),
 //               textAlign: TextAlign.center,
@@ -2041,9 +2038,9 @@ class VivahBharathApp extends StatelessWidget {
 //             const SizedBox(height: 18),
 //             const Text.rich(TextSpan(children: [
 //               TextSpan(text: "Didn't receive? ",
-//                 style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textMuted)),
+//                 style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textMuted)),
 //               TextSpan(text: 'Resend in 00:42',
-//                 style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                 style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                     fontWeight: FontWeight.w600, color: C.primary)),
 //             ])),
 //           ]),
@@ -2069,7 +2066,7 @@ class VivahBharathApp extends StatelessWidget {
 //       ),
 //       child: Center(
 //         child: Text(filled ? value : '·',
-//           style: TextStyle(fontFamily: 'Poppins',
+//           style: TextStyle(fontFamily: 'tasaOrbiter',
 //               fontSize: filled ? 20 : 26, fontWeight: FontWeight.w700,
 //               color: filled ? C.primaryDark : C.border)),
 //       ),
@@ -2137,7 +2134,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 width: 36, height: 36,
 //                 decoration: const BoxDecoration(color: C.primary, shape: BoxShape.circle),
 //                 child: const Center(child: Text('A',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //                       fontWeight: FontWeight.w700, color: Colors.white))),
 //               ),
 //             ]),
@@ -2157,11 +2154,11 @@ class VivahBharathApp extends StatelessWidget {
 //                   child: const Row(children: [
 //                     Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                       Text('Hello, Arjun! 👋',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 15,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 15,
 //                             fontWeight: FontWeight.w700, color: Colors.white)),
 //                       SizedBox(height: 4),
 //                       Text('12 new matches today ✨',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //                             color: Colors.white70)),
 //                     ]),
 //                     Spacer(),
@@ -2178,13 +2175,13 @@ class VivahBharathApp extends StatelessWidget {
 //                     Icon(Icons.search_rounded, color: C.textLight, size: 18),
 //                     SizedBox(width: 8),
 //                     Text('Search by name, community...',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                           color: C.textLight)),
 //                   ]),
 //                 ),
 //                 const SizedBox(height: 20),
 //                 const Text('Recommended Matches',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                 const SizedBox(height: 10),
 //                 Row(children: [
@@ -2202,7 +2199,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 ]),
 //                 const SizedBox(height: 20),
 //                 const Text('Recently Viewed',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                 const SizedBox(height: 10),
 //                 Row(children: [
@@ -2226,10 +2223,10 @@ class VivahBharathApp extends StatelessWidget {
 //                       SizedBox(width: 12),
 //                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                         Text('Wedding Stories',
-//                           style: TextStyle(fontFamily:'Poppins', fontSize: 13,
+//                           style: TextStyle(fontFamily:'tasaOrbiter', fontSize: 13,
 //                               fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                         Text('Real couples, real Kerala love stories',
-//                           style: TextStyle(fontFamily:'Poppins', fontSize: 11,
+//                           style: TextStyle(fontFamily:'tasaOrbiter', fontSize: 11,
 //                               color: C.textMuted)),
 //                       ])),
 //                       Icon(Icons.chevron_right_rounded, color: C.border),
@@ -2267,9 +2264,9 @@ class VivahBharathApp extends StatelessWidget {
 //                 style: const TextStyle(fontSize: 32))),
 //           ),
 //           const SizedBox(height: 8),
-//           Text(name, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//           Text(name, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //               fontWeight: FontWeight.w700, color: C.primaryDark)),
-//           Text(sub, style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//           Text(sub, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //               color: C.textMuted)),
 //           const SizedBox(height: 6),
 //           BadgeGreen(label: '⭐ $score'),
@@ -2294,7 +2291,7 @@ class VivahBharathApp extends StatelessWidget {
 //           const Padding(
 //             padding: EdgeInsets.fromLTRB(16, 20, 16, 14),
 //             child: Text('Profile Matches',
-//               style: TextStyle(fontFamily: 'Poppins', fontSize: 18,
+//               style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 18,
 //                   fontWeight: FontWeight.w700, color: C.primaryDark)),
 //           ),
 //           Expanded(
@@ -2325,7 +2322,7 @@ class VivahBharathApp extends StatelessWidget {
 //                               padding: const EdgeInsets.symmetric(
 //                                   horizontal: 10, vertical: 4),
 //                               child: const Text('⭐ 94%',
-//                                 style: TextStyle(fontFamily: 'Poppins',
+//                                 style: TextStyle(fontFamily: 'tasaOrbiter',
 //                                     fontSize: 11, fontWeight: FontWeight.w700,
 //                                     color: C.green)),
 //                             ),
@@ -2338,10 +2335,10 @@ class VivahBharathApp extends StatelessWidget {
 //                           child: Column(crossAxisAlignment: CrossAxisAlignment.start,
 //                             children: [
 //                               const Text('Priya Ramachandran, 27',
-//                                 style: TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//                                 style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                                     fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                               const Text('MBBS Doctor · Nair · Kochi',
-//                                 style: TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//                                 style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //                                     color: C.textMuted)),
 //                               const SizedBox(height: 8),
 //                               const Wrap(spacing: 6, runSpacing: 6, children: [
@@ -2384,10 +2381,10 @@ class VivahBharathApp extends StatelessWidget {
 //                   const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
 //                     children: [
 //                       Text('Deepa Menon, 25',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                             fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                       Text('Chartered Accountant · Thrissur',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //                             color: C.textMuted)),
 //                     ])),
 //                   const BadgeGreen(label: '⭐ 89%'),
@@ -2405,10 +2402,10 @@ class VivahBharathApp extends StatelessWidget {
 //                   const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
 //                     children: [
 //                       Text('Ananya Krishna, 24',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                             fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                       Text('Software Engineer · Trivandrum',
-//                         style: TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//                         style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //                             color: C.textMuted)),
 //                     ])),
 //                   const BadgeGreen(label: '⭐ 85%'),
@@ -2438,7 +2435,7 @@ class VivahBharathApp extends StatelessWidget {
 //             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
 //             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //               const Text('Search & Filter',
-//                 style: TextStyle(fontFamily: 'Poppins', fontSize: 18,
+//                 style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 18,
 //                     fontWeight: FontWeight.w700, color: C.primaryDark)),
 //               const SizedBox(height: 12),
 //               Container(
@@ -2450,7 +2447,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   Icon(Icons.search_rounded, color: C.textLight, size: 18),
 //                   SizedBox(width: 8),
 //                   Expanded(child: Text('Search by name, profession...',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                         color: C.textLight))),
 //                   Icon(Icons.tune_rounded, color: C.primary, size: 18),
 //                 ]),
@@ -2516,12 +2513,12 @@ class VivahBharathApp extends StatelessWidget {
 //         const SizedBox(width: 12),
 //         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //           Row(children: [
-//             Text(name, style: const TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//             Text(name, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                 fontWeight: FontWeight.w700, color: C.primaryDark)),
 //             if (verified) ...[const SizedBox(width: 6),
 //               const BadgeGold(label: '✓')],
 //           ]),
-//           Text(sub, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//           Text(sub, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //               color: C.textMuted)),
 //         ])),
 //         BadgeGreen(label: score),
@@ -2556,7 +2553,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   child: const Align(
 //                     alignment: Alignment.centerLeft,
 //                     child: Text('← View Profile',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                           color: Colors.white70)),
 //                   ),
 //                 ),
@@ -2571,10 +2568,10 @@ class VivahBharathApp extends StatelessWidget {
 //                 ),
 //                 const SizedBox(height: 10),
 //                 const Text('Priya Ramachandran',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 18,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 18,
 //                       fontWeight: FontWeight.w700, color: Colors.white)),
 //                 const Text('MBBS Doctor · Kochi',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                       color: Colors.white70)),
 //                 const SizedBox(height: 10),
 //                 const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -2612,7 +2609,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                     const Text(
 //                       'A compassionate MBBS doctor from Kochi, raised in a close-knit Nair family. Loves classical music & travel. 🎵',
-//                       style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                       style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                           color: C.textMuted, height: 1.6)),
 //                     const SizedBox(height: 14),
 //                     const Wrap(spacing: 6, runSpacing: 6, children: [
@@ -2656,7 +2653,7 @@ class VivahBharathApp extends StatelessWidget {
 //       color: Colors.white.withOpacity(0.2),
 //       borderRadius: BorderRadius.circular(20),
 //     ),
-//     child: Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//     child: Text(label, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //         fontWeight: FontWeight.w700, color: Colors.white)),
 //   );
 // }
@@ -2677,7 +2674,7 @@ class VivahBharathApp extends StatelessWidget {
 //             color: Colors.white,
 //             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
 //             child: const Row(children: [
-//               Text('Messages', style: TextStyle(fontFamily: 'Poppins', fontSize: 18,
+//               Text('Messages', style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 18,
 //                   fontWeight: FontWeight.w700, color: C.primaryDark)),
 //               Spacer(),
 //               Icon(Icons.edit_outlined, color: C.primary, size: 22),
@@ -2725,14 +2722,14 @@ class VivahBharathApp extends StatelessWidget {
 //         ),
 //         const SizedBox(width: 12),
 //         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-//           Text(name, style: const TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//           Text(name, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //               fontWeight: FontWeight.w700, color: C.primaryDark)),
-//           Text(msg, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//           Text(msg, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //               color: C.textMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
 //         ])),
 //         const SizedBox(width: 8),
 //         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-//           Text(time, style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//           Text(time, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //               color: C.textLight)),
 //           if (unread > 0) ...[
 //             const SizedBox(height: 5),
@@ -2740,7 +2737,7 @@ class VivahBharathApp extends StatelessWidget {
 //               width: 20, height: 20,
 //               decoration: const BoxDecoration(color: C.primary, shape: BoxShape.circle),
 //               child: Center(child: Text('$unread',
-//                 style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                 style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                     fontWeight: FontWeight.w700, color: Colors.white))),
 //             ),
 //           ],
@@ -2778,12 +2775,12 @@ class VivahBharathApp extends StatelessWidget {
 //               const SizedBox(width: 10),
 //               const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                 Text('Priya Ramachandran',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                 Row(children: [
 //                   CircleAvatar(radius: 4, backgroundColor: Color(0xFF4CAF50)),
 //                   SizedBox(width: 4),
-//                   Text('Online', style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                   Text('Online', style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                       color: Color(0xFF4CAF50))),
 //                 ]),
 //               ])),
@@ -2815,7 +2812,7 @@ class VivahBharathApp extends StatelessWidget {
 //                       borderRadius: BorderRadius.circular(24)),
 //                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
 //                   child: const Text('Type a message…',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                         color: C.textLight)),
 //                 ),
 //               ),
@@ -2857,7 +2854,7 @@ class VivahBharathApp extends StatelessWidget {
 //           border: mine ? null : Border.all(color: C.border),
 //         ),
 //         child: Text(msg,
-//           style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//           style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //               color: mine ? Colors.white : C.primaryDark, height: 1.5)),
 //       ),
 //     );
@@ -2887,18 +2884,18 @@ class VivahBharathApp extends StatelessWidget {
 //                 const Text('💌', style: TextStyle(fontSize: 72)),
 //                 const SizedBox(height: 18),
 //                 const Text('Interest Sent!',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 24,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 24,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark)),
 //                 const SizedBox(height: 10),
 //                 const Text.rich(TextSpan(children: [
 //                   TextSpan(text: 'Your interest has been sent to\n',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                         color: C.textMuted, height: 1.7)),
 //                   TextSpan(text: 'Priya Ramachandran\n',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                         fontWeight: FontWeight.w700, color: C.primaryDark, height: 1.7)),
 //                   TextSpan(text: "You'll be notified when she responds.",
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                         color: C.textMuted, height: 1.7)),
 //                 ]), textAlign: TextAlign.center),
 //                 const SizedBox(height: 26),
@@ -2960,16 +2957,16 @@ class VivahBharathApp extends StatelessWidget {
 //         padding: const EdgeInsets.all(20),
 //         child: Column(children: [
 //           const Text('Unlock your perfect match faster',
-//             style: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: C.textMuted)),
+//             style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13, color: C.textMuted)),
 //           const SizedBox(height: 20),
 //           AppCard(
 //             padding: const EdgeInsets.all(16),
 //             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //               const Row(children: [
 //                 Expanded(child: Text('Free',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                       fontWeight: FontWeight.w700, color: C.primaryDark))),
-//                 Text('₹0', style: TextStyle(fontFamily: 'Poppins', fontSize: 22,
+//                 Text('₹0', style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 22,
 //                     fontWeight: FontWeight.w800, color: C.primaryDark)),
 //               ]),
 //               const SizedBox(height: 8),
@@ -2992,12 +2989,12 @@ class VivahBharathApp extends StatelessWidget {
 //               child: Column(children: [
 //                 const Row(children: [
 //                   Expanded(child: Text('Premium',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                         fontWeight: FontWeight.w700, color: Colors.white))),
 //                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-//                     Text('₹999', style: TextStyle(fontFamily: 'Poppins', fontSize: 22,
+//                     Text('₹999', style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 22,
 //                         fontWeight: FontWeight.w800, color: Colors.white)),
-//                     Text('/ 3 months', style: TextStyle(fontFamily: 'Poppins',
+//                     Text('/ 3 months', style: TextStyle(fontFamily: 'tasaOrbiter',
 //                         fontSize: 10, color: Colors.white70)),
 //                   ]),
 //                 ]),
@@ -3016,7 +3013,7 @@ class VivahBharathApp extends StatelessWidget {
 //                 decoration: BoxDecoration(color: C.gold,
 //                     borderRadius: BorderRadius.circular(20)),
 //                 child: const Text('⭐ MOST POPULAR',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                       fontWeight: FontWeight.w700, color: Colors.white)),
 //               )),
 //             ),
@@ -3033,12 +3030,12 @@ class VivahBharathApp extends StatelessWidget {
 //             child: Column(children: [
 //               const Row(children: [
 //                 Expanded(child: Text('Premium Plus',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                       fontWeight: FontWeight.w700, color: Colors.white))),
 //                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-//                   Text('₹1,799', style: TextStyle(fontFamily: 'Poppins', fontSize: 22,
+//                   Text('₹1,799', style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 22,
 //                       fontWeight: FontWeight.w800, color: Colors.white)),
-//                   Text('/ 6 months', style: TextStyle(fontFamily: 'Poppins',
+//                   Text('/ 6 months', style: TextStyle(fontFamily: 'tasaOrbiter',
 //                       fontSize: 10, color: Colors.white70)),
 //                 ]),
 //               ]),
@@ -3070,7 +3067,7 @@ class VivahBharathApp extends StatelessWidget {
 //       borderRadius: BorderRadius.circular(20),
 //     ),
 //     child: Text(label,
-//       style: const TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//       style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //           color: Colors.white)),
 //   );
 // }
@@ -3144,13 +3141,13 @@ class VivahBharathApp extends StatelessWidget {
 //         ),
 //         const SizedBox(width: 12),
 //         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-//           Text(title, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//           Text(title, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //               fontWeight: FontWeight.w700, color: C.primaryDark)),
 //           const SizedBox(height: 2),
-//           Text(sub, style: const TextStyle(fontFamily: 'Poppins', fontSize: 11,
+//           Text(sub, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 11,
 //               color: C.textMuted)),
 //           const SizedBox(height: 2),
-//           Text(time, style: const TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//           Text(time, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //               color: C.textLight)),
 //         ])),
 //         if (unread)
@@ -3191,10 +3188,10 @@ class VivahBharathApp extends StatelessWidget {
 //               const SizedBox(width: 14),
 //               const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                 Text('Arjun Nair',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 16,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 16,
 //                       fontWeight: FontWeight.w700, color: Colors.white)),
 //                 Text('VB-2024-88921',
-//                   style: TextStyle(fontFamily: 'Poppins', fontSize: 10,
+//                   style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 10,
 //                       color: Colors.white70)),
 //                 SizedBox(height: 4),
 //                 BadgeGold(label: '⭐ Premium'),
@@ -3209,9 +3206,9 @@ class VivahBharathApp extends StatelessWidget {
 //               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 //                 const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
 //                   Text('Profile Complete',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                         fontWeight: FontWeight.w600, color: C.primaryDark)),
-//                   Text('78%', style: TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//                   Text('78%', style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                       fontWeight: FontWeight.w700, color: C.primary)),
 //                 ]),
 //                 const SizedBox(height: 8),
@@ -3259,7 +3256,7 @@ class VivahBharathApp extends StatelessWidget {
 //                   Icon(Icons.logout_rounded, color: C.primary, size: 20),
 //                   SizedBox(width: 12),
 //                   Expanded(child: Text('Logout',
-//                     style: TextStyle(fontFamily: 'Poppins', fontSize: 13,
+//                     style: TextStyle(fontFamily: 'tasaOrbiter', fontSize: 13,
 //                         fontWeight: FontWeight.w700, color: C.primary))),
 //                   Icon(Icons.chevron_right_rounded, color: C.border, size: 18),
 //                 ])),
@@ -3281,7 +3278,7 @@ class VivahBharathApp extends StatelessWidget {
 //     child: Row(children: [
 //       Icon(icon, color: C.secondary, size: 20),
 //       const SizedBox(width: 12),
-//       Expanded(child: Text(label, style: const TextStyle(fontFamily: 'Poppins',
+//       Expanded(child: Text(label, style: const TextStyle(fontFamily: 'tasaOrbiter',
 //           fontSize: 13, fontWeight: FontWeight.w500, color: C.primaryDark))),
 //       const Icon(Icons.chevron_right_rounded, color: C.border, size: 18),
 //     ]),
@@ -3356,23 +3353,23 @@ class VivahBharathApp extends StatelessWidget {
 //           Padding(
 //             padding: const EdgeInsets.all(14),
 //             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-//               Text(title, style: const TextStyle(fontFamily: 'Poppins', fontSize: 14,
+//               Text(title, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 14,
 //                   fontWeight: FontWeight.w700, color: C.primaryDark)),
 //               const SizedBox(height: 4),
-//               Text(desc, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12,
+//               Text(desc, style: const TextStyle(fontFamily: 'tasaOrbiter', fontSize: 12,
 //                   color: C.textMuted, height: 1.5)),
 //               const SizedBox(height: 10),
 //               Row(children: [
 //                 const Icon(Icons.favorite_rounded, color: C.primary, size: 16),
 //                 const SizedBox(width: 4),
-//                 Text(likes, style: const TextStyle(fontFamily: 'Poppins',
+//                 Text(likes, style: const TextStyle(fontFamily: 'tasaOrbiter',
 //                     fontSize: 11, color: C.textLight)),
 //                 if (comments != null) ...[
 //                   const SizedBox(width: 14),
 //                   const Icon(Icons.chat_bubble_outline_rounded,
 //                       color: C.textLight, size: 16),
 //                   const SizedBox(width: 4),
-//                   Text(comments!, style: const TextStyle(fontFamily: 'Poppins',
+//                   Text(comments!, style: const TextStyle(fontFamily: 'tasaOrbiter',
 //                       fontSize: 11, color: C.textLight)),
 //                 ],
 //               ]),

@@ -271,7 +271,7 @@
 //                               ),
 //                               TextSpan(
 //                                 text: "Bharath",
-//                                 style: GoogleFonts.poppins(
+//                                 style: GoogleFonts.tasaOrbiter(
 //                                   color: _SplashColors.burgundy,
 //                                   fontSize: 30,
 //                                   fontWeight: FontWeight.w600,
@@ -291,7 +291,7 @@
 //                       opacity: _taglineFade,
 //                       child: Text(
 //                         "FIND YOUR PERFECT LIFE PARTNER",
-//                         style: GoogleFonts.poppins(
+//                         style: GoogleFonts.tasaOrbiter(
 //                           color: _SplashColors.burgundy.withOpacity(0.6),
 //                           letterSpacing: 2,
 //                           fontSize: 11,
@@ -555,9 +555,6 @@
 //       oldDelegate.progress != progress;
 // }
 
-
-
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
@@ -644,7 +641,7 @@ class _SplashScreenState extends State<SplashScreen>
                   children: [
                     Text(
                       'Vivah',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.tasaOrbiter(
                         color: AppColors.subtleWhite,
                         fontSize: 44,
                         fontWeight: FontWeight.w800,
@@ -654,7 +651,7 @@ class _SplashScreenState extends State<SplashScreen>
                     // const SizedBox(height: 6),
                     // Text(
                     //   'BHARATH',
-                    //   style: GoogleFonts.poppins(
+                    //   style: GoogleFonts.tasaOrbiter(
                     //     color: AppColors.subtleWhite.withOpacity(0.85),
                     //     fontSize: 13,
                     //     fontWeight: FontWeight.w600,

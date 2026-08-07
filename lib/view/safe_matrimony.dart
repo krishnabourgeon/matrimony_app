@@ -70,7 +70,7 @@
 //                           "Your safety is our priority. To ensure a secure and positive experience, please follow these guidelines",
 //                           style: TextStyle(
 //                             fontSize: 14,
-//                             fontFamily: 'Poppins',
+//                             fontFamily: 'tasaOrbiter',
 //                             color: Colors.white,
 //                           ),
 //                         ),
@@ -88,31 +88,31 @@
 //               ),
 //             ),
 //             SizedBox(height: 20),
-//             _buildTextCard(title: "Protect Your Personal Information", 
+//             _buildTextCard(title: "Protect Your Personal Information",
 //             text: "Do not share sensitive personal information such as your home address, phone number, financial details, or work location until you are comfortable", text1: "Avoid sending money or sharing financial details with anyone, even if the request seems urgent or emotional."),
 //             SizedBox(height: 20),
 
-//             _buildTextCard(title: "Communication & Verification", 
-//             text: "Use the website's messaging system for initial communication. Avoid sharing your personal contact information too soon.", 
+//             _buildTextCard(title: "Communication & Verification",
+//             text: "Use the website's messaging system for initial communication. Avoid sharing your personal contact information too soon.",
 //             text1: "Verify the identity of the person you are communicating with. Consider using video calls before meeting in person."),
 //             SizedBox(height: 20),
 
-//             _buildTextCard(title: "Be Cautious of Scams", 
-//             text: "Beware of too-good-to-be-true profiles or those who avoid personal meetings.", 
+//             _buildTextCard(title: "Be Cautious of Scams",
+//             text: "Beware of too-good-to-be-true profiles or those who avoid personal meetings.",
 //             text1: "Report suspicious behavior immediately to our support team. We take all reports seriously and will take appropriate action."),
 //             SizedBox(height: 20),
 
-//             _buildTextCard(title: "Meeting in Person", 
-//             text: "Choose a public place for your first meeting.", 
+//             _buildTextCard(title: "Meeting in Person",
+//             text: "Choose a public place for your first meeting.",
 //             text1: "Inform a friend or family member about your meeting plans, including details about the person you're meeting.",
 //             boldText: "Arrange your own transportation to and from the meeting location."),
 //             SizedBox(height: 20),
-//             _buildTextCard(title: "Trust your instincts", 
-//             text: "Listen to your gut feelings. If something feels off, take a step back.", 
+//             _buildTextCard(title: "Trust your instincts",
+//             text: "Listen to your gut feelings. If something feels off, take a step back.",
 //             text1: "End communication with anyone who pressures you into something uncomfortable or makes you feel uneasy."),
 //             SizedBox(height: 20),
-//             _buildTextCard(title: "Report and block", 
-//             text: "Use the block feature if you feel uncomfortable or harassed by another user.", 
+//             _buildTextCard(title: "Report and block",
+//             text: "Use the block feature if you feel uncomfortable or harassed by another user.",
 //             text1: "Report any concerns directly to our support team through the “Report User” feature available on every profile. Your safety is paramount. Please remember that while we strive to provide a safe platform, your vigilance and caution are essential in protecting yourself."),
 //              SizedBox(height: 20),
 //           ],
@@ -130,7 +130,7 @@
 //         "- ",
 //         style: TextStyle(
 //           fontSize: 14,
-//           fontFamily: 'Poppins',
+//           fontFamily: 'tasaOrbiter',
 //           color: Colors.black,
 //           fontWeight: FontWeight.bold,
 //         ),
@@ -140,7 +140,7 @@
 //           text,
 //           style: TextStyle(
 //             fontSize: 14,
-//             fontFamily: 'Poppins',
+//             fontFamily: 'tasaOrbiter',
 //             color: Colors.black,
 //           ),
 //         ),
@@ -188,19 +188,6 @@
 //     ),
 //   );
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
@@ -311,13 +298,22 @@ class SafeMatrimony extends StatelessWidget {
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: AppColors.textSecondary),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 16,
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
         const SizedBox(width: 12),
         const Text(
           'Safe Matrimony',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary, letterSpacing: -0.3),
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.3,
+          ),
         ),
       ],
     ),
@@ -339,7 +335,10 @@ class SafeMatrimony extends StatelessWidget {
           child: Container(
             width: 110,
             height: 110,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.06)),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.06),
+            ),
           ),
         ),
         Row(
@@ -353,7 +352,11 @@ class SafeMatrimony extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white.withOpacity(0.3)),
               ),
-              child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -362,12 +365,21 @@ class SafeMatrimony extends StatelessWidget {
                 children: [
                   const Text(
                     "Safe Matrimony",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.3),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     "Your safety is our priority. Follow these guidelines for a secure experience.",
-                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.85), height: 1.4),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.85),
+                      height: 1.4,
+                    ),
                   ),
                 ],
               ),
@@ -416,14 +428,22 @@ class _SafetyCard extends StatelessWidget {
               Container(
                 width: 34,
                 height: 34,
-                decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary, letterSpacing: -0.2),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.2,
+                  ),
                 ),
               ),
             ],
@@ -456,7 +476,11 @@ class _BulletLine extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 12.5, color: AppColors.textHint, height: 1.5),
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: AppColors.textHint,
+              height: 1.5,
+            ),
           ),
         ),
       ],

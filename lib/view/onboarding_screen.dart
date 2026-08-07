@@ -527,10 +527,6 @@
 // //   }
 // // }
 
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -561,13 +557,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
   );
 
-  late final Animation<Offset> _rise = Tween(
-    begin: const Offset(0, 0.08),
-    end: Offset.zero,
-  ).animate(CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
-  ));
+  late final Animation<Offset> _rise =
+      Tween(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+        ),
+      );
 
   @override
   void dispose() {
@@ -660,7 +656,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             ),
                             child: Text(
                               'Get Started',
-                              style: GoogleFonts.poppins(
+                              style: GoogleFonts.tasaOrbiter(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.3,
@@ -704,18 +700,11 @@ class _HeroPlaceholder extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.coral.withOpacity(0.85),
-            AppColors.coralDark,
-          ],
+          colors: [AppColors.coral.withOpacity(0.85), AppColors.coralDark],
         ),
       ),
       child: Center(
-        child: Icon(
-          Icons.favorite_rounded,
-          size: 64.sp,
-          color: Colors.white70,
-        ),
+        child: Icon(Icons.favorite_rounded, size: 64.sp, color: Colors.white70),
       ),
     );
   }

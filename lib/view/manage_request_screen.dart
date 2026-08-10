@@ -1,271 +1,518 @@
-// ═══════════════════════════════════════════════════════════════
-//  MANAGE REQUEST SCREEN — name / photo / email / number / horoscope
-//  access requests, accepted / pending / declined, receive / send
-// ═══════════════════════════════════════════════════════════════
+// Inbox screen — Received / Accepted / Contacts / Sent request lists.
 import 'package:flutter/material.dart';
-import 'package:matrimony_app/model/profile_model.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-import 'package:matrimony_app/view/custom_widgets/profile_image.dart';
+import 'package:matrimony_app/view/match_profile_detail_screen.dart';
+import 'package:matrimony_app/view/matches_screen.dart';
+import 'package:matrimony_app/view/message_screen.dart';
 
-enum RequestType { name, photo, email, number, horoscope }
-
-enum RequestStatus { accepted, pending, declined }
-
-enum RequestDirection { received, sent }
-
-extension on RequestType {
-  String get label => switch (this) {
-        RequestType.name => 'Name',
-        RequestType.photo => 'Photo',
-        RequestType.email => 'Email',
-        RequestType.number => 'Number',
-        RequestType.horoscope => 'Horoscope',
-      };
-}
-
-extension on RequestStatus {
-  String get label => switch (this) {
-        RequestStatus.accepted => 'Accepted',
-        RequestStatus.pending => 'Pending',
-        RequestStatus.declined => 'Declined',
-      };
-}
-
-class MemberRequest {
-  final Profile profile;
-  final RequestType type;
-  RequestStatus status;
-  final RequestDirection direction;
-  MemberRequest({
-    required this.profile,
-    required this.type,
-    required this.status,
-    required this.direction,
-  });
+class _InboxEntry {
+  final MatchProfileItem profile;
+  final String date;
+  const _InboxEntry({required this.profile, required this.date});
 }
 
 class ManageRequestScreen extends StatefulWidget {
   const ManageRequestScreen({super.key});
+
   @override
   State<ManageRequestScreen> createState() => _ManageRequestScreenState();
 }
 
 class _ManageRequestScreenState extends State<ManageRequestScreen> {
-  RequestStatus _status = RequestStatus.accepted;
-  RequestType _type = RequestType.name;
-  RequestDirection _direction = RequestDirection.received;
+  int _activeTab = 1; // Accepted, to match the reference
+  int _activeSubTab = 0; // Accepted by Her
 
-  late final List<MemberRequest> _requests = _buildSampleRequests();
+  static const _tabLabels = ['Received', 'Accepted', 'Contacts', 'Sent'];
 
-  List<MemberRequest> _buildSampleRequests() {
-    final types = RequestType.values;
-    final statuses = RequestStatus.values;
-    final directions = RequestDirection.values;
-    final list = <MemberRequest>[];
-    for (var i = 0; i < appProfiles.length; i++) {
-      list.add(MemberRequest(
-        profile: appProfiles[i],
-        type: types[i % types.length],
-        status: statuses[i % statuses.length],
-        direction: directions[i % directions.length],
-      ));
-    }
-    // A few extras so most filter combinations have something to show.
-    list.add(MemberRequest(
-        profile: appProfiles[0],
-        type: RequestType.photo,
-        status: RequestStatus.pending,
-        direction: RequestDirection.received));
-    list.add(MemberRequest(
-        profile: appProfiles[1],
-        type: RequestType.number,
-        status: RequestStatus.pending,
-        direction: RequestDirection.received));
-    list.add(MemberRequest(
-        profile: appProfiles[2],
-        type: RequestType.horoscope,
-        status: RequestStatus.accepted,
-        direction: RequestDirection.sent));
-    return list;
+  final List<_InboxEntry> _received = [
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Nithya Das',
+        line1: "26 Yrs, 5'2\" · Finance Professional",
+        line2: 'Malayalam, Thiyya · Kozhikode, Kerala',
+        image: 'assets/image/archana.png',
+      ),
+      date: '05 Oct',
+    ),
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Anjali Jayan',
+        line1: "24 Yrs, 5'2\" · Human Resource Manager",
+        line2: 'Malayalam, Vishwakarma · Kottayam, Kerala',
+        image: 'assets/image/user3.png',
+      ),
+      date: '05 Oct',
+    ),
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Deepthi',
+        line1: "24 Yrs, 5'2\" · Bank Officer",
+        line2: 'Malayalam, Vishwakarma · Kollam, Kerala',
+        image: 'assets/image/user2.png',
+      ),
+      date: '04 Oct',
+    ),
+  ];
+
+  final List<_InboxEntry> _acceptedByHer = [
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Swathy Mohan',
+        line1: "26 Yrs, 5'2\" · Finance Professional",
+        line2: 'Malayalam, Thiyya · Kozhikode, Kerala',
+        image: 'assets/image/user1.png',
+        isPremium: true,
+        photoCount: 4,
+        age: 26,
+        height: "5'2\"",
+      ),
+      date: '05 Oct',
+    ),
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Geethu',
+        line1: "26 Yrs, 5'2\" · Finance Professional",
+        line2: 'Malayalam, Thiyya · Kozhikode, Kerala',
+        image: 'assets/image/user3.png',
+        photoCount: 4,
+        age: 26,
+        height: "5'2\"",
+      ),
+      date: '05 Oct',
+    ),
+  ];
+
+  final List<_InboxEntry> _acceptedByMe = const [
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Meenakshi',
+        line1: "28 Yrs, 5'2\" · Finance Professional",
+        line2: 'Malayalam, Thiyya · Kozhikode, Kerala',
+        image: 'assets/image/user2.png',
+      ),
+      date: '03 Oct',
+    ),
+  ];
+
+  final List<_InboxEntry> _contactsViewed = const [
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Saranya',
+        line1: "24 Yrs, 5'2\" · Human Resource Manager",
+        line2: 'Malayalam, Vishwakarma · Palakkad, Kerala',
+        image: 'assets/image/user1.png',
+        managedBy: 'Parent',
+        contactNo: '+91 7341868670',
+        email: 'saranya@gmail.com',
+      ),
+      date: '05 Oct',
+    ),
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Hridhya',
+        line1: "25 Yrs, 5'3\" · Bank Officer",
+        line2: 'Malayalam, Vishwakarma · Kollam, Kerala',
+        image: 'assets/image/user2.png',
+        managedBy: 'Self',
+        contactNo: '+91 9846868671',
+        email: 'hridhya@gmail.com',
+      ),
+      date: '05 Oct',
+    ),
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Rithu',
+        line1: "23 Yrs, 5'2\" · Teacher",
+        line2: 'Malayalam, Vishwakarma · Kottayam, Kerala',
+        image: 'assets/image/user3.png',
+        managedBy: 'Parent',
+        contactNo: '+91 7340561143',
+        email: 'rithu@gmail.com',
+      ),
+      date: '05 Oct',
+    ),
+  ];
+
+  final List<_InboxEntry> _viewedYou = const [
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Aishwarya',
+        line1: "24 Yrs, 5'3\" · Doctor",
+        line2: 'Malayalam, Nair · Palakkad, Kerala',
+        image: 'assets/image/priya.png',
+        managedBy: 'Self',
+        contactNo: '+91 9847012345',
+        email: 'aishwarya@gmail.com',
+      ),
+      date: '04 Oct',
+    ),
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Meera',
+        line1: "24 Yrs, 5'2\" · Software Engineer",
+        line2: 'Malayalam, Nair · Alappuzha, Kerala',
+        image: 'assets/image/archana.png',
+        managedBy: 'Parent',
+        contactNo: '+91 9847098765',
+        email: 'meera@gmail.com',
+      ),
+      date: '03 Oct',
+    ),
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Dhanya',
+        line1: "25 Yrs, 5'2\" · Doctor",
+        line2: 'Malayalam, Nair · Kannur, Kerala',
+        image: 'assets/image/riys.png',
+        managedBy: 'Self',
+        contactNo: '+91 9847011223',
+        email: 'dhanya@gmail.com',
+      ),
+      date: '02 Oct',
+    ),
+  ];
+
+  final List<_InboxEntry> _sent = const [
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Chandhini',
+        line1: "26 Yrs, 5'2\" · Architect",
+        line2: 'Malayalam, Nair · Ernakulam, Kerala',
+        image: 'assets/image/riys.png',
+      ),
+      date: '02 Oct',
+    ),
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Anushka',
+        line1: "23 Yrs, 5'4\" · Software Engineer",
+        line2: 'Malayalam, Nair · Thrissur, Kerala',
+        image: 'assets/image/archana.png',
+      ),
+      date: '30 Sep',
+    ),
+  ];
+
+  List<int> get _counts => [
+        _received.length,
+        _acceptedByHer.length + _acceptedByMe.length,
+        _contactsViewed.length,
+        _sent.length,
+      ];
+
+  void _declineReceived(_InboxEntry entry) => setState(() => _received.remove(entry));
+
+  void _acceptReceived(_InboxEntry entry) {
+    setState(() {
+      _received.remove(entry);
+      _acceptedByHer.add(entry);
+    });
   }
 
-  List<MemberRequest> get _filtered => _requests
-      .where((r) => r.status == _status && r.type == _type && r.direction == _direction)
-      .toList();
-
-  int _countFor(RequestStatus status) =>
-      _requests.where((r) => r.status == status).length;
-
-  void _accept(MemberRequest r) => setState(() => r.status = RequestStatus.accepted);
-  void _decline(MemberRequest r) => setState(() => r.status = RequestStatus.declined);
-
-  String get _listTitle => '${_status.label} List';
-
-  String get _listSubtitle => switch (_status) {
-        RequestStatus.accepted => 'Members who you accepted',
-        RequestStatus.pending => 'Members waiting for your response',
-        RequestStatus.declined => 'Members you declined',
-      };
-
-  String get _emptyMessage =>
-      'No any ${_status.label.toLowerCase()} ${_type.label.toLowerCase()} requests';
-
-  String? _unlockedPreview(MemberRequest r) {
-    if (r.status != RequestStatus.accepted) return null;
-    switch (r.type) {
-      case RequestType.number:
-        return 'Contact unlocked: +91 98•• ••${r.profile.profileId.length >= 4 ? r.profile.profileId.substring(r.profile.profileId.length - 4) : '0000'}';
-      case RequestType.email:
-        return 'Email unlocked: ${r.profile.name.split(' ').first.toLowerCase()}••@email.com';
-      case RequestType.photo:
-        return '${r.profile.photoCount} photo${r.profile.photoCount == 1 ? '' : 's'} unlocked';
-      case RequestType.horoscope:
-        return 'Horoscope details unlocked';
-      case RequestType.name:
-        return 'Full name unlocked: ${r.profile.name}';
+  List<_InboxEntry> get _currentList {
+    switch (_activeTab) {
+      case 1:
+        return _activeSubTab == 0 ? _acceptedByHer : _acceptedByMe;
+      case 2:
+        return _activeSubTab == 0 ? _contactsViewed : _viewedYou;
+      case 3:
+        return _sent;
+      default:
+        return _received;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final list = _currentList;
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        title: const Text('Manage your request',
-            style: TextStyle(
-                color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            SizedBox(height: 10.h),
+            _buildTabs(),
+            if (_activeTab == 1) ...[
+              SizedBox(height: 10.h),
+              _buildSubTabs(
+                leftLabel: 'Accepted by Her (${_acceptedByHer.length})',
+                rightLabel: 'Accepted by Me (${_acceptedByMe.length})',
+              ),
+            ],
+            SizedBox(height: 10.h,),
+            Divider(),
+            if (_activeTab == 2) ...[
+              SizedBox(height: 10.h),
+              _buildSubTabs(
+                leftLabel: 'Contacts Viewed (${_contactsViewed.length})',
+                rightLabel: 'Viewed you (10)',
+              ),
+              SizedBox(height: 12.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Text(
+                  _activeSubTab == 0
+                      ? 'Contacts you have viewed (${_contactsViewed.length} of 800)'
+                      : 'Contacts who viewed you (${_viewedYou.length} of 10)',
+                  style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black),
+                ),
+              ),
+            ],
+            SizedBox(height: 8.h),
+            Expanded(
+              child: _activeTab == 0
+                  ? _ReceivedSwipeDeck(
+                      entries: _received,
+                      onAccept: _acceptReceived,
+                      onDecline: _declineReceived,
+                    )
+                  : list.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Nothing here yet',
+                            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+                          itemCount: list.length,
+                          separatorBuilder: (_, __) => SizedBox(height: 14.h),
+                          itemBuilder: (context, index) {
+                            if (_activeTab == 2) return _ContactCard(entry: list[index]);
+                            return _InboxCard(entry: list[index], isSent: _activeTab == 3);
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
+      child: Row(
+        children: [
+          Icon(Icons.menu, size: 22.sp, color: Colors.black87),
+          SizedBox(width: 10.w),
+          Text(
+            'Inbox',
+            style: GoogleFonts.tasaOrbiter(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabs() {
+    return SizedBox(
+      height: 34.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: _tabLabels.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (context, index) {
+          final selected = _activeTab == index;
+          return InkWell(
+            onTap: () => setState(() {
+              _activeTab = index;
+              _activeSubTab = 0;
+            }),
+            borderRadius: BorderRadius.circular(18.r),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.coral : Colors.white,
+                borderRadius: BorderRadius.circular(18.r),
+                border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+              ),
+              child: Text(
+                '${_tabLabels[index]} (${_counts[index]})',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: selected ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSubTabs({required String leftLabel, required String rightLabel}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        children: [
+          _subTab(leftLabel, 0),
+          SizedBox(width: 22.w),
+          _subTab(rightLabel, 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _subTab(String label, int index) {
+    final selected = _activeSubTab == index;
+    return InkWell(
+      onTap: () => setState(() => _activeSubTab = index),
+      child: Container(
+        padding: EdgeInsets.only(bottom: 10.h),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: selected ? AppColors.coral : Colors.transparent, width: 2.5),
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? Colors.black87 : Colors.black45,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InboxCard extends StatelessWidget {
+  final _InboxEntry entry;
+  final bool isSent;
+  const _InboxCard({required this.entry, this.isSent = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = entry.profile;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16.r),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => MatchProfileDetailScreen(item: p)),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F6F6),
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Members who match your partner preferences',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-            const SizedBox(height: 16),
-
-            // ── Status summary cards ──
-            Row(
+            Stack(
               children: [
-                Expanded(
-                    child: _StatCard(
-                        label: 'Accepted',
-                        count: _countFor(RequestStatus.accepted),
-                        selected: _status == RequestStatus.accepted,
-                        onTap: () => setState(() => _status = RequestStatus.accepted))),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: _StatCard(
-                        label: 'Pending',
-                        count: _countFor(RequestStatus.pending),
-                        selected: _status == RequestStatus.pending,
-                        onTap: () => setState(() => _status = RequestStatus.pending))),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: _StatCard(
-                        label: 'Declined',
-                        count: _countFor(RequestStatus.declined),
-                        selected: _status == RequestStatus.declined,
-                        onTap: () => setState(() => _status = RequestStatus.declined))),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // ── List card ──
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(AppColors.r20),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_listTitle,
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                  const SizedBox(height: 4),
-                  Text(_listSubtitle,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                  const SizedBox(height: 14),
-
-                  // Request-type pill selector
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppColors.r32),
-                    ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                if (p.isPremium)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Container(
+                      width: 150.w,
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                      decoration: BoxDecoration(
+                        image: const DecorationImage(
+                          image: AssetImage('assets/image/Vector 1265.png',),
+                          fit: BoxFit.fill,
+                        ),
+                        borderRadius: BorderRadius.only(bottomRight: Radius.circular(12.r)),
+                      ),
                       child: Row(
-                        children: RequestType.values.map((t) {
-                          final selected = t == _type;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 3),
-                            child: GestureDetector(
-                              onTap: () => setState(() => _type = t),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 150),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                                decoration: BoxDecoration(
-                                  color: selected ? AppColors.primary : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(AppColors.r32),
-                                ),
-                                child: Text('${t.label} Requests',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: selected ? Colors.white : AppColors.textSecondary)),
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset('assets/image/crown.png', width: 12.w, height: 12.w),
+                          SizedBox(width: 4.w),
+                          Text('Premium', style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Color(0xFFD0B362))),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Receive / Send toggle
-                  Row(
+                Padding(
+                  padding: EdgeInsets.fromLTRB(14.w, p.isPremium ? 30.h : 14.h, 14.w, 14.h),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _DirectionChip(
-                        label: 'Receive',
-                        selected: _direction == RequestDirection.received,
-                        onTap: () => setState(() => _direction = RequestDirection.received),
+                      ClipOval(child: Image.asset(p.image, width: 52.w, height: 52.w, fit: BoxFit.cover)),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    p.name,
+                                    style: GoogleFonts.tasaOrbiter(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SizedBox(width: 5.w),
+                                Image.asset('assets/image/verified.png', width: 14.w, height: 14.w),
+                              ],
+                            ),
+                            SizedBox(height: 3.h),
+                            Text(p.line1, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black87)),
+                            Text(p.line2, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black87)),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 10),
-                      _DirectionChip(
-                        label: 'Send',
-                        selected: _direction == RequestDirection.sent,
-                        onTap: () => setState(() => _direction = RequestDirection.sent),
+                      SizedBox(width: 6.w),
+                      Text(entry.date, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black38)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 7.w),
+              color: const Color(0xFFFFE2E7),
+              child: Column(
+                children: [
+                  Text(
+                    'Take the next step',
+                    style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+                  ),
+                  SizedBox(height: 12.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (isSent)
+                        _actionButton(
+                          asset: "assets/image/remainder_container.png",
+                          label: 'Remind',
+                          onTap: () {},
+                        )
+                      else
+                        _actionButton(
+                          asset: 'assets/image/whatsapp_container.png',
+                          label: 'Whatsapp',
+                          onTap: () {},
+                        ),
+                      _actionButton(
+                        asset: 'assets/image/message_container.png',
+                        label: 'Chat',
+                        //bg: Colors.white,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => MessageScreen(name: p.name, image: p.image)),
+                        ),
+                      ),
+                      _actionButton(
+                        asset: 'assets/image/call_container.png',
+                        label: isSent ? 'Contact' : 'Call',
+                        onTap: () {},
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  if (_filtered.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Text(_emptyMessage,
-                          style: const TextStyle(fontSize: 13, color: AppColors.textHint)),
-                    )
-                  else
-                    Column(
-                      children: _filtered
-                          .map((r) => _RequestTile(
-                                request: r,
-                                unlockedPreview: _unlockedPreview(r),
-                                onAccept: () => _accept(r),
-                                onDecline: () => _decline(r),
-                              ))
-                          .toList(),
-                    ),
                 ],
               ),
             ),
@@ -274,36 +521,272 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
       ),
     );
   }
+
+  Widget _actionButton({
+    String? asset,
+    IconData? icon,
+    Color? iconColor,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          asset != null
+              ? Image.asset(asset, width: 73.sp, height: 44.sp)
+              : Container(
+                  width: 44.sp,
+                  height: 44.sp,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                  child: Icon(icon, size: 20.sp, color: iconColor ?? Colors.black54),
+                ),
+          SizedBox(height: 5.h),
+          Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black54)),
+        ],
+      ),
+    );
+  }
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
-  final int count;
-  final bool selected;
-  final VoidCallback onTap;
-  const _StatCard(
-      {required this.label, required this.count, required this.selected, required this.onTap});
+/// Card used in the "Contacts" tab — shows revealed phone / email / SMS
+/// instead of the "Take the next step" action banner.
+class _ContactCard extends StatelessWidget {
+  final _InboxEntry entry;
+  const _ContactCard({required this.entry});
 
   @override
   Widget build(BuildContext context) {
-    final numberColor = selected ? AppColors.primary : AppColors.success;
-    return GestureDetector(
-      onTap: onTap,
+    final p = entry.profile;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16.r),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => MatchProfileDetailScreen(item: p)),
+      ),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        width: double.infinity,
+        padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
-          color: selected ? AppColors.surface : AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(AppColors.r16),
-          border: Border.all(color: selected ? AppColors.primary : Colors.transparent, width: 1.4),
+          color: const Color(0xFFF6F6F6),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$count',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: numberColor)),
-            const SizedBox(height: 2),
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipOval(child: Image.asset(p.image, width: 71.w, height: 71.w, fit: BoxFit.cover)),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              p.name,
+                              style: GoogleFonts.tasaOrbiter(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          SizedBox(width: 5.w),
+                          Image.asset('assets/image/verified.png', width: 14.w, height: 14.w),
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Profile created by ${p.managedBy}',
+                        style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: Colors.black45),
+                      ),
+                      SizedBox(height: 12.h),
+                      _contactLinkRow(icon: Icons.call_outlined, text: p.contactNo),
+                      SizedBox(height: 8.h),
+                      _contactLinkRow(icon: Icons.email_outlined, text: p.email),
+                      SizedBox(height: 8.h),
+                      _contactLinkRow(icon: Icons.sms_outlined, text: 'Send SMS'),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Text(entry.date, style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: Colors.black38)),
+                SizedBox(width: 4.w),
+                Icon(Icons.more_vert_rounded, size: 18.sp, color: Colors.black45),
+              ],
+            ),
+            // SizedBox(height: 12.h),
+            // _contactLinkRow(icon: Icons.call_outlined, text: p.contactNo),
+            // SizedBox(height: 8.h),
+            // _contactLinkRow(icon: Icons.email_outlined, text: p.email),
+            // SizedBox(height: 8.h),
+            // _contactLinkRow(icon: Icons.sms_outlined, text: 'Send SMS'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _contactLinkRow({required IconData icon, required String text}) {
+    const blue = Color(0xFF2F6FE0);
+    return Row(
+      children: [
+        Icon(icon, size: 15.sp, color: blue),
+        SizedBox(width: 8.w),
+        Flexible(
+          child: Text(
+            text,
+            style: GoogleFonts.tasaOrbiter(fontSize: 12.5.sp, color: blue, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tall swipe-review style card used in the "Received" tab — big photo with
+/// the name/details overlaid at the bottom, then Decline / Accept buttons
+/// underneath.
+class _ReceivedRequestCard extends StatelessWidget {
+  final _InboxEntry entry;
+  final VoidCallback onAccept;
+  final VoidCallback onDecline;
+  final bool interactive;
+  const _ReceivedRequestCard({
+    required this.entry,
+    required this.onAccept,
+    required this.onDecline,
+    this.interactive = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = entry.profile;
+    return IgnorePointer(
+      ignoring: !interactive,
+      child: InkWell(
+      borderRadius: BorderRadius.circular(20.r),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => MatchProfileDetailScreen(item: p)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20.r),
+        child: SizedBox(
+          height: 500.h,
+          width: double.infinity,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(p.image, fit: BoxFit.cover),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                    stops: const [0.5, 1.0],
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16.w,
+                right: 16.w,
+                bottom: 92.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            p.name,
+                            style: GoogleFonts.tasaOrbiter(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                        Image.asset('assets/image/verified.png', width: 17.w, height: 17.w),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(p.line1, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.white70)),
+                    Text(p.line2, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.white70)),
+                    SizedBox(height: 5.h,),
+                    Divider(color: Colors.white54,)
+                  ],
+                ),
+              ),
+              Positioned(
+                left: 16.w,
+                right: 16.w,
+                bottom: 20.h,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _pillButton(
+                      //  icon: Icons.close_rounded,
+                        image: 'assets/image/close.png',
+                        label: 'Decline',
+                        iconcolor: Colors.red,
+                        color:  Colors.black,
+                        onTap: onDecline,
+                      ),
+                    ),
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: _pillButton(
+                        //icon: Icons.check_rounded,
+                        image: "assets/image/check.png",
+                        label: 'Accept',
+                        iconcolor: Colors.green,
+                        color:  Colors.black,
+                        onTap: onAccept,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      ),
+    );
+  }
+
+  Widget _pillButton({
+   // required IconData icon,
+    required String label,
+    required Color color,
+    required Color iconcolor,
+    required VoidCallback onTap,
+    required String image,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(26.r),
+      child: Container(
+        height: 48.h,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(26.r),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 3))],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon(icon, size: 24.sp, color: iconcolor),
+            Image.asset(image,width: 24.sp,height: 24.sp,color: iconcolor,),
+            SizedBox(width: 8.w),
+            Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: color)),
           ],
         ),
       ),
@@ -311,156 +794,124 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _DirectionChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _DirectionChip({required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppColors.r32),
-          border: Border.all(
-              color: selected ? AppColors.textPrimary : AppColors.border, width: selected ? 1.6 : 1),
-        ),
-        child: Text(label,
-            style: TextStyle(
-                fontSize: 13,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                color: AppColors.textPrimary)),
-      ),
-    );
-  }
-}
-
-class _RequestTile extends StatelessWidget {
-  final MemberRequest request;
-  final String? unlockedPreview;
-  final VoidCallback onAccept;
-  final VoidCallback onDecline;
-  const _RequestTile({
-    required this.request,
-    required this.unlockedPreview,
+/// Tinder-style swipeable deck for the "Received" tab — shows the top card
+/// draggable with the next one peeking behind it. Swipe right / tap Accept
+/// to accept, swipe left / tap Decline to decline.
+class _ReceivedSwipeDeck extends StatefulWidget {
+  final List<_InboxEntry> entries;
+  final void Function(_InboxEntry) onAccept;
+  final void Function(_InboxEntry) onDecline;
+  const _ReceivedSwipeDeck({
+    required this.entries,
     required this.onAccept,
     required this.onDecline,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final profile = request.profile;
-    final canRespond =
-        request.status == RequestStatus.pending && request.direction == RequestDirection.received;
+  State<_ReceivedSwipeDeck> createState() => _ReceivedSwipeDeckState();
+}
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(AppColors.r16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
+  Offset _drag = Offset.zero;
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    setState(() => _drag += details.delta);
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    const threshold = 110.0;
+    if (_drag.dx > threshold) {
+      _resolve(accept: true);
+    } else if (_drag.dx < -threshold) {
+      _resolve(accept: false);
+    } else {
+      setState(() => _drag = Offset.zero);
+    }
+  }
+
+  void _resolve({required bool accept}) {
+    final entry = widget.entries.first;
+    setState(() => _drag = Offset.zero);
+    accept ? widget.onAccept(entry) : widget.onDecline(entry);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.entries.isEmpty) {
+      return Center(
+        child: Text(
+          'No new requests',
+          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+        ),
+      );
+    }
+
+    final top = widget.entries.first;
+    final next = widget.entries.length > 1 ? widget.entries[1] : null;
+    final angle = (_drag.dx / 300).clamp(-0.4, 0.4);
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Row(
-            children: [
-              ClipOval(
-                child: ProfileImage(profile.image,
-                    width: 44,
-                    height: 44,
-                    fit: BoxFit.cover,
-                    errorWidget: Container(
-                        width: 44,
-                        height: 44,
-                        color: AppColors.primaryLight,
-                        child: const Icon(Icons.person, size: 22, color: AppColors.primary))),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${profile.name}, ${profile.age}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                    Text('${profile.profession} · ${profile.city}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
-                  ],
+          if (next != null)
+            Transform.scale(
+              scale: 0.96,
+              child: Opacity(
+                opacity: 0.85,
+                child: _ReceivedRequestCard(
+                  entry: next,
+                  onAccept: () {},
+                  onDecline: () {},
+                  interactive: false,
                 ),
               ),
-              const SizedBox(width: 8),
-              if (!canRespond) _statusChip(request.status),
-            ],
-          ),
-          if (canRespond) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: onDecline,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 9),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: AppColors.errorLight,
-                          borderRadius: BorderRadius.circular(AppColors.r32)),
-                      child: const Text('Decline',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.error)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: onAccept,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 9),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: AppColors.successLight,
-                          borderRadius: BorderRadius.circular(AppColors.r32)),
-                      child: const Text('Accept',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.success)),
-                    ),
-                  ),
-                ),
-              ],
             ),
-          ],
-          if (unlockedPreview != null) ...[
-            const SizedBox(height: 8),
-            Text(unlockedPreview!,
-                style: const TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success)),
-          ],
+          GestureDetector(
+            onPanUpdate: _onPanUpdate,
+            onPanEnd: _onPanEnd,
+            child: AnimatedContainer(
+              duration: _drag == Offset.zero ? const Duration(milliseconds: 220) : Duration.zero,
+              curve: Curves.easeOut,
+              transform: Matrix4.identity()
+                ..translate(_drag.dx, _drag.dy)
+                ..rotateZ(angle),
+              transformAlignment: Alignment.center,
+              child: Stack(
+                children: [
+                  _ReceivedRequestCard(
+                    entry: top,
+                    onAccept: () => _resolve(accept: true),
+                    onDecline: () => _resolve(accept: false),
+                  ),
+                  // if (_drag.dx > 16)
+                  //   Positioned(top: 36.h, left: 24.w, child: _stamp('LIKE', const Color(0xFF2E9E4F))),
+                  // if (_drag.dx < -16)
+                  //   Positioned(top: 36.h, right: 24.w, child: _stamp('NOPE', const Color(0xFFE0453C))),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _statusChip(RequestStatus status) {
-    final Color color = switch (status) {
-      RequestStatus.accepted => AppColors.success,
-      RequestStatus.pending => AppColors.warning,
-      RequestStatus.declined => AppColors.error,
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
-      child: Text(status.label,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: color)),
+  Widget _stamp(String label, Color color) {
+    return Transform.rotate(
+      angle: label == 'LIKE' ? -0.35 : 0.35,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 3),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.tasaOrbiter(fontSize: 20.sp, fontWeight: FontWeight.w900, color: color, letterSpacing: 1.5),
+        ),
+      ),
     );
   }
 }

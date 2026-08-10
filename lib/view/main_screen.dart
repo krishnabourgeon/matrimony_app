@@ -51,10 +51,10 @@ class _FloatingBottomNav extends StatelessWidget {
   const _FloatingBottomNav({required this.currentIndex, required this.onTap});
 
   static const _items = [
-    _NavItem(label: 'Home', icon: Icons.home_rounded),
-    _NavItem(label: 'Matches', asset: 'assets/image/heart_check.png'),
-    _NavItem(label: 'Inbox', asset: 'assets/image/supervisor_account.png'),
-    _NavItem(label: 'Chat', asset: 'assets/image/supervisor_account (1).png'),
+    _NavItem(label: 'Home', asset: 'assets/image/material-symbols_home-rounded (2).png'),
+    _NavItem(label: 'Matches', asset: 'assets/image/material-symbols_home-rounded.png'),
+    _NavItem(label: 'Inbox', asset: 'assets/image/material-symbols_home-rounded (1).png'),
+    _NavItem(label: 'Chat', asset: 'assets/image/material-symbols_home-rounded (3).png'),
   ];
 
   @override
@@ -70,7 +70,7 @@ class _FloatingBottomNav extends StatelessWidget {
         children: List.generate(_items.length, (i) {
           final item = _items[i];
           final selected = i == currentIndex;
-          final color = selected ? AppColors.coral : AppColors.textHint;
+          final color = selected ? AppColors.coral : Color.fromARGB(255, 192, 191, 191);
           return Expanded(
             child: GestureDetector(
               onTap: () => onTap(i),
@@ -79,12 +79,12 @@ class _FloatingBottomNav extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   item.asset != null
-                      ? _NavIcon(item.asset!, color: color)
-                      : Icon(item.icon, color: color, size: 23),
+                      ? Image.asset(item.asset!, color: color, width: 36, height: 36)
+                      : Icon(item.icon, color: color, size: 32),
                   const SizedBox(height: 4),
                   Text(item.label,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                         color: color,
                       )),

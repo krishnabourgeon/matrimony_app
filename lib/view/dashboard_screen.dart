@@ -1856,7 +1856,7 @@ class _MatchCard extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFEEF1),
+                      backgroundColor: AppColors.coralLight,
                       side: BorderSide.none,
                       padding: EdgeInsets.symmetric(vertical: 8.h),
                       shape: RoundedRectangleBorder(

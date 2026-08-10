@@ -299,6 +299,8 @@ class MatchProfileItem {
   final String image;
   final int photoCount;
   final bool isPremium;
+  final String contactNo;
+  final String email;
 
   // Extra fields used by the profile detail screen.
   final int age;
@@ -320,6 +322,12 @@ class MatchProfileItem {
   final String birthDate;
   final String zodiac;
   final List<String> hobbies;
+  final String familyStatus;
+  final String familyFinancialStatus;
+  final String professionDetail;
+  final String annualIncomeSelf;
+  final String annualIncomeFamily;
+  final String educationField;
 
   const MatchProfileItem({
     required this.name,
@@ -347,6 +355,14 @@ class MatchProfileItem {
     this.birthDate = '',
     this.zodiac = '',
     this.hobbies = const [],
+    this.contactNo = '+91 9876******',
+    this.email ='****@gmail.com',
+    this.familyStatus = '',
+    this.familyFinancialStatus = '',
+    this.professionDetail = '',
+    this.annualIncomeSelf = '',
+    this.annualIncomeFamily = '',
+    this.educationField = '',
   });
 }
 
@@ -375,7 +391,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
       motherTongue: 'Malayalam',
       religion: 'Hindu',
       community: 'Thiyya',
-      education: 'MBA Finance',
+      education: 'PGDM',
       profession: 'Finance Professional',
       location: 'Kozhikode, Kerala',
       about:
@@ -383,15 +399,21 @@ class _MatchesScreenState extends State<MatchesScreen> {
           'working with a reputed IT company in Kochi. My friends describe me as independent, '
           'responsible, and understanding. Outside work, I enjoy reading, music, and fitness. '
           'I value traditions while being open to modern perspectives.',
-      fatherOccupation: 'Business',
+      fatherOccupation: 'Employed',
       motherOccupation: 'Homemaker',
-      siblings: '1 Sister (Married)',
+      siblings: '1 Brother Married',
       diet: 'Non-Vegetarian',
       profileId: 'SH536637002',
       managedBy: 'Self',
       birthDate: '07 Jun 1999',
       zodiac: 'Gemini',
       hobbies: const ['Dancing', 'Cooking', 'Traveling', 'Music', 'Foodie'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Aspiring - Annual family income is up to 30 lakhs',
+      professionDetail: 'Finance Profession in a private Company',
+      annualIncomeSelf: 'INR 8 - 20 Lakh',
+      annualIncomeFamily: 'INR 10 - 30 Lakh',
+      educationField: 'Management',
     ),
     MatchProfileItem(
       name: 'Geethu',
@@ -420,6 +442,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '14 Mar 1999',
       zodiac: 'Pisces',
       hobbies: const ['Reading', 'Traveling', 'Cooking'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
+      professionDetail: 'Finance Profession in a private Company',
+      annualIncomeSelf: 'INR 6 - 10 Lakh',
+      annualIncomeFamily: 'INR 8 - 20 Lakh',
+      educationField: 'Finance',
     ),
     MatchProfileItem(
       name: 'Meenakshi',
@@ -447,6 +475,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '02 Nov 1997',
       zodiac: 'Scorpio',
       hobbies: const ['Dancing', 'Volunteering'],
+      familyStatus: 'Rich',
+      familyFinancialStatus: 'Affluent - Annual family income is above 40 lakhs',
+      professionDetail: 'Finance Profession in a private Company',
+      annualIncomeSelf: 'INR 8 - 15 Lakh',
+      annualIncomeFamily: 'INR 15 - 40 Lakh',
+      educationField: 'Finance',
     ),
   ];
 
@@ -478,6 +512,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '19 Aug 2002',
       zodiac: 'Leo',
       hobbies: const ['Travelling', 'Photography'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
+      professionDetail: 'Software Engineer in an IT Company',
+      annualIncomeSelf: 'INR 6 - 12 Lakh',
+      annualIncomeFamily: 'INR 10 - 20 Lakh',
+      educationField: 'Computer Science',
     ),
     MatchProfileItem(
       name: 'Aishwarya',
@@ -506,6 +546,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '05 Feb 2001',
       zodiac: 'Aquarius',
       hobbies: const ['Cooking', 'Classical Dance'],
+      familyStatus: 'Rich',
+      familyFinancialStatus: 'Affluent - Annual family income is above 40 lakhs',
+      professionDetail: 'Medical Professional at a private Hospital',
+      annualIncomeSelf: 'INR 12 - 20 Lakh',
+      annualIncomeFamily: 'INR 20 - 40 Lakh',
+      educationField: 'Medicine',
     ),
     MatchProfileItem(
       name: 'Chandhini',
@@ -533,6 +579,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '21 Sep 1999',
       zodiac: 'Virgo',
       hobbies: const ['Art', 'Design', 'Travelling'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Moderate - Annual family income is up to 25 lakhs',
+      professionDetail: 'Architect at a private Firm',
+      annualIncomeSelf: 'INR 7 - 14 Lakh',
+      annualIncomeFamily: 'INR 12 - 25 Lakh',
+      educationField: 'Architecture',
     ),
   ];
 
@@ -595,6 +647,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '11 Jan 2001',
       zodiac: 'Capricorn',
       hobbies: const ['Reading', 'Classical Music'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
+      professionDetail: 'HR Profession in a private Company',
+      annualIncomeSelf: 'INR 6 - 10 Lakh',
+      annualIncomeFamily: 'INR 8 - 20 Lakh',
+      educationField: 'Human Resources',
     ),
     MatchProfileItem(
       name: 'Devika',
@@ -622,6 +680,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '30 Apr 2000',
       zodiac: 'Taurus',
       hobbies: const ['Painting', 'Yoga'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
+      professionDetail: 'Banking Profession at a nationalised Bank',
+      annualIncomeSelf: 'INR 6 - 10 Lakh',
+      annualIncomeFamily: 'INR 8 - 20 Lakh',
+      educationField: 'Finance',
     ),
     MatchProfileItem(
       name: 'Anjali',
@@ -649,6 +713,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
       birthDate: '17 Jul 2002',
       zodiac: 'Cancer',
       hobbies: const ['Storytelling', 'Gardening'],
+      familyStatus: 'Moderate',
+      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
+      professionDetail: 'Teaching Profession at a Government School',
+      annualIncomeSelf: 'INR 4 - 8 Lakh',
+      annualIncomeFamily: 'INR 8 - 20 Lakh',
+      educationField: 'Education',
     ),
   ];
 

@@ -271,29 +271,38 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
     required double max,
     required ValueChanged<RangeValues> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black54)),
-              Text(valueText, style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: Colors.black45)),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 3,
-              activeTrackColor: AppColors.coral,
-              inactiveTrackColor: const Color(0xFFE8E8E8),
-              thumbColor: AppColors.coral,
-              overlayColor: AppColors.coral.withOpacity(0.15),
-              rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 7),
+    return Container(
+      padding: EdgeInsets.all(12),
+      height: 80.h,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.r),
+        color: Color(0xFFF5F5F5)
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black,fontWeight: FontWeight.w500)),
+                Text(valueText, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black,fontWeight: FontWeight.w500)),
+              ],
             ),
-            child: RangeSlider(min: min, max: max, values: values, onChanged: onChanged),
-          ),
-        ],
-      );
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 3,
+                activeTrackColor: AppColors.coral,
+                inactiveTrackColor: const Color(0xFFE8E8E8),
+                thumbColor: AppColors.coral,
+                overlayColor: AppColors.coral.withOpacity(0.15),
+                rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 7),
+              ),
+              child: RangeSlider(min: min, max: max, values: values, onChanged: onChanged),
+            ),
+          ],
+        ),
+    );
   }
 
   // ---------------- Dropdown-style row (opens a bottom sheet) ----------------
@@ -308,30 +317,39 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
       onTap: () => _pickOption(label: label, options: options, current: value, onSelected: onSelected),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 11.5.sp, color: Colors.black45)),
-                      SizedBox(height: 3.h),
-                      Text(value, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
-                    ],
+        child: Container(
+          padding: EdgeInsets.all(12),
+          height: 70.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.r),
+            color: Color(0xFFF5F5F5)
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 11.5.sp, color: Colors.black)),
+                        SizedBox(height: 3.h),
+                        Text(value, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                      ],
+                    ),
                   ),
-                ),
-                Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black38, size: 20.sp),
+                  Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black, size: 20.sp),
+                ],
+              ),
+              if (showDivider) ...[
+                SizedBox(height: 10.h),
+                Divider(height: 1, color: const Color(0xFFF0F0F0)),
               ],
-            ),
-            if (showDivider) ...[
-              SizedBox(height: 10.h),
-              Divider(height: 1, color: const Color(0xFFF0F0F0)),
             ],
-          ],
+          ),
         ),
       ),
     );

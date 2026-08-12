@@ -15,7 +15,6 @@
 // // // import 'package:matrimony_app/view/custom_widgets/toggle_button.dart';
 // // // import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 
-
 // // // class BasicInfoScreen extends StatefulWidget {
 // // //   const BasicInfoScreen({super.key});
 
@@ -187,16 +186,6 @@
 // // //   }
 // // // }
 
-
-
-
-
-
-
-
-
-
-
 // // ═══════════════════════════════════════════════════════════════
 // //  3a. BASIC INFORMATION
 // // ═══════════════════════════════════════════════════════════════
@@ -206,8 +195,6 @@
 // import 'package:google_fonts/google_fonts.dart';
 // import 'package:matrimony_app/view/communtiy_location_screen.dart';
 // import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-
-
 
 // class BasicInfoScreen extends StatefulWidget {
 //   const BasicInfoScreen({super.key});
@@ -904,10 +891,6 @@
 //   }
 // }
 
-
-
-
-
 // ═══════════════════════════════════════════════════════════════
 //  3a. BASIC INFORMATION
 // ═══════════════════════════════════════════════════════════════
@@ -915,10 +898,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/model/gender_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/communtiy_location_screen.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-
-
+import 'package:provider/provider.dart';
 
 class BasicInfoScreen extends StatefulWidget {
   const BasicInfoScreen({super.key});
@@ -932,9 +917,10 @@ class _BasicInfoState extends State<BasicInfoScreen> {
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
-  String? _gender;
+  Gender? _gender;
   DateTime? _dob;
   String? _maritalStatus;
   String? _religion;
@@ -979,6 +965,14 @@ class _BasicInfoState extends State<BasicInfoScreen> {
     'English',
     'Other',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<RegisterProvider>().getGenders();
+    });
+  }
 
   @override
   void dispose() {
@@ -1094,7 +1088,9 @@ class _BasicInfoState extends State<BasicInfoScreen> {
         content: Text(message),
         backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -1190,8 +1186,9 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                           controller: _passwordController,
                           obscure: _obscurePassword,
                           errorText: _passwordError,
-                          onToggleObscure: () =>
-                              setState(() => _obscurePassword = !_obscurePassword),
+                          onToggleObscure: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                           onChanged: (_) => setState(() {
                             if (_passwordError != null) _passwordError = null;
                           }),
@@ -1209,14 +1206,18 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                           obscure: _obscureConfirmPassword,
                           errorText: _confirmPasswordError,
                           onToggleObscure: () => setState(
-                              () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                            () => _obscureConfirmPassword =
+                                !_obscureConfirmPassword,
+                          ),
                           onChanged: (_) => setState(() {
-                            if (_confirmPasswordError != null) _confirmPasswordError = null;
+                            if (_confirmPasswordError != null)
+                              _confirmPasswordError = null;
                           }),
                         ),
                       ],
                     ),
-                    if (_passwordError == null && _confirmPasswordError == null) ...[
+                    if (_passwordError == null &&
+                        _confirmPasswordError == null) ...[
                       SizedBox(height: 6.h),
                       Text(
                         'eg. Abcdefgh minimum 8 characters - maximum 20',
@@ -1237,7 +1238,6 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                     //   items: _maritalStatusOptions,
                     //   onChanged: (value) => setState(() => _maritalStatus = value),
                     // ),
-
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -1267,7 +1267,11 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                 color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: AppColors.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -1279,7 +1283,9 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                 value: 2 / 8,
                 minHeight: 6.h,
                 backgroundColor: AppColors.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.coral),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.coral,
+                ),
               ),
             ),
           ),
@@ -1292,35 +1298,69 @@ class _BasicInfoState extends State<BasicInfoScreen> {
   // Gender chip selector
   // ---------------------------------------------------------------------
   Widget _buildGenderSelector() {
-    return Wrap(
-      spacing: 10.w,
-      runSpacing: 10.h,
-      children: ['Male', 'Female'].map((option) {
-        final bool selected = _gender == option;
-        return GestureDetector(
-          onTap: () => setState(() => _gender = option),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
-            decoration: BoxDecoration(
-              color: selected ? AppColors.coral : AppColors.subtleWhite,
-              borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(
-                color: AppColors.coral,
-                width: 1.2,
+    return Consumer<RegisterProvider>(
+      builder: (context,provider,child) {
+        if(provider.loaderState == LoaderState.loading
+        && provider.genderModel == null){
+          return SizedBox(
+            height: 40.h,
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.coralDark),
+            ),
+          );
+        }
+         final List<Gender> options =
+            provider.genderModel?.genders ?? [];
+
+        // Failed / empty state — let the user retry.
+        if (options.isEmpty) {
+          return GestureDetector(
+            onTap: () => provider.createdFors(),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: AppColors.fieldBg,
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Text(
+                'Couldn\'t load options. Tap to retry',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 12.sp,
+                  color: AppColors.hintText,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-            child: Text(
-              option,
-              style: GoogleFonts.tasaOrbiter(
-                fontSize: 10.5.sp,
-                fontWeight: FontWeight.w600,
-                color: selected ? AppColors.subtleWhite : AppColors.coral,
+          );
+        }    
+        return Wrap(
+          spacing: 10.w,
+          runSpacing: 10.h,
+          children: options.map((option) {
+            final bool selected = _gender?.id == option.id;
+            return GestureDetector(
+              onTap: () => setState(() => _gender = option),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.coral : AppColors.subtleWhite,
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(color: AppColors.coral, width: 1.2),
+                ),
+                child: Text(
+                  option.name,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 10.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? AppColors.subtleWhite : AppColors.coral,
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      }
     );
   }
 
@@ -1344,24 +1384,37 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           decoration: BoxDecoration(
             color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(14.r),
-            border: errorText != null ? Border.all(color: AppColors.error, width: 1.2) : null,
+            border: errorText != null
+                ? Border.all(color: AppColors.error, width: 1.2)
+                : null,
           ),
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
             textCapitalization: textCapitalization,
             onChanged: onChanged,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.ink, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.ink,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.hintText, fontWeight: FontWeight.w400),
+              hintStyle: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.hintText,
+                fontWeight: FontWeight.w400,
+              ),
               border: InputBorder.none,
               errorBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
               isDense: true,
               isCollapsed: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18.w,
+                vertical: 10.h,
+              ),
             ),
           ),
         ),
@@ -1369,7 +1422,11 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           SizedBox(height: 6.h),
           Text(
             errorText,
-            style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: AppColors.error, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 11.sp,
+              color: AppColors.error,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ],
@@ -1395,13 +1452,19 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           decoration: BoxDecoration(
             color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(14.r),
-            border: errorText != null ? Border.all(color: AppColors.error, width: 1.2) : null,
+            border: errorText != null
+                ? Border.all(color: AppColors.error, width: 1.2)
+                : null,
           ),
           child: TextFormField(
             controller: controller,
             obscureText: obscure,
             onChanged: onChanged,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.ink, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.ink,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               border: InputBorder.none,
               errorBorder: InputBorder.none,
@@ -1409,19 +1472,27 @@ class _BasicInfoState extends State<BasicInfoScreen> {
               enabledBorder: InputBorder.none,
               isDense: true,
               isCollapsed: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18.w,
+                vertical: 10.h,
+              ),
               suffixIcon: GestureDetector(
                 onTap: onToggleObscure,
                 child: Padding(
                   padding: EdgeInsets.only(right: 14.w),
                   child: Icon(
-                    obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    obscure
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     color: AppColors.hintText,
                     size: 18.sp,
                   ),
                 ),
               ),
-              suffixIconConstraints: BoxConstraints(minWidth: 40.w, minHeight: 20.h),
+              suffixIconConstraints: BoxConstraints(
+                minWidth: 40.w,
+                minHeight: 20.h,
+              ),
             ),
           ),
         ),
@@ -1429,7 +1500,11 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           SizedBox(height: 6.h),
           Text(
             errorText,
-            style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: AppColors.error, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 11.sp,
+              color: AppColors.error,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ],
@@ -1453,15 +1528,25 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           children: [
             Expanded(
               child: Text(
-                _dobController.text.isEmpty ? 'DD-MM-YYYY' : _dobController.text,
+                _dobController.text.isEmpty
+                    ? 'DD-MM-YYYY'
+                    : _dobController.text,
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 13.sp,
-                  fontWeight: _dobController.text.isEmpty ? FontWeight.w400 : FontWeight.w500,
-                  color: _dobController.text.isEmpty ? AppColors.hintText : AppColors.ink,
+                  fontWeight: _dobController.text.isEmpty
+                      ? FontWeight.w400
+                      : FontWeight.w500,
+                  color: _dobController.text.isEmpty
+                      ? AppColors.hintText
+                      : AppColors.ink,
                 ),
               ),
             ),
-            Icon(Icons.calendar_today_rounded, color: AppColors.ink, size: 16.sp),
+            Icon(
+              Icons.calendar_today_rounded,
+              color: AppColors.ink,
+              size: 16.sp,
+            ),
           ],
         ),
       ),
@@ -1489,7 +1574,11 @@ class _BasicInfoState extends State<BasicInfoScreen> {
         child: DropdownButtonFormField<String>(
           initialValue: value,
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.ink, size: 22.sp),
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: AppColors.ink,
+            size: 22.sp,
+          ),
           decoration: InputDecoration(
             border: InputBorder.none,
             isDense: true,
@@ -1497,16 +1586,24 @@ class _BasicInfoState extends State<BasicInfoScreen> {
           ),
           hint: Text(
             hint,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.hintText, fontWeight: FontWeight.w400),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.hintText,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.ink, fontWeight: FontWeight.w500),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            color: AppColors.ink,
+            fontWeight: FontWeight.w500,
+          ),
           dropdownColor: AppColors.subtleWhite,
           borderRadius: BorderRadius.circular(14.r),
           items: items
-              .map((item) => DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(item),
-                  ))
+              .map(
+                (item) =>
+                    DropdownMenuItem<String>(value: item, child: Text(item)),
+              )
               .toList(),
           onChanged: onChanged,
         ),

@@ -207,8 +207,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/basic_info_screen.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:provider/provider.dart';
 
 class OtpVerifyScreen extends StatefulWidget {
   final String mobile;
@@ -236,21 +238,32 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     _startTimer();
   }
 
-  // Drives the Continue button's coral/grey state.
   bool get _isFormValid => _ctrl.every((c) => c.text.trim().isNotEmpty);
 
   void _handleContinue() {
     setState(() => _isSubmitting = true);
-
-    // TODO: wire up actual OTP verification API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    String otpString = _ctrl.map((e) => e.text).join();
+    int otp = int.parse(otpString);
+    context.read<RegisterProvider>().verifyOtp(widget.mobile, otp).then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (_) => widget.nextScreen ?? const BasicInfoScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => widget.nextScreen ?? const BasicInfoScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.read<RegisterProvider>().verifyOtpError ??
+                  'Invalid OTP. Please try again',
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     });
   }
 

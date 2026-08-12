@@ -451,12 +451,19 @@
 //   }
 // }
 
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/model/created_for_model.dart';
+import 'package:matrimony_app/model/mother_tongue.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/otp_verify_screen.dart';
+import 'package:provider/provider.dart';
 
 // /// Brand colors used on this screen.
 // class _Palette {
@@ -482,40 +489,23 @@ class InitialInfoScreen extends StatefulWidget {
 class _InitialInfoScreenState extends State<InitialInfoScreen> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-
-  String? _profileFor;
-  String? _motherTongue;
-
   String? _fullNameError;
   String? _mobileError;
 
   bool _isSubmitting = false;
+  CreatedFor? _profileFor;
+  Language? _motherTongue;
 
-  final List<String> _profileForOptions = const [
-    'Myself',
-    'My Son',
-    'My Daughter',
-    'Brother',
-    'Sister',
-    'Friend',
-    'Relative',
-    'Uncle',
-    'Mother'
-  ];
 
-  final List<String> _motherTongueOptions = const [
-    'Malayalam',
-    'Tamil',
-    'Telugu',
-    'Kannada',
-    'Hindi',
-    'Marathi',
-    'Bengali',
-    'Gujarati',
-    'Punjabi',
-    'English',
-    'Other',
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<RegisterProvider>().createdFors();
+      context.read<RegisterProvider>().motherTongue();
+    });
+  }
 
   @override
   void dispose() {
@@ -536,42 +526,52 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
   void _handleSendOtp() {
     FocusScope.of(context).unfocus();
 
-    // final mobileValue = _mobileController.text.trim();
-    // setState(() {
-    //   _fullNameError = _fullNameController.text.trim().isEmpty
-    //       ? 'Please enter full name'
-    //       : null;
-    //   if (mobileValue.isEmpty) {
-    //     _mobileError = 'Please enter mobile number';
-    //   } else if (mobileValue.length != 10) {
-    //     _mobileError = 'Enter a valid 10-digit number';
-    //   } else {
-    //     _mobileError = null;
-    //   }
-    // });
-    // if (_fullNameError != null || _mobileError != null) return;
+    final mobileValue = _mobileController.text.trim();
+    setState(() {
+      _fullNameError = _fullNameController.text.trim().isEmpty
+          ? 'Please enter full name'
+          : null;
+      if (mobileValue.isEmpty) {
+        _mobileError = 'Please enter mobile number';
+      } else if (mobileValue.length != 10) {
+        _mobileError = 'Enter a valid 10-digit number';
+      } else {
+        _mobileError = null;
+      }
+    });
+    if (_fullNameError != null || _mobileError != null) return;
 
-    // if (_profileFor == null) {
-    //   _showSnack('Please select who you are creating this profile for');
-    //   return;
-    // }
-    // if (_motherTongue == null) {
-    //   _showSnack('Please select mother tongue');
-    //   return;
-    // }
+    if (_profileFor == null) {
+      _showSnack('Please select who you are creating this profile for');
+      return;
+    }
+    if (_motherTongue == null) {
+      _showSnack('Please select mother tongue');
+      return;
+    }
 
     setState(() => _isSubmitting = true);
-
-    // TODO: wire up actual send-OTP API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    provider
+        .signup(
+      _profileFor!.id,
+      _fullNameController.text.trim(),
+      _motherTongue!.id,
+      _mobileController.text.trim(),
+    )
+        .then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OtpVerifyScreen(mobile: ""),
-        ),
-      );
+      if (success) {
+        _showSnack(provider.signupModel?.message ?? 'Signup successful');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => OtpVerifyScreen(mobile: _mobileController.text)),
+        );
+      } else {
+        final mobileError = provider.signupModel?.error?.mobileNumber?.join(', ');
+        _showSnack(mobileError ?? 'Signup failed. Please try again');
+      }
     });
   }
 
@@ -595,7 +595,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
       body: SafeArea(
         child: Column(
           children: [
-           // _buildTopBar(),
+            // _buildTopBar(),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -646,13 +646,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                     SizedBox(height: 20.h),
                     _FieldLabel('Mother Tongue'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select Mother Tongue',
-                      value: _motherTongue,
-                      items: _motherTongueOptions,
-                      onChanged: (value) =>
-                          setState(() => _motherTongue = value),
-                    ),
+                    _buildMotherTongueDropdown(),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Mobile Number'),
@@ -693,35 +687,73 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
   // Profile-for chip selector
   // ---------------------------------------------------------------------
   Widget _buildProfileForSelector() {
-    return Wrap(
-      spacing: 10.w,
-      runSpacing: 10.h,
-      children: _profileForOptions.map((option) {
-        final bool selected = _profileFor == option;
-        return GestureDetector(
-          onTap: () => setState(() => _profileFor = option),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
-            decoration: BoxDecoration(
-              color: selected ? AppColors.coral : AppColors.fieldBg,
-              borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(
-                color: selected ? AppColors.coral : Colors.transparent,
-                width: 1.2,
+    return Consumer<RegisterProvider>(
+      builder: (context, provider, child) {
+        if (provider.loaderState == LoaderState.loading &&
+            provider.createdForModel == null) {
+          return SizedBox(
+            height: 40.h,
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.coralDark),
+            ),
+          );
+        }
+
+        final List<CreatedFor> options =
+            provider.createdForModel?.createdFors ?? [];
+
+        // Failed / empty state — let the user retry.
+        if (options.isEmpty) {
+          return GestureDetector(
+            onTap: () => provider.createdFors(),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: AppColors.fieldBg,
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Text(
+                'Couldn\'t load options. Tap to retry',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 12.sp,
+                  color: AppColors.hintText,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-            child: Text(
-              option,
-              style: GoogleFonts.tasaOrbiter(
-                fontSize: 10.5.sp,
-                fontWeight: FontWeight.w600,
-                color: selected ? AppColors.subtleWhite : AppColors.ink,
+          );
+        }
+        return Wrap(
+          spacing: 10.w,
+          runSpacing: 10.h,
+          children: options.map((option) {
+            final bool selected = _profileFor?.id == option.id;
+            return GestureDetector(
+              onTap: () => setState(() => _profileFor = option),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.coral : AppColors.fieldBg,
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(
+                    color: selected ? AppColors.coral : Colors.transparent,
+                    width: 1.2,
+                  ),
+                ),
+                child: Text(
+                  option.name,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 10.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? AppColors.subtleWhite : AppColors.ink,
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -883,60 +915,96 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Dropdown field (Mother Tongue)
+  // Dropdown field (Mother Tongue) — populated from RegisterProvider.motherTongue()
   // ---------------------------------------------------------------------
-  Widget _buildDropdownField({
-    required String hint,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Container(
-      constraints: BoxConstraints(minHeight: 44.h),
-      padding: EdgeInsets.symmetric(horizontal: 18.w),
-      alignment: Alignment.centerLeft,
-      decoration: BoxDecoration(
-        color: AppColors.fieldBg,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: AppColors.ink,
-            size: 22.sp,
+  Widget _buildMotherTongueDropdown() {
+    return Consumer<RegisterProvider>(
+      builder: (context, provider, child) {
+        if (provider.loaderState == LoaderState.loading &&
+            provider.motherTongueModel == null) {
+          return SizedBox(
+            height: 44.h,
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.coralDark),
+            ),
+          );
+        }
+
+        final List<Language> languages =
+            provider.motherTongueModel?.languages ?? [];
+
+        // Failed / empty state — let the user retry.
+        if (languages.isEmpty) {
+          return GestureDetector(
+            onTap: () => provider.motherTongue(),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: AppColors.fieldBg,
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Text(
+                'Couldn\'t load options. Tap to retry',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 12.sp,
+                  color: AppColors.hintText,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Container(
+          constraints: BoxConstraints(minHeight: 44.h),
+          padding: EdgeInsets.symmetric(horizontal: 18.w),
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+            color: AppColors.fieldBg,
+            borderRadius: BorderRadius.circular(14.r),
           ),
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10.h),
-          ),
-          hint: Text(
-            hint,
-            style: GoogleFonts.tasaOrbiter(
-              fontSize: 13.sp,
-              color: AppColors.hintText,
-              fontWeight: FontWeight.w400,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButtonFormField<Language>(
+              initialValue: _motherTongue,
+              isExpanded: true,
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: AppColors.ink,
+                size: 22.sp,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+              ),
+              hint: Text(
+                'Select Mother Tongue',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: AppColors.hintText,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.ink,
+                fontWeight: FontWeight.w500,
+              ),
+              dropdownColor: AppColors.subtleWhite,
+              borderRadius: BorderRadius.circular(14.r),
+              items: languages
+                  .map(
+                    (lang) => DropdownMenuItem<Language>(
+                      value: lang,
+                      child: Text(lang.name),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) => setState(() => _motherTongue = value),
             ),
           ),
-          style: GoogleFonts.tasaOrbiter(
-            fontSize: 13.sp,
-            color: AppColors.ink,
-            fontWeight: FontWeight.w500,
-          ),
-          dropdownColor: AppColors.subtleWhite,
-          borderRadius: BorderRadius.circular(14.r),
-          items: items
-              .map(
-                (item) =>
-                    DropdownMenuItem<String>(value: item, child: Text(item)),
-              )
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -955,7 +1023,9 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _handleSendOtp,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isFormValid ? AppColors.coral : AppColors.grey,
+                backgroundColor: _isFormValid
+                    ? AppColors.coral
+                    : AppColors.grey,
                 disabledBackgroundColor: AppColors.coral,
                 foregroundColor: AppColors.subtleWhite,
                 elevation: 0,

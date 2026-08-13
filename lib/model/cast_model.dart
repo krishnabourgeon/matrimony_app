@@ -42,4 +42,11 @@ class Caste {
         "id": id,
         "name": name,
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is Caste && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

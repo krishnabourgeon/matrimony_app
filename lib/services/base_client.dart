@@ -42,6 +42,7 @@ class BaseClient {
               uri,
               headers: {
                 HttpHeaders.contentTypeHeader: _appJson,
+                HttpHeaders.acceptHeader: _appJson,
                 HttpHeaders.authorizationHeader: 'Bearer $bearerToken',
               },
             )
@@ -61,6 +62,7 @@ class BaseClient {
   //POST METHOD
   static Future<dynamic> post(String api, {dynamic body}) async {
     String bearerToken = await token;
+    print('POST $api -> bearer token: ${bearerToken.isEmpty ? "EMPTY (not authenticated)" : "present"}');
 
     var uri = Uri.parse(AppConfig.baseUrl + api);
     bool check = await isInternetAvailable();
@@ -71,6 +73,7 @@ class BaseClient {
               uri,
               headers: {
                 HttpHeaders.contentTypeHeader: _appJson,
+                HttpHeaders.acceptHeader: _appJson,
                 HttpHeaders.authorizationHeader: 'Bearer $bearerToken',
               },
               body: body != null ? json.encode(body) : null,
@@ -114,8 +117,14 @@ class BaseClient {
         );
       case 500:
       default:
+        // Some backends send a validation-style JSON body even on status
+        // codes we don't otherwise special-case (e.g. a 302 with an
+        // "errors"/"message" body instead of a real redirect). Pass the raw
+        // body through so callers can still parse the real reason instead of
+        // just seeing "Error occured with code : 302".
+        final body = utf8.decode(response.bodyBytes);
         throw FetchDataException(
-          'Error occured with code : ${response.statusCode}',
+          body.isNotEmpty ? body : 'Error occured with code : ${response.statusCode}',
           response.request!.url.toString(),
         );
     }

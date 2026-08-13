@@ -1020,65 +1020,73 @@ class _BasicInfoState extends State<BasicInfoScreen> {
     FocusScope.of(context).unfocus();
 
     setState(() {
-      // _fullNameError = _fullNameController.text.trim().isEmpty ? 'Please enter full name' : null;
+      final email = _emailController.text.trim();
+      if (email.isEmpty) {
+        _emailError = 'Please enter your email id';
+      } else if (!_isValidEmail(email)) {
+        _emailError = 'Please enter a valid email id';
+      } else {
+        _emailError = null;
+      }
 
-      // final email = _emailController.text.trim();
-      // if (email.isEmpty) {
-      //   _emailError = 'Please enter your email id';
-      // } else if (!_isValidEmail(email)) {
-      //   _emailError = 'Please enter a valid email id';
-      // } else {
-      //   _emailError = null;
-      // }
+      final password = _passwordController.text;
+      if (password.isEmpty) {
+        _passwordError = 'Please enter a password';
+      } else if (password.length < 8 || password.length > 20) {
+        _passwordError = 'Password must be 8-20 characters';
+      } else {
+        _passwordError = null;
+      }
 
-      // final password = _passwordController.text;
-      // if (password.isEmpty) {
-      //   _passwordError = 'Please enter a password';
-      // } else if (password.length < 8 || password.length > 20) {
-      //   _passwordError = 'Password must be 8-20 characters';
-      // } else {
-      //   _passwordError = null;
-      // }
-
-      // final confirmPassword = _confirmPasswordController.text;
-      // if (confirmPassword.isEmpty) {
-      //   _confirmPasswordError = 'Please confirm your password';
-      // } else if (confirmPassword != password) {
-      //   _confirmPasswordError = 'Passwords do not match';
-      // } else {
-      //   _confirmPasswordError = null;
-      // }
+      final confirmPassword = _confirmPasswordController.text;
+      if (confirmPassword.isEmpty) {
+        _confirmPasswordError = 'Please confirm your password';
+      } else if (confirmPassword != password) {
+        _confirmPasswordError = 'Passwords do not match';
+      } else {
+        _confirmPasswordError = null;
+      }
     });
 
-    // if (_fullNameError != null) return;
-
-    // if (_gender == null) {
-    //   _showSnack('Please select gender');
-    //   return;
-    // }
-    // if (_dob == null) {
-    //   _showSnack('Please select date of birth');
-    //   return;
-    // }
-    // if (_emailError != null) return;
-    // if (_passwordError != null) return;
-    // if (_confirmPasswordError != null) return;
-
-    // if (_maritalStatus == null) {
-    //   _showSnack('Please select marital status');
-    //   return;
-    // }
+    if (_gender == null) {
+      _showSnack('Please select gender');
+      return;
+    }
+    if (_dob == null) {
+      _showSnack('Please select date of birth');
+      return;
+    }
+    if (_emailError != null) return;
+    if (_passwordError != null) return;
+    if (_confirmPasswordError != null) return;
 
     setState(() => _isSubmitting = true);
 
-    // TODO: wire up actual save/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final dob = _dob!;
+    // Backend expects PHP's d-m-Y format (day-month-year), not y-m-d.
+    final dobFormatted =
+        '${dob.day.toString().padLeft(2, '0')}-${dob.month.toString().padLeft(2, '0')}-${dob.year.toString().padLeft(4, '0')}';
+
+    final provider = context.read<RegisterProvider>();
+    provider
+        .basicInfo(
+      _emailController.text.trim(),
+      _passwordController.text,
+      _confirmPasswordController.text,
+      dobFormatted,
+      _gender!.id,
+    )
+        .then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const CommunityLocationScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CommunityLocationScreen()),
+        );
+      } else {
+        _showSnack(provider.basicInfoError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
@@ -1162,18 +1170,6 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                         if (_emailError != null) _emailError = null;
                       }),
                     ),
-                    if (_emailError == null) ...[
-                      SizedBox(height: 6.h),
-                      Text(
-                        'Enter your email id',
-                        style: GoogleFonts.tasaOrbiter(
-                          fontSize: 11.sp,
-                          color: AppColors.hintText,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-
                     SizedBox(height: 20.h),
 
                     // â”€â”€ Password + Confirm Password (side by side) â”€â”€

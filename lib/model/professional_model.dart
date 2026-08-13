@@ -51,7 +51,7 @@ class Data {
 class Professional {
     int customerId;
     int highestEducationId;
-    String educationDesc;
+    String? educationDesc;
     int jobIndustryId;
     int occupationId;
     int workingCountryId;

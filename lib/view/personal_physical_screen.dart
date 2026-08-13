@@ -294,6 +294,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/blood_group.dart';
+import 'package:matrimony_app/model/body_type.dart';
+import 'package:matrimony_app/model/choices_model.dart';
+import 'package:matrimony_app/model/diets_model.dart';
+import 'package:matrimony_app/model/marital_statuses_model.dart';
+import 'package:matrimony_app/model/skin_type_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/family_details_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 import 'package:matrimony_app/view/photos_about_screen.dart';
@@ -319,56 +328,92 @@ class PersonalPhysicalScreen extends StatefulWidget {
 }
 
 class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
-  String _marital = 'Unmarried';
+  static final List<int> _heightOptions = List.generate(210 - 120 + 1, (i) => 120 + i);
+  static final List<int> _weightOptions = List.generate(150 - 30 + 1, (i) => 30 + i);
+
+  MaritalStatus? _marital;
   String _surgery = 'No';
   String _pets = 'No';
   int _children = 0;
   int _descCount = 0;
 
   final _descriptionCtrl = TextEditingController();
+  final _disabilityDescCtrl = TextEditingController();
+  final _surgeryDescCtrl = TextEditingController();
 
-  String? _height;
-  String? _weight;
-  String? _skinColor;
-  String? _bodyType;
-  String? _bloodGroup;
-  String? _disability;
-  String? _diet;
-  String? _smoking;
-  String? _drinking;
+  int? _height;
+  int? _weight;
+  SkinType? _skinColor;
+  BodyType? _bodyType;
+  BloodGroup? _bloodGroup;
+  String _disability = 'No';
+  Diet? _diet;
+  Choice? _smoking;
+  Choice? _drinking;
 
   bool _isSubmitting = false;
   bool _isSubmittingProfile = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<RegisterProvider>();
+      provider.getMaritalStatuses();
+      provider.getSkinTypes();
+      provider.getBodyTypes();
+      provider.getBloodGroups();
+      provider.getDiets();
+      provider.getChoices();
+    });
+  }
+
+  @override
   void dispose() {
     _descriptionCtrl.dispose();
+    _disabilityDescCtrl.dispose();
+    _surgeryDescCtrl.dispose();
     super.dispose();
   }
 
-  // Required fields: Height, Weight, Skin Color, Body Type, Blood Group.
-  // (Marital Status/Surgery/Pets already default to a value so they don't
-  // need to gate the button.)
-  bool get _isFormValid =>
-      _height != null &&
-      _weight != null &&
-      _skinColor != null &&
-      _bodyType != null &&
-      _bloodGroup != null;
+  // Physical Details (Height/Weight/Skin Color/Body Type/Blood Group) are
+  // optional on this screen — nothing here gates the Continue/Submit button.
+  Future<bool> _submitPersonalDetails() {
+    final provider = context.read<RegisterProvider>();
+    return provider.personalDetails(
+      maritalStatusId: _marital?.id ?? 0,
+      childCount: _children,
+      height: _height ?? 0,
+      weight: _weight ?? 0,
+      skinTypeId: _skinColor?.id ?? 0,
+      bodyTypeId: _bodyType?.id ?? 0,
+      bloodGroupId: _bloodGroup?.id ?? 0,
+      disabilityStatus: _disability == 'Yes' ? 1 : 0,
+      disabilityDesc: _disability == 'Yes' ? _disabilityDescCtrl.text.trim() : '',
+      majorSurgery: _surgery == 'Yes' ? 1 : 0,
+      dietId: _diet?.id ?? 0,
+      drinkingHabitId: _drinking?.id ?? 0,
+      smokingHabitId: _smoking?.id ?? 0,
+      havePet: _pets == 'Yes' ? 1 : 0,
+    );
+  }
 
   void _handleContinue() {
     FocusScope.of(context).unfocus();
 
     setState(() => _isSubmitting = true);
-
-    // TODO: wire up actual save/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    _submitPersonalDetails().then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const PhotosAboutScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PhotosAboutScreen()),
+        );
+      } else {
+        _showSnack(provider.personalError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
@@ -377,18 +422,20 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   // app's main screen.
   void _handleSubmit() {
     FocusScope.of(context).unfocus();
-
     setState(() => _isSubmittingProfile = true);
-
-    // TODO: wire up actual submit-profile API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    _submitPersonalDetails().then((success) {
       if (!mounted) return;
       setState(() => _isSubmittingProfile = false);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainShell()),
-        (route) => false,
-      );
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainShell()),
+          (route) => false,
+        );
+      } else {
+        _showSnack(provider.personalError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
@@ -431,10 +478,26 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
 
                     _FieldLabel('Marital Status'),
                     SizedBox(height: 10.h),
-                    _buildChipSelector(
-                      options: const ['Unmarried', 'Divorced', 'Widow/er', 'Awaiting Divorcee', 'Annulled'],
-                      selected: _marital,
-                      onSelect: (v) => setState(() => _marital = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.maritalStatusesModel?.maritalStatuses ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.maritalStatusesModel == null;
+                        if (loading) {
+                          return SizedBox(
+                            height: 30.h,
+                            child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                            ),
+                          );
+                        }
+                        return _buildChipSelector<MaritalStatus>(
+                          options: options,
+                          selected: _marital,
+                          labelBuilder: (m) => m.name,
+                          onSelect: (v) => setState(() => _marital = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
@@ -451,47 +514,87 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     SizedBox(height: 20.h),
                     _FieldLabel('Physical Details'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
+                    _buildDropdownField<int>(
                       hint: 'Height (cm)',
                       value: _height,
-                      items: const ['150', '155', '160', '165', '170', '175', '180', '185', '190'],
+                      items: _heightOptions,
+                      labelBuilder: (h) => '$h cm',
                       onChanged: (v) => setState(() => _height = v),
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
+                    _buildDropdownField<int>(
                       hint: 'Weight (Kg)',
                       value: _weight,
-                      items: const ['45', '50', '55', '60', '65', '70', '75', '80', '85', '90+'],
+                      items: _weightOptions,
+                      labelBuilder: (w) => '$w kg',
                       onChanged: (v) => setState(() => _weight = v),
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Skin Color',
-                      value: _skinColor,
-                      items: const ['Fair', 'Wheatish', 'Dusky', 'Dark'],
-                      onChanged: (v) => setState(() => _skinColor = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final skinTypes = provider.skinTypeModel?.skinTypes ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.skinTypeModel == null;
+                        return _buildDropdownField<SkinType>(
+                          hint: loading ? 'Loading...' : 'Skin Color',
+                          value: _skinColor,
+                          items: skinTypes,
+                          labelBuilder: (s) => s.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _skinColor = v),
+                        );
+                      },
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Body Type',
-                      value: _bodyType,
-                      items: const ['Slim', 'Athletic', 'Average', 'Heavy'],
-                      onChanged: (v) => setState(() => _bodyType = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final bodyTypes = provider.bodyTypeModel?.bodyTypes ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.bodyTypeModel == null;
+                        return _buildDropdownField<BodyType>(
+                          hint: loading ? 'Loading...' : 'Body Type',
+                          value: _bodyType,
+                          items: bodyTypes,
+                          labelBuilder: (b) => b.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _bodyType = v),
+                        );
+                      },
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Blood Group',
-                      value: _bloodGroup,
-                      items: const ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'],
-                      onChanged: (v) => setState(() => _bloodGroup = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final bloodGroups = provider.bloodGroupModel?.bloodGroups ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.bloodGroupModel == null;
+                        return _buildDropdownField<BloodGroup>(
+                          hint: loading ? 'Loading...' : 'Blood Group',
+                          value: _bloodGroup,
+                          items: bloodGroups,
+                          labelBuilder: (b) => b.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _bloodGroup = v),
+                        );
+                      },
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
+                    _buildDropdownField<String>(
                       hint: 'Any disability',
                       value: _disability,
                       items: const ['No', 'Yes'],
-                      onChanged: (v) => setState(() => _disability = v),
+                      labelBuilder: (s) => s,
+                      onChanged: (v) => setState(() => _disability = v ?? 'No'),
                     ),
+                    if (_disability == 'Yes') ...[
+                      SizedBox(height: 8.h),
+                      _buildTextAreaField(
+                        controller: _disabilityDescCtrl,
+                        hint: 'Briefly describe the disability',
+                        maxLength: 255,
+                        onChanged: (v) => setState(() {}),
+                        count: _disabilityDescCtrl.text.length,
+                      ),
+                    ],
                     //SizedBox(height: 8.h),
                     // _buildTextAreaField(
                     //   controller: _descriptionCtrl,
@@ -504,49 +607,88 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     SizedBox(height: 20.h),
                     _FieldLabel('Any major surgical treatment or organ replacing done?'),
                     SizedBox(height: 10.h),
-                    _buildChipSelector(
+                    _buildChipSelector<String>(
                       options: const ['No', 'Yes'],
                       selected: _surgery,
-                      onSelect: (v) => setState(() => _surgery = v),
+                      labelBuilder: (s) => s,
+                      onSelect: (v) => setState(() => _surgery = v ?? 'No'),
                     ),
+                    if (_surgery == 'Yes') ...[
+                      SizedBox(height: 8.h),
+                      _buildTextAreaField(
+                        controller: _surgeryDescCtrl,
+                        hint: 'Briefly describe the surgery / organ replacement',
+                        maxLength: 255,
+                        onChanged: (v) => setState(() {}),
+                        count: _surgeryDescCtrl.text.length,
+                      ),
+                    ],
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Diet'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Diet',
-                      value: _diet,
-                      items: const ['Vegetarian', 'Non-Vegetarian', 'Vegan', 'Jain'],
-                      onChanged: (v) => setState(() => _diet = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final diets = provider.dietsModel?.diets ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.dietsModel == null;
+                        return _buildDropdownField<Diet>(
+                          hint: loading ? 'Loading...' : 'Diet',
+                          value: _diet,
+                          items: diets,
+                          labelBuilder: (d) => d.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _diet = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Smoking'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Smoking',
-                      value: _smoking,
-                      items: const ['No', 'Occasionally', 'Yes'],
-                      onChanged: (v) => setState(() => _smoking = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.choicesModel?.choices ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.choicesModel == null;
+                        return _buildDropdownField<Choice>(
+                          hint: loading ? 'Loading...' : 'Smoking',
+                          value: _smoking,
+                          items: options,
+                          labelBuilder: (c) => c.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _smoking = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Drinking'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Drinking',
-                      value: _drinking,
-                      items: const ['No', 'Occasionally', 'Yes'],
-                      onChanged: (v) => setState(() => _drinking = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.choicesModel?.choices ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.choicesModel == null;
+                        return _buildDropdownField<Choice>(
+                          hint: loading ? 'Loading...' : 'Drinking',
+                          value: _drinking,
+                          items: options,
+                          labelBuilder: (c) => c.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _drinking = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Do you have any pets?'),
                     SizedBox(height: 10.h),
-                    _buildChipSelector(
+                    _buildChipSelector<String>(
                       options: const ['No', 'Yes'],
                       selected: _pets,
-                      onSelect: (v) => setState(() => _pets = v),
+                      labelBuilder: (s) => s,
+                      onSelect: (v) => setState(() => _pets = v ?? 'No'),
                     ),
 
                     SizedBox(height: 12.h),
@@ -610,10 +752,11 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   // ---------------------------------------------------------------------
   // Single-select chip row (Marital Status / Surgery / Pets)
   // ---------------------------------------------------------------------
-  Widget _buildChipSelector({
-    required List<String> options,
-    required String selected,
-    required ValueChanged<String> onSelect,
+  Widget _buildChipSelector<T>({
+    required List<T> options,
+    required T? selected,
+    required String Function(T) labelBuilder,
+    required ValueChanged<T?> onSelect,
   }) {
     return Wrap(
       spacing: 10.w,
@@ -634,7 +777,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
               ),
             ),
             child: Text(
-              option,
+              labelBuilder(option),
               style: GoogleFonts.tasaOrbiter(
                 fontSize: 10.5.sp,
                 fontWeight: FontWeight.w600,
@@ -724,11 +867,14 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   // ---------------------------------------------------------------------
   // Dropdown field
   // ---------------------------------------------------------------------
-  Widget _buildDropdownField({
+  Widget _buildDropdownField<T>({
     required String hint,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
+    required T? value,
+    required List<T> items,
+    required String Function(T) labelBuilder,
+    required ValueChanged<T?> onChanged,
+    bool enabled = true,
+    bool loading = false,
   }) {
     return Container(
       constraints: BoxConstraints(minHeight: 44.h),
@@ -738,31 +884,62 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
         color: _Palette.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10.h),
-          ),
-          hint: Text(
-            hint,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
-          ),
-          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-          dropdownColor: _Palette.subtleWhite,
-          borderRadius: BorderRadius.circular(14.r),
-          items: items
-              .map((item) => DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(item),
-                  ))
-              .toList(),
-          onChanged: onChanged,
-        ),
+      child: loading
+          ? Row(
+              children: [
+                SizedBox(
+                  width: 14.w,
+                  height: 14.w,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                ),
+                SizedBox(width: 10.w),
+                Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+              ],
+            )
+          : DropdownButtonHideUnderline(
+              child: DropdownButtonFormField<T>(
+                initialValue: items.contains(value) ? value : null,
+                isExpanded: true,
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                ),
+                hint: Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+                dropdownColor: _Palette.subtleWhite,
+                borderRadius: BorderRadius.circular(14.r),
+                items: items
+                    .map((item) => DropdownMenuItem<T>(
+                          value: item,
+                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+                        ))
+                    .toList(),
+                onChanged: enabled ? onChanged : null,
+              ),
+            ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Snackbar helper
+  // ---------------------------------------------------------------------
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
+        backgroundColor: _Palette.ink,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -863,16 +1040,31 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
 /// Small reusable field label used above every input on this screen.
 class _FieldLabel extends StatelessWidget {
   final String text;
-  const _FieldLabel(this.text);
+  final bool required;
+  const _FieldLabel(this.text, {this.required = false});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.tasaOrbiter(
-        fontSize: 13.sp,
-        fontWeight: FontWeight.w600,
-        color: _Palette.ink,
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w600,
+          color: _Palette.ink,
+        ),
+        children: required
+            ? [
+                TextSpan(
+                  text: ' *',
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red,
+                  ),
+                ),
+              ]
+            : null,
       ),
     );
   }

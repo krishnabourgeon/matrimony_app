@@ -66,7 +66,9 @@ class Location {
     dynamic currentDistrictId;
     dynamic currentAddress;
     dynamic currentPincode;
-    int locationStatus;
+    // Not present in the community-location POST response — only some other
+    // endpoint's payload includes it — so this must stay nullable.
+    int? locationStatus;
     DateTime createdAt;
     DateTime updatedAt;
 

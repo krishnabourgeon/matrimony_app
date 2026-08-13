@@ -42,4 +42,11 @@ class SkinType {
         "id": id,
         "name": name,
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is SkinType && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

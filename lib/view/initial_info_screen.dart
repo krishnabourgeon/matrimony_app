@@ -569,8 +569,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
           MaterialPageRoute(builder: (context) => OtpVerifyScreen(mobile: _mobileController.text)),
         );
       } else {
-        final mobileError = provider.signupModel?.error?.mobileNumber?.join(', ');
-        _showSnack(mobileError ?? 'Signup failed. Please try again');
+        _showSnack(provider.signupError ?? 'Signup failed. Please try again');
       }
     });
   }
@@ -625,12 +624,12 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                     ),
                     SizedBox(height: 20.h),
 
-                    _FieldLabel('Create Profile For'),
+                    _FieldLabel('Create Profile For',required: true,),
                     SizedBox(height: 10.h),
                     _buildProfileForSelector(),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel("Bride's/Groom's Name "),
+                    _FieldLabel("Bride's/Groom's Name ",required: true),
                     SizedBox(height: 8.h),
                     _buildTextField(
                       controller: _fullNameController,
@@ -644,12 +643,12 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                     ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Mother Tongue'),
+                    _FieldLabel('Mother Tongue',required: true),
                     SizedBox(height: 8.h),
                     _buildMotherTongueDropdown(),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Mobile Number'),
+                    _FieldLabel('Mobile Number',required: true),
                     SizedBox(height: 8.h),
                     _buildMobileField(errorText: _mobileError),
 
@@ -1087,19 +1086,56 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
   }
 }
 
+// /// Small reusable field label used above every input on this screen.
+// class _FieldLabel extends StatelessWidget {
+//   final String text;
+//   const _FieldLabel(this.text);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Text(
+//       text,
+//       style: GoogleFonts.tasaOrbiter(
+//         fontSize: 13.sp,
+//         fontWeight: FontWeight.w600,
+//         color: AppColors.ink,
+//       ),
+//     );
+//   }
+// }
+
+
+
+
 /// Small reusable field label used above every input on this screen.
+/// Pass [required] to append a red asterisk, matching the reference design.
 class _FieldLabel extends StatelessWidget {
   final String text;
-  const _FieldLabel(this.text);
+  final bool required;
+  const _FieldLabel(this.text, {this.required = false});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.tasaOrbiter(
-        fontSize: 13.sp,
-        fontWeight: FontWeight.w600,
-        color: AppColors.ink,
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.ink,
+        ),
+        children: required
+            ? [
+                TextSpan(
+                  text: ' *',
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.error,
+                  ),
+                ),
+              ]
+            : null,
       ),
     );
   }

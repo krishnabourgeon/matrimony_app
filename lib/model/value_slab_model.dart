@@ -50,4 +50,11 @@ class ValueSlab {
         "value_from": valueFrom,
         "value_to": valueTo,
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is ValueSlab && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

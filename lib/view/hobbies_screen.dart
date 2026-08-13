@@ -190,6 +190,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/hobbies_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/horoscope_details.dart';
 
 /// Brand colors used on this screen — mirrors the other onboarding screens' palette.
@@ -212,20 +216,20 @@ class HobbiesScreen extends StatefulWidget {
 }
 
 class _HobbiesState extends State<HobbiesScreen> {
-  final Set<String> _selected = {};
-
-  static const List<String> _hobbies = [
-    'Writing', 'Reading', 'Badminton', 'Cricket',
-    'Football', 'Tennis', 'Chess', 'Kabadi',
-    'Caroms', 'Billiards', 'Swimming', 'Travelling',
-    'Trucking', 'Cinema', 'Watching TV', 'Gaming',
-  ];
+  final Set<Hobby> _selected = {};
 
   final _otherCtrl = TextEditingController();
   int _otherCount = 0;
 
   bool _isSubmitting = false;
-  bool _isSkipping = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RegisterProvider>().getHobbies();
+    });
+  }
 
   @override
   void dispose() {
@@ -233,7 +237,7 @@ class _HobbiesState extends State<HobbiesScreen> {
     super.dispose();
   }
 
-  void _toggle(String hobby) {
+  void _toggle(Hobby hobby) {
     setState(() {
       if (_selected.contains(hobby)) {
         _selected.remove(hobby);
@@ -243,36 +247,48 @@ class _HobbiesState extends State<HobbiesScreen> {
     });
   }
 
+  // Nothing on this screen is required — Continue saves whatever's selected
+  // (possibly nothing), Skip saves nothing at all.
   void _handleContinue() {
     FocusScope.of(context).unfocus();
 
     setState(() => _isSubmitting = true);
-
-    // TODO: wire up actual save/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    provider
+        .saveHobbies(
+      hobbies: _selected.map((h) => h.id).toList(),
+      otherHobbies: _otherCtrl.text.trim(),
+    )
+        .then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HoroscopeScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const HoroscopeScreen()),
+        );
+      } else {
+        _showSnack(provider.hobbyError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
   void _handleSkip() {
-    FocusScope.of(context).unfocus();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const HoroscopeScreen()),
+    );
+  }
 
-    setState(() => _isSkipping = true);
-
-    // TODO: wire up actual skip/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
-      if (!mounted) return;
-      setState(() => _isSkipping = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HoroscopeScreen()),
-      );
-    });
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
+        backgroundColor: _Palette.ink,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+      ),
+    );
   }
 
   @override
@@ -367,32 +383,46 @@ class _HobbiesState extends State<HobbiesScreen> {
   // Hobby pills — outlined coral when unselected, filled coral when selected.
   // ---------------------------------------------------------------------
   Widget _buildHobbyChips() {
-    return Wrap(
-      spacing: 10.w,
-      runSpacing: 10.h,
-      children: _hobbies.map((hobby) {
-        final bool selected = _selected.contains(hobby);
-        return GestureDetector(
-          onTap: () => _toggle(hobby),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
-            decoration: BoxDecoration(
-              color: selected ? _Palette.coral : _Palette.subtleWhite,
-              borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(color: selected ? _Palette.coral : _Palette.hintText, width: 1.2),
+    return Consumer<RegisterProvider>(
+      builder: (context, provider, _) {
+        final hobbies = provider.hobbiesModel?.hobbies ?? [];
+        final loading = provider.loaderState == LoaderState.loading && provider.hobbiesModel == null;
+        if (loading) {
+          return SizedBox(
+            height: 40.h,
+            child: Center(
+              child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
             ),
-            child: Text(
-              hobby,
-              style: GoogleFonts.tasaOrbiter(
-                fontSize: 12.5.sp,
-                fontWeight: FontWeight.w600,
-                color: selected ? _Palette.subtleWhite : _Palette.hintText,
+          );
+        }
+        return Wrap(
+          spacing: 10.w,
+          runSpacing: 10.h,
+          children: hobbies.map((hobby) {
+            final bool selected = _selected.contains(hobby);
+            return GestureDetector(
+              onTap: () => _toggle(hobby),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
+                decoration: BoxDecoration(
+                  color: selected ? _Palette.coral : _Palette.subtleWhite,
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(color: selected ? _Palette.coral : _Palette.hintText, width: 1.2),
+                ),
+                child: Text(
+                  hobby.name,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? _Palette.subtleWhite : _Palette.hintText,
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -436,7 +466,7 @@ class _HobbiesState extends State<HobbiesScreen> {
   // Bottom area: Continue (filled) + Skip (outlined) + helper caption
   // ---------------------------------------------------------------------
   Widget _buildBottomArea() {
-    final bool busy = _isSubmitting || _isSkipping;
+    final bool busy = _isSubmitting;
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 20.h),
       child: Column(
@@ -493,25 +523,14 @@ class _HobbiesState extends State<HobbiesScreen> {
                         borderRadius: BorderRadius.circular(28.r),
                       ),
                     ),
-                    child: _isSkipping
-                        ? SizedBox(
-                            width: 22.w,
-                            height: 22.w,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.4,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                _Palette.coral,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'Skip',
-                            style: GoogleFonts.tasaOrbiter(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.1,
-                            ),
-                          ),
+                    child: Text(
+                      'Skip',
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
                   ),
                 ),
               ),

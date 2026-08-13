@@ -42,4 +42,11 @@ class FamilyType {
         "id": id,
         "name": name,
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is FamilyType && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

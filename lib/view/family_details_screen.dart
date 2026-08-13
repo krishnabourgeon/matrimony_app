@@ -316,6 +316,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/family_statuses.dart';
+import 'package:matrimony_app/model/family_type_model.dart';
+import 'package:matrimony_app/model/family_values_model.dart';
+import 'package:matrimony_app/model/occupations_model.dart';
+import 'package:matrimony_app/model/value_slab_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/hobbies_screen.dart';
 import 'package:matrimony_app/view/photos_about_screen.dart';
 
@@ -352,15 +360,28 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
 
   final _contactCtrl = TextEditingController();
 
-  String? _familyClass;
-  String? _familyType;
-  String? _familyValues;
+  FamilyStatus? _familyClass;
+  FamilyType? _familyType;
+  FamilyValue? _familyValues;
   String? _memberCount;
-  String? _fatherOccupation;
-  String? _motherOccupation;
-  String? _familyIncome;
+  Occupation? _fatherOccupation;
+  Occupation? _motherOccupation;
+  ValueSlab? _familyIncome;
 
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<RegisterProvider>();
+      provider.getFamilyStatuses();
+      provider.getFamilyTypes();
+      provider.getFamilyValues();
+      provider.getOccupations();
+      provider.getValueSlabs();
+    });
+  }
 
   @override
   void dispose() {
@@ -368,47 +389,50 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
     super.dispose();
   }
 
-  // Required fields: Family Class, Family Type.
-  bool get _isFormValid => _familyClass != null && _familyType != null;
+  // Nothing on this screen is required — Continue saves whatever's filled in
+  // (unset fields default to 0/empty), Skip saves nothing at all.
+  Future<bool> _submitFamilyDetails() {
+    final provider = context.read<RegisterProvider>();
+    return provider.familyDetails(
+      familyTypeId: _familyType?.id ?? 0,
+      familyStatusId: _familyClass?.id ?? 0,
+      familyValueId: _familyValues?.id ?? 0,
+      membersCount: int.tryParse(_memberCount ?? '') ?? 0,
+      brotherCount: _brothers,
+      sisterCount: _sisters,
+      brotherMarriedCount: _brothersMarried,
+      sisterMarriedCount: _sistersMarried,
+      fatherJobId: _fatherOccupation?.id ?? 0,
+      motherJobId: _motherOccupation?.id ?? 0,
+      familyPropertyValueId: _familyIncome?.id ?? 0,
+      mobile2: _contactCtrl.text.trim(),
+    );
+  }
 
   void _handleContinue() {
     FocusScope.of(context).unfocus();
-    // if (_familyClass == null) return _showSnack('Please select family class');
-    // if (_familyType == null) return _showSnack('Please select family type');
 
     setState(() => _isSubmitting = true);
-
-    // TODO: wire up actual save/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    _submitFamilyDetails().then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HobbiesScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const HobbiesScreen()),
+        );
+      } else {
+        _showSnack(provider.familyError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
-  // void _handleSkip() {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (_) => const HobbiesScreen()),
-  //   );
-  // }
   void _handleSkip() {
-    FocusScope.of(context).unfocus();
-
-    setState(() => _isSkipping = true);
-
-    // TODO: wire up actual skip/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
-      if (!mounted) return;
-      setState(() => _isSkipping = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HobbiesScreen()),
-      );
-    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const HobbiesScreen()),
+    );
   }
 
   void _showSnack(String message) {
@@ -461,40 +485,68 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
 
                     _FieldLabel('Family Status'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select',
-                      value: _familyClass,
-                      items: const ['Middle Class', 'Upper Middle Class', 'Rich / Affluent', 'Higher Class'],
-                      onChanged: (v) => setState(() => _familyClass = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.familyStatusesModel?.familyStatuses ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.familyStatusesModel == null;
+                        return _buildDropdownField<FamilyStatus>(
+                          hint: loading ? 'Loading...' : 'Select',
+                          value: _familyClass,
+                          items: options,
+                          labelBuilder: (f) => f.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _familyClass = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Family Type'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select',
-                      value: _familyType,
-                      items: const ['Nuclear Family', 'Joint Family', 'Extended Family'],
-                      onChanged: (v) => setState(() => _familyType = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.familyTypeModel?.familyTypes ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.familyTypeModel == null;
+                        return _buildDropdownField<FamilyType>(
+                          hint: loading ? 'Loading...' : 'Select',
+                          value: _familyType,
+                          items: options,
+                          labelBuilder: (f) => f.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _familyType = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Family Values'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select',
-                      value: _familyValues,
-                      items: const ['Traditional', 'Moderate', 'Liberal'],
-                      onChanged: (v) => setState(() => _familyValues = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.familyValuesModel?.familyValues ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.familyValuesModel == null;
+                        return _buildDropdownField<FamilyValue>(
+                          hint: loading ? 'Loading...' : 'Select',
+                          value: _familyValues,
+                          items: options,
+                          labelBuilder: (f) => f.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _familyValues = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Total Family Members'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
+                    _buildDropdownField<String>(
                       hint: 'Select',
                       value: _memberCount,
                       items: List.generate(10, (i) => '${i + 1}'),
+                      labelBuilder: (s) => s,
                       onChanged: (v) => setState(() => _memberCount = v),
                     ),
 
@@ -540,40 +592,58 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 20.h),
                     _FieldLabel("Father's Occupation"),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select',
-                      value: _fatherOccupation,
-                      items: const [
-                        'Business', 'Government/PSU', 'Private Sector',
-                        'Retired', 'Farmer', 'Not Employed', 'Deceased',
-                      ],
-                      onChanged: (v) => setState(() => _fatherOccupation = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.occupationsModel?.occupations ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.occupationsModel == null;
+                        return _buildDropdownField<Occupation>(
+                          hint: loading ? 'Loading...' : 'Select',
+                          value: _fatherOccupation,
+                          items: options,
+                          labelBuilder: (o) => o.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _fatherOccupation = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel("Mother's Occupation"),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select',
-                      value: _motherOccupation,
-                      items: const [
-                        'Homemaker', 'Business', 'Government/PSU', 'Private Sector',
-                        'Retired', 'Not Employed', 'Deceased',
-                      ],
-                      onChanged: (v) => setState(() => _motherOccupation = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.occupationsModel?.occupations ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.occupationsModel == null;
+                        return _buildDropdownField<Occupation>(
+                          hint: loading ? 'Loading...' : 'Select',
+                          value: _motherOccupation,
+                          items: options,
+                          labelBuilder: (o) => o.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _motherOccupation = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Family Property Value '),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select range',
-                      value: _familyIncome,
-                      items: const [
-                        'Below 2L', '2L to 5L', '5L to 10L',
-                        '10L to 20L', '20L to 30L', '30L to 50L', '50L+',
-                      ],
-                      onChanged: (v) => setState(() => _familyIncome = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final options = provider.valueSlabModel?.valueSlabs ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.valueSlabModel == null;
+                        return _buildDropdownField<ValueSlab>(
+                          hint: loading ? 'Loading...' : 'Select range',
+                          value: _familyIncome,
+                          items: options,
+                          labelBuilder: (v) => v.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _familyIncome = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
@@ -799,11 +869,14 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   // ---------------------------------------------------------------------
   // Dropdown field
   // ---------------------------------------------------------------------
-  Widget _buildDropdownField({
+  Widget _buildDropdownField<T>({
     required String hint,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
+    required T? value,
+    required List<T> items,
+    required String Function(T) labelBuilder,
+    required ValueChanged<T?> onChanged,
+    bool enabled = true,
+    bool loading = false,
   }) {
     return Container(
       constraints: BoxConstraints(minHeight: 52.h),
@@ -813,32 +886,49 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
         color: _Palette.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 14.h),
-          ),
-          hint: Text(
-            hint,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
-          ),
-          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-          dropdownColor: _Palette.subtleWhite,
-          borderRadius: BorderRadius.circular(14.r),
-          items: items
-              .map((item) => DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(item),
-                  ))
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
+      child: loading
+          ? Row(
+              children: [
+                SizedBox(
+                  width: 14.w,
+                  height: 14.w,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                ),
+                SizedBox(width: 10.w),
+                Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+              ],
+            )
+          : DropdownButtonHideUnderline(
+              child: DropdownButtonFormField<T>(
+                initialValue: items.contains(value) ? value : null,
+                isExpanded: true,
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+                ),
+                hint: Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+                dropdownColor: _Palette.subtleWhite,
+                borderRadius: BorderRadius.circular(14.r),
+                items: items
+                    .map((item) => DropdownMenuItem<T>(
+                          value: item,
+                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+                        ))
+                    .toList(),
+                onChanged: enabled ? onChanged : null,
+              ),
+            ),
     );
   }
 

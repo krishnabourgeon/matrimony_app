@@ -42,4 +42,11 @@ class District {
         "id": id,
         "name": name,
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is District && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

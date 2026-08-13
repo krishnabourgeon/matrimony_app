@@ -54,4 +54,11 @@ class Currency {
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is Currency && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

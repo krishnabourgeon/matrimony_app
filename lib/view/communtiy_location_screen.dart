@@ -333,6 +333,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/cast_model.dart';
+import 'package:matrimony_app/model/countries_model.dart';
+import 'package:matrimony_app/model/district_model.dart';
+import 'package:matrimony_app/model/gotar_model.dart';
+import 'package:matrimony_app/model/religions_model.dart';
+import 'package:matrimony_app/model/states_model.dart' as states_model;
+import 'package:matrimony_app/model/subcaste_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/professional_details_screen.dart';
 
 /// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
@@ -361,36 +371,65 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
 
   final _homeAddressCtrl = TextEditingController();
   final _homePinCtrl = TextEditingController();
+  final _nativeDescriptionCtrl = TextEditingController();
 
   bool _sameAsAbove = false;
   final _currentAddressCtrl = TextEditingController();
   final _currentPinCtrl = TextEditingController();
   bool _isSubmitting = false;
 
-  String? _religion;
-  String? _caste;
+  Religion? _religion;
+  Caste? _caste;
   String? _otherCastes;
-  String? _subCaste;
-  String? _gotra;
+  SubCaste? _subCaste;
+  Gotra? _gotra;
 
-  String? _nativeCountry;
-  String? _nativeState;
-  String? _nativeDistrict;
+  Country? _nativeCountry;
+  states_model.State? _nativeState;
+  District? _nativeDistrict;
 
-  String? _permanentCountry;
-  String? _permanentState;
-  String? _permanentDistrict;
+  Country? _permanentCountry;
+  states_model.State? _permanentState;
+  District? _permanentDistrict;
 
-  String? _currentCountry;
-  String? _currentState;
-  String? _currentDistrict;
+  Country? _currentCountry;
+  states_model.State? _currentState;
+  District? _currentDistrict;
+
+  List<states_model.State> _nativeStates = [];
+  List<District> _nativeDistricts = [];
+  List<states_model.State> _permanentStates = [];
+  List<District> _permanentDistricts = [];
+  List<states_model.State> _currentStates = [];
+  List<District> _currentDistricts = [];
+
+  bool _loadingCastes = false;
+  bool _loadingSubCastes = false;
+  bool _loadingNativeStates = false;
+  bool _loadingNativeDistricts = false;
+  bool _loadingPermanentStates = false;
+  bool _loadingPermanentDistricts = false;
+  bool _loadingCurrentStates = false;
+  bool _loadingCurrentDistricts = false;
 
   String? _homeAddressError;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<RegisterProvider>();
+      provider.getReligion();
+      provider.getGotar();
+      provider.getCountries();
+    });
+  }
 
   @override
   void dispose() {
     _homeAddressCtrl.dispose();
     _homePinCtrl.dispose();
+    _nativeDescriptionCtrl.dispose();
     _currentAddressCtrl.dispose();
     _currentPinCtrl.dispose();
     super.dispose();
@@ -402,11 +441,174 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
       if (_sameAsAbove) {
         _currentAddressCtrl.text = _homeAddressCtrl.text;
         _currentPinCtrl.text = _homePinCtrl.text;
-        _currentCountry = _nativeCountry;
-        _currentState = _nativeState;
-        _currentDistrict = _nativeDistrict;
+        _currentCountry = _permanentCountry;
+        _currentState = _permanentState;
+        _currentDistrict = _permanentDistrict;
+        _currentStates = _permanentStates;
+        _currentDistricts = _permanentDistricts;
       }
     });
+  }
+
+  // ---------------------------------------------------------------------
+  // Cascading fetches: religion -> caste -> subcaste, country -> state -> district
+  // ---------------------------------------------------------------------
+  Future<void> _onReligionChanged(Religion? value) async {
+    setState(() {
+      _religion = value;
+      _caste = null;
+      _subCaste = null;
+    });
+    if (value == null) return;
+    setState(() => _loadingCastes = true);
+    final provider = context.read<RegisterProvider>();
+    await provider.getCaste(value.id);
+    if (!mounted) return;
+    setState(() => _loadingCastes = false);
+    if (provider.castModel == null) {
+      _showSnack('Could not load castes for the selected religion');
+    }
+  }
+
+  Future<void> _onCasteChanged(Caste? value) async {
+    setState(() {
+      _caste = value;
+      _subCaste = null;
+    });
+    if (value == null) return;
+    setState(() => _loadingSubCastes = true);
+    final provider = context.read<RegisterProvider>();
+    await provider.getSubCast(value.id);
+    if (!mounted) return;
+    setState(() => _loadingSubCastes = false);
+  }
+
+  Future<void> _fetchStatesFor(
+    Country country,
+    void Function(List<states_model.State>) onLoaded,
+    void Function(bool) setLoading,
+  ) async {
+    setLoading(true);
+    final provider = context.read<RegisterProvider>();
+    await provider.getStates(country.id);
+    if (!mounted) return;
+    setLoading(false);
+    onLoaded(provider.statesModel?.states ?? []);
+    if (provider.statesModel == null) {
+      _showSnack('Could not load states for the selected country');
+    }
+  }
+
+  Future<void> _fetchDistrictsFor(
+    states_model.State state,
+    void Function(List<District>) onLoaded,
+    void Function(bool) setLoading,
+  ) async {
+    setLoading(true);
+    final provider = context.read<RegisterProvider>();
+    await provider.getDistrict(state.id);
+    if (!mounted) return;
+    setLoading(false);
+    onLoaded(provider.districtModel?.districts ?? []);
+    if (provider.districtModel == null) {
+      _showSnack('Could not load districts for the selected state');
+    }
+  }
+
+  void _onNativeCountryChanged(Country? value) {
+    setState(() {
+      _nativeCountry = value;
+      _nativeState = null;
+      _nativeDistrict = null;
+      _nativeStates = [];
+      _nativeDistricts = [];
+    });
+    if (value != null) {
+      _fetchStatesFor(
+        value,
+        (states) => setState(() => _nativeStates = states),
+        (v) => setState(() => _loadingNativeStates = v),
+      );
+    }
+  }
+
+  void _onNativeStateChanged(states_model.State? value) {
+    setState(() {
+      _nativeState = value;
+      _nativeDistrict = null;
+      _nativeDistricts = [];
+    });
+    if (value != null) {
+      _fetchDistrictsFor(
+        value,
+        (districts) => setState(() => _nativeDistricts = districts),
+        (v) => setState(() => _loadingNativeDistricts = v),
+      );
+    }
+  }
+
+  void _onPermanentCountryChanged(Country? value) {
+    setState(() {
+      _permanentCountry = value;
+      _permanentState = null;
+      _permanentDistrict = null;
+      _permanentStates = [];
+      _permanentDistricts = [];
+    });
+    if (value != null) {
+      _fetchStatesFor(
+        value,
+        (states) => setState(() => _permanentStates = states),
+        (v) => setState(() => _loadingPermanentStates = v),
+      );
+    }
+  }
+
+  void _onPermanentStateChanged(states_model.State? value) {
+    setState(() {
+      _permanentState = value;
+      _permanentDistrict = null;
+      _permanentDistricts = [];
+    });
+    if (value != null) {
+      _fetchDistrictsFor(
+        value,
+        (districts) => setState(() => _permanentDistricts = districts),
+        (v) => setState(() => _loadingPermanentDistricts = v),
+      );
+    }
+  }
+
+  void _onCurrentCountryChanged(Country? value) {
+    setState(() {
+      _currentCountry = value;
+      _currentState = null;
+      _currentDistrict = null;
+      _currentStates = [];
+      _currentDistricts = [];
+    });
+    if (value != null) {
+      _fetchStatesFor(
+        value,
+        (states) => setState(() => _currentStates = states),
+        (v) => setState(() => _loadingCurrentStates = v),
+      );
+    }
+  }
+
+  void _onCurrentStateChanged(states_model.State? value) {
+    setState(() {
+      _currentState = value;
+      _currentDistrict = null;
+      _currentDistricts = [];
+    });
+    if (value != null) {
+      _fetchDistrictsFor(
+        value,
+        (districts) => setState(() => _currentDistricts = districts),
+        (v) => setState(() => _loadingCurrentDistricts = v),
+      );
+    }
   }
 
   // Required fields: Religion, Caste, Native Place, Permanent Residence, Home Address.
@@ -426,30 +628,70 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
     FocusScope.of(context).unfocus();
 
     setState(() {
-      //_homeAddressError = _homeAddressCtrl.text.trim().isEmpty ? 'Please enter home address' : null;
+      _homeAddressError = _homeAddressCtrl.text.trim().isEmpty
+          ? 'Please enter home address'
+          : null;
     });
 
-    // if (_religion == null) return _showSnack('Please select religion');
-    // if (_caste == null) return _showSnack('Please select caste');
-    // if (_nativeCountry == null || _nativeState == null || _nativeDistrict == null) {
-    //   return _showSnack('Please complete native place / ancestral origin');
-    // }
-    // if (_permanentCountry == null || _permanentState == null || _permanentDistrict == null) {
-    //   return _showSnack('Please complete permanent residence');
-    // }
-    // if (_homePinCtrl.text.trim().isEmpty) return _showSnack('Please enter PIN/Zip code');
-    // if (_homeAddressError != null) return;
+    if (_religion == null) return _showSnack('Please select religion');
+    if (_caste == null) return _showSnack('Please select caste');
+    if (_nativeCountry == null || _nativeState == null || _nativeDistrict == null) {
+      return _showSnack('Please complete native place / ancestral origin');
+    }
+    if (_permanentCountry == null || _permanentState == null || _permanentDistrict == null) {
+      return _showSnack('Please complete permanent residence');
+    }
+    if (_homePinCtrl.text.trim().isEmpty) return _showSnack('Please enter PIN/Zip code');
+    if (_homeAddressError != null) return;
+    if (!_sameAsAbove &&
+        (_currentCountry == null || _currentState == null || _currentDistrict == null)) {
+      return _showSnack('Please complete current residence');
+    }
 
     setState(() => _isSubmitting = true);
 
-    // TODO: wire up actual save/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    final currentCountry = _sameAsAbove ? _permanentCountry : _currentCountry;
+    final currentState = _sameAsAbove ? _permanentState : _currentState;
+    final currentDistrict = _sameAsAbove ? _permanentDistrict : _currentDistrict;
+    final currentAddress =
+        _sameAsAbove ? _homeAddressCtrl.text.trim() : _currentAddressCtrl.text.trim();
+    final currentPincode =
+        _sameAsAbove ? _homePinCtrl.text.trim() : _currentPinCtrl.text.trim();
+
+    provider
+        .communityAndLocation(
+      nativeCountryId: _nativeCountry!.id,
+      nativeStateId: _nativeState!.id,
+      nativeDistrictId: _nativeDistrict!.id,
+      nativeDescription: _nativeDescriptionCtrl.text.trim(),
+      permanentCountryId: _permanentCountry!.id,
+      permanentStateId: _permanentState!.id,
+      permanentDistrictId: _permanentDistrict!.id,
+      permanentAddress: _homeAddressCtrl.text.trim(),
+      permanentPincode: _homePinCtrl.text.trim(),
+      currentCountryId: currentCountry!.id,
+      currentStateId: currentState!.id,
+      currentDistrictId: currentDistrict!.id,
+      currentAddress: currentAddress,
+      currentPincode: currentPincode,
+      religionId: _religion!.id,
+      casteId: _caste!.id,
+      subCasteId: _subCaste?.id ?? 0,
+      gotraId: _gotra?.id ?? 0,
+      casteMatch: (_otherCastes ?? 'No').toLowerCase(),
+    )
+        .then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const ProfessionalDetailsScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfessionalDetailsScreen()),
+        );
+      } else {
+        _showSnack(provider.communityLocationError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
@@ -501,133 +743,182 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     ),
                     SizedBox(height: 20.h),
 
-                    _FieldLabel('Religion'),
+                    _FieldLabel('Religion', required: true),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select Religion',
-                      value: _religion,
-                      items: const ['Hindu', 'Muslim', 'Christian', 'Sikh', 'Jain', 'Buddhist', 'Other'],
-                      onChanged: (v) => setState(() => _religion = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final religions = provider.religionsModel?.religions ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.religionsModel == null;
+                        return _buildDropdownField<Religion>(
+                          hint: loading ? 'Loading religions...' : 'Select Religion',
+                          value: _religion,
+                          items: religions,
+                          labelBuilder: (r) => r.name,
+                          loading: loading,
+                          onChanged: _onReligionChanged,
+                        );
+                      },
                     ),
-                    
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Caste'),
+                    _FieldLabel('Caste', required: true),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select Caste',
-                      value: _caste,
-                      items: const ['Nair', 'Ezhava', 'Brahmin', 'Kshatriya', 'Other'],
-                      onChanged: (v) => setState(() => _caste = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final castes = provider.castModel?.castes ?? [];
+                        return _buildDropdownField<Caste>(
+                          hint: _religion == null
+                              ? 'Select religion first'
+                              : (_loadingCastes ? 'Loading castes...' : 'Select Caste'),
+                          value: _caste,
+                          items: castes,
+                          labelBuilder: (c) => c.name,
+                          loading: _loadingCastes,
+                          enabled: _religion != null,
+                          onChanged: _onCasteChanged,
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Looking for matches from other castes ( other than own sub castes )?'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
+                    _buildDropdownField<String>(
                       hint: 'No',
                       value: _otherCastes,
                       items: const ['No', 'Yes'],
+                      labelBuilder: (s) => s,
                       onChanged: (v) => setState(() => _otherCastes = v),
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('SubCaste'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Select an Option',
-                      value: _subCaste,
-                      items: const ['Select an Option', 'N/A'],
-                      onChanged: (v) => setState(() => _subCaste = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final subCastes = provider.subcastesModel?.subCastes ?? [];
+                        return _buildDropdownField<SubCaste>(
+                          hint: _caste == null
+                              ? 'Select caste first'
+                              : (_loadingSubCastes ? 'Loading...' : 'Select an Option'),
+                          value: _subCaste,
+                          items: subCastes,
+                          labelBuilder: (s) => s.name,
+                          loading: _loadingSubCastes,
+                          enabled: _caste != null,
+                          onChanged: (v) => setState(() => _subCaste = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
                     _FieldLabel('Gotra'),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: "Don't Know",
-                      value: _gotra,
-                      items: const ["Don't Know", 'N/A'],
-                      onChanged: (v) => setState(() => _gotra = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final gotras = provider.gotrasModel?.gotras ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.gotrasModel == null;
+                        return _buildDropdownField<Gotra>(
+                          hint: loading ? 'Loading...' : "Don't Know",
+                          value: _gotra,
+                          items: gotras,
+                          labelBuilder: (g) => g.name,
+                          loading: loading,
+                          onChanged: (v) => setState(() => _gotra = v),
+                        );
+                      },
                     ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Native Place / Ancestral Origin'),
+                    _FieldLabel('Native Place / Ancestral Origin', required: true),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Country',
-                      value: _nativeCountry,
-                      items: const ['India', 'Other'],
-                      onChanged: (v) => setState(() => _nativeCountry = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final countries = provider.countriesModel?.countries ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.countriesModel == null;
+                        return _buildDropdownField<Country>(
+                          hint: loading ? 'Loading...' : 'Country',
+                          value: _nativeCountry,
+                          items: countries,
+                          labelBuilder: (c) => c.name,
+                          loading: loading,
+                          onChanged: _onNativeCountryChanged,
+                        );
+                      },
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'State',
+                    _buildDropdownField<states_model.State>(
+                      hint: _nativeCountry == null
+                          ? 'Select country first'
+                          : (_loadingNativeStates ? 'Loading...' : 'State'),
                       value: _nativeState,
-                      items: const ['Kerala', 'Tamil Nadu', 'Karnataka', 'Maharashtra', 'Delhi'],
-                      onChanged: (v) => setState(() => _nativeState = v),
+                      items: _nativeStates,
+                      labelBuilder: (s) => s.name,
+                      loading: _loadingNativeStates,
+                      enabled: _nativeCountry != null,
+                      onChanged: _onNativeStateChanged,
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'District',
+                    _buildDropdownField<District>(
+                      hint: _nativeState == null
+                          ? 'Select state first'
+                          : (_loadingNativeDistricts ? 'Loading...' : 'District'),
                       value: _nativeDistrict,
-                      items: const ['Thrissur', 'Ernakulam', 'Thiruvananthapuram', 'Kozhikode'],
+                      items: _nativeDistricts,
+                      labelBuilder: (d) => d.name,
+                      loading: _loadingNativeDistricts,
+                      enabled: _nativeState != null,
                       onChanged: (v) => setState(() => _nativeDistrict = v),
                     ),
-                    // const SizedBox(height: 8),
-                    // TextField(
-                    //   maxLines: 3,
-                    //   maxLength: 255,
-                    //   style: const TextStyle(
-                    //       fontSize: 13, color: AppColors.kDarkSlate),
-                    //   onChanged: (v) => setState(
-                    //       () => _ancestorCount = v.length),
-                    //   decoration: InputDecoration(
-                    //     hintText: 'Tell about your ancestral origin',
-                    //     hintStyle: const TextStyle(
-                    //         color: AppColors.kTextMuted, fontSize: 12),
-                    //     contentPadding: const EdgeInsets.all(12),
-                    //     filled: true,
-                    //     fillColor: AppColors.kCardBg,
-                    //     counterText: '${_ancestorCount}/255',
-                    //     counterStyle: const TextStyle(
-                    //         fontSize: 10, color: AppColors.kTextMuted),
-                    //     border: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //         borderSide:
-                    //             const BorderSide(color: AppColors.kBorder)),
-                    //     enabledBorder: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //         borderSide:
-                    //             const BorderSide(color: AppColors.kBorder)),
-                    //     focusedBorder: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //         borderSide: const BorderSide(
-                    //             color: AppColors.kAccent, width: 1.5)),
-                    //   ),
+                    SizedBox(height: 8.h),
+                    // _buildTextField(
+                    //   controller: _nativeDescriptionCtrl,
+                    //   hint: 'Tell about your ancestral origin',
                     // ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Permanent Residence'),
+                    _FieldLabel('Permanent Residence', required: true),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'Country',
-                      value: _permanentCountry,
-                      items: const ['India', 'Other'],
-                      onChanged: (v) => setState(() => _permanentCountry = v),
+                    Consumer<RegisterProvider>(
+                      builder: (context, provider, _) {
+                        final countries = provider.countriesModel?.countries ?? [];
+                        final loading = provider.loaderState == LoaderState.loading &&
+                            provider.countriesModel == null;
+                        return _buildDropdownField<Country>(
+                          hint: loading ? 'Loading...' : 'Country',
+                          value: _permanentCountry,
+                          items: countries,
+                          labelBuilder: (c) => c.name,
+                          loading: loading,
+                          onChanged: _onPermanentCountryChanged,
+                        );
+                      },
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'State',
+                    _buildDropdownField<states_model.State>(
+                      hint: _permanentCountry == null
+                          ? 'Select country first'
+                          : (_loadingPermanentStates ? 'Loading...' : 'State'),
                       value: _permanentState,
-                      items: const ['Kerala', 'Tamil Nadu', 'Karnataka'],
-                      onChanged: (v) => setState(() => _permanentState = v),
+                      items: _permanentStates,
+                      labelBuilder: (s) => s.name,
+                      loading: _loadingPermanentStates,
+                      enabled: _permanentCountry != null,
+                      onChanged: _onPermanentStateChanged,
                     ),
                     SizedBox(height: 8.h),
-                    _buildDropdownField(
-                      hint: 'District',
+                    _buildDropdownField<District>(
+                      hint: _permanentState == null
+                          ? 'Select state first'
+                          : (_loadingPermanentDistricts ? 'Loading...' : 'District'),
                       value: _permanentDistrict,
-                      items: const ['Thrissur', 'Ernakulam', 'Kozhikode'],
+                      items: _permanentDistricts,
+                      labelBuilder: (d) => d.name,
+                      loading: _loadingPermanentDistricts,
+                      enabled: _permanentState != null,
                       onChanged: (v) => setState(() => _permanentDistrict = v),
                     ),
                     SizedBox(height: 8.h),
@@ -639,7 +930,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Home Address'),
+                    _FieldLabel('Home Address', required: true),
                     SizedBox(height: 8.h),
                     _buildTextField(
                       controller: _homeAddressCtrl,
@@ -682,24 +973,43 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                         opacity: _sameAsAbove ? 0.5 : 1.0,
                         child: Column(
                           children: [
-                            _buildDropdownField(
-                              hint: 'Country',
-                              value: _currentCountry,
-                              items: const ['India', 'Other'],
-                              onChanged: (v) => setState(() => _currentCountry = v),
+                            Consumer<RegisterProvider>(
+                              builder: (context, provider, _) {
+                                final countries = provider.countriesModel?.countries ?? [];
+                                final loading = provider.loaderState == LoaderState.loading &&
+                                    provider.countriesModel == null;
+                                return _buildDropdownField<Country>(
+                                  hint: loading ? 'Loading...' : 'Country',
+                                  value: _currentCountry,
+                                  items: countries,
+                                  labelBuilder: (c) => c.name,
+                                  loading: loading,
+                                  onChanged: _onCurrentCountryChanged,
+                                );
+                              },
                             ),
                             SizedBox(height: 8.h),
-                            _buildDropdownField(
-                              hint: 'State',
+                            _buildDropdownField<states_model.State>(
+                              hint: _currentCountry == null
+                                  ? 'Select country first'
+                                  : (_loadingCurrentStates ? 'Loading...' : 'State'),
                               value: _currentState,
-                              items: const ['Kerala', 'Tamil Nadu', 'Karnataka'],
-                              onChanged: (v) => setState(() => _currentState = v),
+                              items: _currentStates,
+                              labelBuilder: (s) => s.name,
+                              loading: _loadingCurrentStates,
+                              enabled: _currentCountry != null,
+                              onChanged: _onCurrentStateChanged,
                             ),
                             SizedBox(height: 8.h),
-                            _buildDropdownField(
-                              hint: 'District',
+                            _buildDropdownField<District>(
+                              hint: _currentState == null
+                                  ? 'Select state first'
+                                  : (_loadingCurrentDistricts ? 'Loading...' : 'District'),
                               value: _currentDistrict,
-                              items: const ['Thrissur', 'Ernakulam', 'Kozhikode'],
+                              items: _currentDistricts,
+                              labelBuilder: (d) => d.name,
+                              loading: _loadingCurrentDistricts,
+                              enabled: _currentState != null,
                               onChanged: (v) => setState(() => _currentDistrict = v),
                             ),
                             SizedBox(height: 8.h),
@@ -831,11 +1141,14 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
   // ---------------------------------------------------------------------
   // Dropdown field
   // ---------------------------------------------------------------------
-  Widget _buildDropdownField({
+  Widget _buildDropdownField<T>({
     required String hint,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
+    required T? value,
+    required List<T> items,
+    required String Function(T) labelBuilder,
+    required ValueChanged<T?> onChanged,
+    bool enabled = true,
+    bool loading = false,
   }) {
     return Container(
       constraints: BoxConstraints(minHeight: 44.h),
@@ -845,32 +1158,49 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
         color: _Palette.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10.h),
-          ),
-          hint: Text(
-            hint,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
-          ),
-          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-          dropdownColor: _Palette.subtleWhite,
-          borderRadius: BorderRadius.circular(14.r),
-          items: items
-              .map((item) => DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(item),
-                  ))
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
+      child: loading
+          ? Row(
+              children: [
+                SizedBox(
+                  width: 14.w,
+                  height: 14.w,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                ),
+                SizedBox(width: 10.w),
+                Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+              ],
+            )
+          : DropdownButtonHideUnderline(
+              child: DropdownButtonFormField<T>(
+                initialValue: items.contains(value) ? value : null,
+                isExpanded: true,
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                ),
+                hint: Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+                dropdownColor: _Palette.subtleWhite,
+                borderRadius: BorderRadius.circular(14.r),
+                items: items
+                    .map((item) => DropdownMenuItem<T>(
+                          value: item,
+                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+                        ))
+                    .toList(),
+                onChanged: enabled ? onChanged : null,
+              ),
+            ),
     );
   }
 
@@ -922,16 +1252,31 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
 /// Small reusable field label used above every input on this screen.
 class _FieldLabel extends StatelessWidget {
   final String text;
-  const _FieldLabel(this.text);
+  final bool required;
+  const _FieldLabel(this.text, {this.required = false});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.tasaOrbiter(
-        fontSize: 13.sp,
-        fontWeight: FontWeight.w600,
-        color: _Palette.ink,
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w600,
+          color: _Palette.ink,
+        ),
+        children: required
+            ? [
+                TextSpan(
+                  text: ' *',
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _Palette.error,
+                  ),
+                ),
+              ]
+            : null,
       ),
     );
   }

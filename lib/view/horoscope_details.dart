@@ -326,8 +326,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/stars_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
+import 'package:matrimony_app/services/shared_preference_helper.dart';
 import 'package:matrimony_app/view/login_screen.dart';
-import 'package:matrimony_app/view/success_screen.dart';
+import 'package:matrimony_app/view/subscription_plan_screen.dart';
 
 /// Brand colors used on this screen — mirrors the other onboarding screens' palette.
 class _Palette {
@@ -349,12 +354,12 @@ class HoroscopeScreen extends StatefulWidget {
 }
 
 class _HoroscopeState extends State<HoroscopeScreen> {
-  final _dobCtrl = TextEditingController();
   final _timeCtrl = TextEditingController();
   final _locCtrl = TextEditingController();
 
   String _amPm = 'AM';
-  String? _birthStar;
+  DateTime? _dobHoroscope;
+  Star? _birthStar;
   String? _sudha; // 'Yes' | 'No' | 'Dont Know'
   String? _dosha; // 'Yes' | 'No' | 'Dont Know'
   String? _starOnly; // 'Yes' | 'No'
@@ -362,78 +367,104 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   _horoMatch; // 'Important' | 'Preferable' | "Don't Want" | 'Not Necessary'
 
   bool _isSubmitting = false;
-  bool _isSkipping = false;
 
-  static const List<String> _birthStars = [
-    'Ashwathi',
-    'Bharani',
-    'Karthika',
-    'Rohini',
-    'Makayiram',
-    'Thiruvathira',
-    'Punartham',
-    'Pooyam',
-    'Ayilyam',
-    'Makam',
-    'Pooram',
-    'Uthram',
-    'Atham',
-    'Chithira',
-    'Chothi',
-    'Vishakham',
-    'Anizham',
-    'Thrikketta',
-    'Moolam',
-    'Pooradam',
-    'Uthradam',
-    'Thiruvonam',
-    'Avittam',
-    'Chathayam',
-    'Pooruruttathi',
-    'Uthrattathi',
-    'Revathi',
-  ];
+  // No catalog endpoint exists for these yet, so they're fixed local ids —
+  // worth confirming against the real API contract if horoscope-info
+  // rejects match_type_id.
+  static const Map<String, int> _matchTypeIds = {
+    "Don't Want": 0,
+    'Important': 1,
+    'Preferable': 2,
+    'Not Necessary': 3,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RegisterProvider>().getStars();
+    });
+  }
 
   @override
   void dispose() {
-    _dobCtrl.dispose();
     _timeCtrl.dispose();
     _locCtrl.dispose();
     super.dispose();
   }
 
+  Future<void> _pickDobHoroscope() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dobHoroscope ?? DateTime(now.year - 25, now.month, now.day),
+      firstDate: DateTime(now.year - 100),
+      lastDate: now,
+    );
+    if (picked == null) return;
+    setState(() => _dobHoroscope = picked);
+  }
+
+  // Nothing on this screen is required — Submit saves whatever's filled in
+  // (unset fields default to 0/empty), Skip saves nothing at all.
   void _handleSubmit() {
     FocusScope.of(context).unfocus();
 
     setState(() => _isSubmitting = true);
+    final provider = context.read<RegisterProvider>();
+    final dob = _dobHoroscope;
+    final dobFormatted = dob == null
+        ? ''
+        : '${dob.day.toString().padLeft(2, '0')}-${dob.month.toString().padLeft(2, '0')}-${dob.year.toString().padLeft(4, '0')}';
 
-    // TODO: wire up actual save/submit API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    provider
+        .horoscopeDetails(
+      dobHoroscope: dobFormatted,
+      birthTime: _timeCtrl.text.trim(),
+      birthTimePeriod: _amPm,
+      birthPlace: _locCtrl.text.trim(),
+      starId: _birthStar?.id ?? 0,
+      isSudhaJathakam: _sudha == 'Yes' ? 1 : 0,
+      isDoshaJathakam: _dosha == 'Yes' ? 1 : 0,
+      show: 1,
+      matchTypeId: _matchTypeIds[_horoMatch] ?? 0,
+      starMatch: _starOnly == 'Yes' ? 1 : 0,
+      doshaType: _dosha ?? '',
+    )
+        .then((success) async {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      //_showSuccess();
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AllSetScreen()),
-      );
+      if (success) {
+        await SharedPreferenceHelper.saveRegistrationComplete();
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SubscriptionPlanScreen()),
+        );
+      } else {
+        _showSnack(provider.horoscopeError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
-  void _handleSkip() {
-    FocusScope.of(context).unfocus();
+  void _handleSkip() async {
+    await SharedPreferenceHelper.saveRegistrationComplete();
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SubscriptionPlanScreen()),
+    );
+  }
 
-    setState(() => _isSkipping = true);
-
-    // TODO: wire up actual skip/submit API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
-      if (!mounted) return;
-      setState(() => _isSkipping = false);
-       Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AllSetScreen()),
-      );
-      //_showSuccess();
-    });
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
+        backgroundColor: _Palette.ink,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+      ),
+    );
   }
 
   void _showSuccess() {
@@ -471,7 +502,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
               Navigator.pop(context);
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(builder: (_) => const SignInScreen()),
                 (route) => false,
               );
             },
@@ -525,10 +556,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                             children: [
                               _FieldLabel('Date of Birth as per horoscope'),
                               SizedBox(height: 8.h),
-                              _buildTextField(
-                                controller: _dobCtrl,
-                                hint: 'DD-MM-YYYY',
-                              ),
+                              _buildDobField(),
                             ],
                           ),
                         ),
@@ -539,12 +567,21 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                             children: [
                               _FieldLabel('Birth Star'),
                               SizedBox(height: 8.h),
-                              _buildDropdownField(
-                                hint: 'Select Birth Star',
-                                value: _birthStar,
-                                items: _birthStars,
-                                onChanged: (v) =>
-                                    setState(() => _birthStar = v),
+                              Consumer<RegisterProvider>(
+                                builder: (context, provider, _) {
+                                  final stars = provider.starsModel?.stars ?? [];
+                                  final loading = provider.loaderState == LoaderState.loading &&
+                                      provider.starsModel == null;
+                                  return _buildDropdownField<Star>(
+                                    hint: loading ? 'Loading...' : 'Select Birth Star',
+                                    value: _birthStar,
+                                    items: stars,
+                                    labelBuilder: (s) => s.name,
+                                    loading: loading,
+                                    onChanged: (v) =>
+                                        setState(() => _birthStar = v),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -573,10 +610,11 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                                   SizedBox(width: 8.w),
                                   SizedBox(
                                     width: 78.w,
-                                    child: _buildDropdownField(
+                                    child: _buildDropdownField<String>(
                                       hint: 'AM',
                                       value: _amPm,
                                       items: const ['AM', 'PM'],
+                                      labelBuilder: (s) => s,
                                       onChanged: (v) =>
                                           setState(() => _amPm = v ?? 'AM'),
                                     ),
@@ -731,13 +769,51 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   }
 
   // ---------------------------------------------------------------------
+  // Date of Birth (as per horoscope) — opens a calendar date picker
+  // ---------------------------------------------------------------------
+  Widget _buildDobField() {
+    final text = _dobHoroscope == null
+        ? 'DD-MM-YYYY'
+        : '${_dobHoroscope!.day.toString().padLeft(2, '0')}-${_dobHoroscope!.month.toString().padLeft(2, '0')}-${_dobHoroscope!.year}';
+    return GestureDetector(
+      onTap: _pickDobHoroscope,
+      child: Container(
+        height: 44.h,
+        padding: EdgeInsets.symmetric(horizontal: 18.w),
+        decoration: BoxDecoration(
+          color: _Palette.fieldBg,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                text,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  fontWeight: _dobHoroscope == null ? FontWeight.w400 : FontWeight.w500,
+                  color: _dobHoroscope == null ? _Palette.hintText : _Palette.ink,
+                ),
+              ),
+            ),
+            Icon(Icons.calendar_today_rounded, color: _Palette.ink, size: 16.sp),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
   // Dropdown field (Birth Star, AM/PM)
   // ---------------------------------------------------------------------
-  Widget _buildDropdownField({
+  Widget _buildDropdownField<T>({
     required String hint,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
+    required T? value,
+    required List<T> items,
+    required String Function(T) labelBuilder,
+    required ValueChanged<T?> onChanged,
+    bool enabled = true,
+    bool loading = false,
   }) {
     return Container(
       constraints: BoxConstraints(minHeight: 44.h),
@@ -747,44 +823,62 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         color: _Palette.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: _Palette.ink,
-            size: 22.sp,
-          ),
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10.h),
-          ),
-          hint: Text(
-            hint,
-            style: GoogleFonts.tasaOrbiter(
-              fontSize: 13.sp,
-              color: _Palette.hintText,
-              fontWeight: FontWeight.w400,
+      child: loading
+          ? Row(
+              children: [
+                SizedBox(
+                  width: 14.w,
+                  height: 14.w,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                ),
+                SizedBox(width: 10.w),
+                Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                ),
+              ],
+            )
+          : DropdownButtonHideUnderline(
+              child: DropdownButtonFormField<T>(
+                initialValue: items.contains(value) ? value : null,
+                isExpanded: true,
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: _Palette.ink,
+                  size: 22.sp,
+                ),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                ),
+                hint: Text(
+                  hint,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 13.sp,
+                    color: _Palette.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: _Palette.ink,
+                  fontWeight: FontWeight.w500,
+                ),
+                dropdownColor: _Palette.subtleWhite,
+                borderRadius: BorderRadius.circular(14.r),
+                items: items
+                    .map(
+                      (item) => DropdownMenuItem<T>(
+                        value: item,
+                        child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+                      ),
+                    )
+                    .toList(),
+                onChanged: enabled ? onChanged : null,
+              ),
             ),
-          ),
-          style: GoogleFonts.tasaOrbiter(
-            fontSize: 13.sp,
-            color: _Palette.ink,
-            fontWeight: FontWeight.w500,
-          ),
-          dropdownColor: _Palette.subtleWhite,
-          borderRadius: BorderRadius.circular(14.r),
-          items: items
-              .map(
-                (item) =>
-                    DropdownMenuItem<String>(value: item, child: Text(item)),
-              )
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
     );
   }
 
@@ -857,7 +951,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   // Bottom area: Submit (filled) + Skip (outlined)
   // ---------------------------------------------------------------------
   Widget _buildBottomArea() {
-    final bool busy = _isSubmitting || _isSkipping;
+    final bool busy = _isSubmitting;
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 20.h),
       child: Row(
@@ -912,25 +1006,14 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                     borderRadius: BorderRadius.circular(28.r),
                   ),
                 ),
-                child: _isSkipping
-                    ? SizedBox(
-                        width: 22.w,
-                        height: 22.w,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.4,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.coral,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        'Skip & Submit',
-                        style: GoogleFonts.tasaOrbiter(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.1,
-                        ),
-                      ),
+                child: Text(
+                  'Skip & Submit',
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.1,
+                  ),
+                ),
               ),
             ),
           ),

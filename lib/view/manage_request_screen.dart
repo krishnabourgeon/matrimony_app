@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/custom_widgets/shortlist_badge.dart';
 import 'package:matrimony_app/view/match_profile_detail_screen.dart';
 import 'package:matrimony_app/view/matches_screen.dart';
 import 'package:matrimony_app/view/message_screen.dart';
@@ -438,7 +439,20 @@ class _InboxCard extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipOval(child: Image.asset(p.image, width: 52.w, height: 52.w, fit: BoxFit.cover)),
+                      ClipOval(
+                        child: Image.asset(
+                          p.image,
+                          width: 52.w,
+                          height: 52.w,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 52.w,
+                            height: 52.w,
+                            color: AppColors.primaryLight,
+                            child: Icon(Icons.person, size: 22.sp, color: AppColors.primary),
+                          ),
+                        ),
+                      ),
                       SizedBox(width: 10.w),
                       Expanded(
                         child: Column(
@@ -578,7 +592,20 @@ class _ContactCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipOval(child: Image.asset(p.image, width: 71.w, height: 71.w, fit: BoxFit.cover)),
+                ClipOval(
+                  child: Image.asset(
+                    p.image,
+                    width: 71.w,
+                    height: 71.w,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 71.w,
+                      height: 71.w,
+                      color: AppColors.primaryLight,
+                      child: Icon(Icons.person, size: 30.sp, color: AppColors.primary),
+                    ),
+                  ),
+                ),
                 SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
@@ -683,7 +710,14 @@ class _ReceivedRequestCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(p.image, fit: BoxFit.cover),
+              Image.asset(
+                p.image,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: AppColors.primaryLight,
+                  child: Icon(Icons.person, size: 72.sp, color: AppColors.primary),
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -693,6 +727,11 @@ class _ReceivedRequestCard extends StatelessWidget {
                     stops: const [0.5, 1.0],
                   ),
                 ),
+              ),
+              Positioned(
+                top: 16.h,
+                left: 16.w,
+                child: const ShortlistBadge(),
               ),
               Positioned(
                 left: 16.w,

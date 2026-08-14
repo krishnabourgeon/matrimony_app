@@ -42,4 +42,11 @@ class Star {
         "id": id,
         "name": name,
     };
+
+    @override
+    bool operator ==(Object other) =>
+        identical(this, other) || (other is Star && other.id == id);
+
+    @override
+    int get hashCode => id.hashCode;
 }

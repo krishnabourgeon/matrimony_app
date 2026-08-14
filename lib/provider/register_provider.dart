@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/function.dart';
 import 'package:matrimony_app/model/basic_info_model.dart';
@@ -19,6 +21,9 @@ import 'package:matrimony_app/model/family_values_model.dart';
 import 'package:matrimony_app/model/gender_model.dart';
 import 'package:matrimony_app/model/gotar_model.dart';
 import 'package:matrimony_app/model/hobbies_model.dart';
+import 'package:matrimony_app/model/hobby_info_model.dart';
+import 'package:matrimony_app/model/horoscope_model.dart';
+import 'package:matrimony_app/model/image_types_model.dart';
 import 'package:matrimony_app/model/income_model.dart';
 import 'package:matrimony_app/model/job_industries_model.dart';
 import 'package:matrimony_app/model/marital_statuses_model.dart';
@@ -26,12 +31,16 @@ import 'package:matrimony_app/model/mother_tongue.dart';
 import 'package:matrimony_app/model/error_response_model.dart';
 import 'package:matrimony_app/model/occupations_model.dart';
 import 'package:matrimony_app/model/personal_model.dart';
+import 'package:matrimony_app/model/photos_model.dart';
 import 'package:matrimony_app/model/professional_model.dart';
 import 'package:matrimony_app/model/religions_model.dart';
 import 'package:matrimony_app/model/residiential_model.dart';
+import 'package:matrimony_app/model/sign_in_model.dart';
 import 'package:matrimony_app/model/signup_model.dart';
 import 'package:matrimony_app/model/skin_type_model.dart';
 import 'package:matrimony_app/model/states_model.dart';
+import 'package:matrimony_app/model/dashboard_model.dart';
+import 'package:matrimony_app/model/stars_model.dart';
 import 'package:matrimony_app/model/subcaste_model.dart';
 import 'package:matrimony_app/model/value_slab_model.dart';
 import 'package:matrimony_app/model/verify_otp_model.dart';
@@ -42,6 +51,8 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
   MotherTongueModel? motherTongueModel;
   SignupModel? signupModel;
   String? signupError;
+  SignInModel? signInModel;
+  String? signInError;
   GenderModel? genderModel;
   VerifyOtpModel? verifyOtpModel;
   String? verifyOtpError;
@@ -79,8 +90,15 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
   FamilyModel? familyModel;
   String? familyError;
   HobbiesModel? hobbiesModel;
-  HobbiesModel? hobbySaveModel;
+  HobbyInfoModel? hobbySaveModel;
   String? hobbyError;
+  StarsModel? starsModel;
+  HoroscopeModel? horoscopeModel;
+  String? horoscopeError;
+  ImageTypesModel? imageTypesModel;
+  PhotosModel? photosModel;
+  String? photosError;
+  DashboardModel? dashboardModel;
 
   @override
   void updateLoadState(LoaderState state) {
@@ -1009,7 +1027,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
     try {
       var res = await serviceConfig.hobbyInfo(hobbies, otherHobbies);
       final result = res.asValue?.value ?? res.asError?.error;
-      if (result is HobbiesModel) {
+      if (result is HobbyInfoModel) {
         hobbySaveModel = result;
         hobbyError = null;
       } else if (result is ErrorResponseModel) {
@@ -1025,4 +1043,177 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
       return false;
     }
   }
+
+  Future<void> getStars() async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (network) {
+      try {
+        var res = await serviceConfig.getStars();
+        if (res.isValue) {
+          starsModel = res.asValue!.value;
+          updateLoadState(LoaderState.loaded);
+
+          notifyListeners();
+        } else {
+          updateLoadState(LoaderState.loaded);
+        }
+      } catch (e) {
+        debugPrint('exception in stars: $e');
+        updateLoadState(LoaderState.loaded);
+      }
+    }
+  }
+
+  Future<bool> horoscopeDetails({
+    required String dobHoroscope,
+    required String birthTime,
+    required String birthTimePeriod,
+    required String birthPlace,
+    required int starId,
+    required int isSudhaJathakam,
+    required int isDoshaJathakam,
+    required int show,
+    required int matchTypeId,
+    required int starMatch,
+    required String doshaType,
+  }) async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (!network) {
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+    try {
+      var res = await serviceConfig.horoscopeInfo(
+        dobHoroscope,
+        birthTime,
+        birthTimePeriod,
+        birthPlace,
+        starId,
+        isSudhaJathakam,
+        isDoshaJathakam,
+        show,
+        matchTypeId,
+        starMatch,
+        doshaType,
+      );
+      final result = res.asValue?.value ?? res.asError?.error;
+      if (result is HoroscopeModel) {
+        horoscopeModel = result;
+        horoscopeError = null;
+      } else if (result is ErrorResponseModel) {
+        horoscopeError = result.errorMessage ?? 'Something went wrong. Please try again';
+      }
+      updateLoadState(LoaderState.loaded);
+      notifyListeners();
+      return res.isValue;
+    } catch (e) {
+      debugPrint('exception in horoscope details: $e');
+      horoscopeError = 'Something went wrong. Please try again';
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+  }
+
+  // Sends a login OTP to an already-registered mobile number.
+  Future<bool> signIn(String mobile) async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (!network) {
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+    try {
+      var res = await serviceConfig.SignIn(mobile);
+      final result = res.asValue?.value ?? res.asError?.error;
+      if (result is SignInModel) {
+        signInModel = result;
+        signInError = null;
+      } else if (result is ErrorResponseModel) {
+        signInError = result.errorMessage ?? 'Something went wrong. Please try again';
+      }
+      updateLoadState(LoaderState.loaded);
+      notifyListeners();
+      return res.isValue;
+    } catch (e) {
+      debugPrint('exception in sign in: $e');
+      signInError = 'Something went wrong. Please try again';
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+  }
+
+  Future<void> getImageTypes() async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (network) {
+      try {
+        var res = await serviceConfig.getImageTypes();
+        if (res.isValue) {
+          imageTypesModel = res.asValue!.value;
+          updateLoadState(LoaderState.loaded);
+
+          notifyListeners();
+        } else {
+          updateLoadState(LoaderState.loaded);
+        }
+      } catch (e) {
+        debugPrint('exception in image types: $e');
+        updateLoadState(LoaderState.loaded);
+      }
+    }
+  }
+
+  Future<bool> uploadPhotos({
+    required Map<String, String> fields,
+    required Map<String, File> files,
+  }) async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (!network) {
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+    try {
+      var res = await serviceConfig.uploadPhotos(fields, files);
+      final result = res.asValue?.value ?? res.asError?.error;
+      if (result is PhotosModel) {
+        photosModel = result;
+        photosError = null;
+      } else if (result is ErrorResponseModel) {
+        photosError = result.errorMessage ?? 'Something went wrong. Please try again';
+      }
+      updateLoadState(LoaderState.loaded);
+      notifyListeners();
+      return res.isValue;
+    } catch (e) {
+      debugPrint('exception in upload photos: $e');
+      photosError = 'Something went wrong. Please try again';
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+  }
+
+  Future<void> getDashboard() async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (network) {
+      try {
+        var res = await serviceConfig.getDashboard();
+        if (res.isValue) {
+          dashboardModel = res.asValue!.value;
+          updateLoadState(LoaderState.loaded);
+
+          notifyListeners();
+        } else {
+          updateLoadState(LoaderState.loaded);
+        }
+      } catch (e) {
+        debugPrint('exception in dashboard: $e');
+        updateLoadState(LoaderState.loaded);
+      }
+    }
+  }
+
 }

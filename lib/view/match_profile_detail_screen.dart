@@ -1,11 +1,9 @@
-// Profile detail screen — opened when a match card is tapped from MatchesScreen.
-// Layout: full-bleed hero photo (back / menu / photo-count / prev-next arrows)
-// with the name overlaid at the bottom, followed by a white rounded-top sheet
-// containing About, Hobbies & Interests, and Basic Details.
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/custom_widgets/auto_changing_image.dart';
+import 'package:matrimony_app/view/custom_widgets/shortlist_badge.dart';
 import 'package:matrimony_app/view/matches_screen.dart';
 import 'package:matrimony_app/view/message_screen.dart';
 
@@ -71,7 +69,9 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
     final item = widget.item;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -143,6 +143,39 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
             ),
           ],
         ),
+          ),
+          // Prev/next arrows — fixed on screen (outside the scroll view and
+          // outside the hero's horizontal padding) so they stay put while
+          // the page scrolls, instead of scrolling away with the photo.
+          if (widget.allProfiles.length > 1) ...[
+            Positioned(
+              top: 310.h,
+              left: 0,
+              child: InkWell(
+                onTap: () => _goTo(_index - 1),
+                borderRadius: BorderRadius.circular(18.r),
+                child: Image.asset(
+                  "assets/image/Frame 1000006502.png",
+                  height: 36.h,
+                  width: 36.w,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 310.h,
+              right: 0,
+              child: InkWell(
+                onTap: () => _goTo(_index + 1),
+                borderRadius: BorderRadius.circular(18.r),
+                child: Image.asset(
+                  "assets/image/Frame 1000006503.png",
+                  height: 36.h,
+                  width: 36.w,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -157,7 +190,10 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(item.image, fit: BoxFit.cover),
+          AutoChangingImage(
+            imageUrls: item.images.isNotEmpty ? item.images : [item.image],
+            errorIconSize: 72.sp,
+          ),
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -236,21 +272,16 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
             ),
           ),
           Positioned(
+             top: MediaQuery.of(context).padding.top + 60.h,
+            left: 14.w,
+            child: const ShortlistBadge(),
+          ),
+          Positioned(
             left: 16.w,
             right: 16.w,
             bottom: 30.h,
             child: Row(
               children: [
-                if (widget.allProfiles.length > 1)
-                  InkWell(
-                    onTap: () => _goTo(_index - 1),
-                    borderRadius: BorderRadius.circular(18.r),
-                    child: Image.asset(
-                      "assets/image/Frame 1000006502.png",
-                      height: 36.h,
-                      width: 36.w,
-                    ),
-                  ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,16 +330,6 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                     ],
                   ),
                 ),
-                if (widget.allProfiles.length > 1)
-                  InkWell(
-                    onTap: () => _goTo(_index + 1),
-                    borderRadius: BorderRadius.circular(18.r),
-                    child: Image.asset(
-                      "assets/image/Frame 1000006503.png",
-                      height: 36.h,
-                      width: 36.w,
-                    ),
-                  ),
               ],
             ),
           ),
@@ -967,7 +988,16 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 3),
-        image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
+      ),
+      child: ClipOval(
+        child: Image.asset(
+          image,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            color: AppColors.primaryLight,
+            child: Icon(Icons.person, size: 32.sp, color: AppColors.primary),
+          ),
+        ),
       ),
     );
   }

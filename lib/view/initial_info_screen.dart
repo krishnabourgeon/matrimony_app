@@ -462,6 +462,7 @@ import 'package:matrimony_app/model/mother_tongue.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/login_screen.dart';
 import 'package:matrimony_app/view/otp_verify_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -1067,7 +1068,10 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
               ),
               GestureDetector(
                 onTap: () {
-                  // Navigator.push to LoginScreen goes here.
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SignInScreen()),
+                  );
                 },
                 child: Text(
                   'Login',

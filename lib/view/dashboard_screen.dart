@@ -1091,7 +1091,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/subscription_plan_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/dashboard_model.dart' as dashboard_model;
+import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/custom_widgets/app_drawer.dart';
+
+/// Renders a profile photo from either a network URL (real API data) or a
+/// local asset path (fallback/sample data), with a person-icon fallback if
+/// the image is missing or fails to load.
+Widget _profileImage(
+  String image, {
+  double? width,
+  double? height,
+  required double errorIconSize,
+}) {
+  final errorFallback = Container(
+    width: width,
+    height: height,
+    color: AppColors.primaryLight,
+    child: Icon(Icons.person, size: errorIconSize, color: AppColors.primary),
+  );
+  if (image.startsWith('http')) {
+    return Image.network(
+      image,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => errorFallback,
+    );
+  }
+  return Image.asset(
+    image,
+    width: width,
+    height: height,
+    fit: BoxFit.cover,
+    errorBuilder: (_, __, ___) => errorFallback,
+  );
+}
 
 /// Simple data holder for a match profile card.
 class MatchProfile {
@@ -1117,138 +1155,164 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _showProfileBanner = true;
   int _selectedNavIndex = 0;
 
-  // ---- Sample data. Wire these up to your API responses. ----
-  // Only archana.png, priya.png and riys.png were provided as profile
-  // photo assets, so they're cycled across the cards below — replace
-  // with real photo URLs / assets as they come in.
-  final List<MatchProfile> dailyMatches = const [
-    MatchProfile(
-      name: 'Ananya',
-      subtitle: '23 Yrs, Thrissur',
-      image: 'assets/image/archana.png',
-    ),
-    MatchProfile(
-      name: 'Saanvya',
-      subtitle: '24 Yrs, Palakkad',
-      image: 'assets/image/priya.png',
-    ),
-    MatchProfile(
-      name: 'Chandhini',
-      subtitle: '26 Yrs, Ernakulam',
-      image: 'assets/image/riys.png',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RegisterProvider>().getDashboard();
+    });
+  }
 
-  final List<MatchProfile> newMatches = const [
-    MatchProfile(
-      name: 'Swathy Mohan',
-      subtitle:
-          '28 Yrs, 5\'2", Malayalam,\nVishwakarma-Gold smith\nThrissur, Kerala',
-      image: 'assets/image/archana.png',
-    ),
-    MatchProfile(
-      name: 'Dhanya',
-      subtitle:
-          '25 Yrs, 5\'3", Malayalam,\nVishwakarma-Goldsmith\nTrivandrum, Kerala',
-      image: 'assets/image/priya.png',
-    ),
-  ];
+  List<MatchProfile> _resolveMatches(
+    List<dashboard_model.DailyMatch>? apiMatches,
+    List<MatchProfile> fallback,
+  ) {
+    if (apiMatches == null || apiMatches.isEmpty) return fallback;
+    return apiMatches
+        .map(
+          (m) => MatchProfile(
+            name: m.name ?? '',
+            subtitle: _matchSubtitle(m),
+            image: m.imageUrl ?? '',
+          ),
+        )
+        .toList();
+  }
 
-  final List<MatchProfile> premiumMatches = const [
-    MatchProfile(
-      name: 'Karthika',
-      subtitle:
-          '24 Yrs, 5\'3, Malayalam,\nVishwakarma-Goldsmith\nThrissur, Kerala',
-      image: 'assets/image/riys.png',
-    ),
-    MatchProfile(
-      name: 'Reshma',
-      subtitle:
-          '24 Yrs, 5\'2, Malayalam,\nVishwakarma-Goldsmith\nTrivandrum, Kerala',
-      image: 'assets/image/archana.png',
-    ),
-  ];
-
-  final List<MatchProfile> recentVisited = const [
-    MatchProfile(
-      name: 'Anjali Jayan',
-      subtitle:
-          '24 Yrs, 5\'2, Malayalam,\nVishwakarma-Goldsmith\nThrissur, Kerala',
-      image: 'assets/image/priya.png',
-    ),
-    MatchProfile(
-      name: 'Deepthi',
-      subtitle:
-          '24 Yrs, 5\'2, Malayalam,\nVishwakarma-Goldsmith\nTrivandrum, Kerala',
-      image: 'assets/image/riys.png',
-    ),
-  ];
+  String _matchSubtitle(dashboard_model.DailyMatch m) {
+    final parts = <String>[
+      if (m.age != null) '${m.age} Yrs',
+      if (m.height != null && m.height!.isNotEmpty) m.height!,
+      if (m.motherTongue != null && m.motherTongue!.isNotEmpty) m.motherTongue!,
+    ];
+    final line2 = <String>[
+      if (m.community != null && m.community!.isNotEmpty) m.community!,
+    ];
+    final line3 = <String>[
+      if (m.location != null && m.location!.isNotEmpty) m.location!,
+    ];
+    return [
+      parts.join(', '),
+      if (line2.isNotEmpty) line2.join(', '),
+      if (line3.isNotEmpty) line3.join(', '),
+    ].where((s) => s.isNotEmpty).join('\n');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: Consumer<RegisterProvider>(
+        builder: (context, provider, _) {
+          final customer = provider.verifyOtpModel?.customer;
+          return AppDrawer(
+            name: customer?.name,
+            profileId: customer?.id.toString(),
+            // No backend source yet for these — surfaced as placeholders in
+            // the drawer UI until a "my profile"/subscription endpoint
+            // exists to back them.
+            // avatarUrl, profileCompletion, isVerified, activePlan, planValidTill
+          );
+        },
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: 24.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTopBar(),
-              SizedBox(height: 25.h),
-              _buildQuickActions(),
-              SizedBox(height: 20.h),
-              Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-              SizedBox(height: 15.h),
+        child: Consumer<RegisterProvider>(
+          builder: (context, provider, _) {
+            final dm = provider.dashboardModel;
+            // No local sample fallback — a section only renders when the API
+            // actually returns matches for it.
+            final resolvedDaily = _resolveMatches(dm?.dailyMatches, const []);
+            final resolvedNew = _resolveMatches(dm?.newMatches, const []);
+            final resolvedPremium = _resolveMatches(dm?.premiumMatches, const []);
+            final resolvedRecent = _resolveMatches(dm?.recentVisited, const []);
+            final unreadCount = dm?.notifications?.unreadCount ?? 0;
+            final interestReceived = dm?.stats?.interestReceived ?? 0;
+            final interestAccepted = dm?.stats?.interestAccepted ?? 0;
+            final contactsViewed = dm?.stats?.contactsViewed ?? 0;
+            final completionPercentage = dm?.profileCompletion?.percentage;
 
-              _buildSectionHeader('Daily Matches'),
-              SizedBox(height: 12.h),
-              _buildDailyMatchesRow(),
-              SizedBox(height: 18.h),
-              Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-              SizedBox(height: 20.h),
-              if (_showProfileBanner) ...[
-                _buildProfileCompletionBanner(),
-                SizedBox(height: 18.h),
-                Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-                SizedBox(height: 20.h),
-              ],
-              _buildSectionHeader('New Matches'),
-              SizedBox(height: 12.h),
-              _buildMatchGrid(newMatches),
-              SizedBox(height: 20.h),
-              Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-              SizedBox(height: 20.h),
-              _buildSectionHeader('Premium Matches'),
-              SizedBox(height: 12.h),
-              _buildMatchGrid(premiumMatches),
-              SizedBox(height: 20.h),
-              Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-              SizedBox(height: 10.h),
-              _buildPromoBanner(),
-              SizedBox(height: 20.h),
-              Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-              SizedBox(height: 10.h),
-              _buildSectionHeader('Recent Visited'),
-              SizedBox(height: 12.h),
-              _buildMatchGrid(recentVisited),
-              SizedBox(height: 10.h),
-              Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
-            ],
-          ),
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: 24.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTopBar(unreadCount: unreadCount),
+                  SizedBox(height: 25.h),
+                  _buildQuickActions(
+                    interestReceived: interestReceived,
+                    interestAccepted: interestAccepted,
+                    contactsViewed: contactsViewed,
+                  ),
+                  SizedBox(height: 20.h),
+                  Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
+                  SizedBox(height: 15.h),
+
+                  if (resolvedDaily.isNotEmpty) ...[
+                    _buildSectionHeader('Daily Matches'),
+                    SizedBox(height: 12.h),
+                    _buildDailyMatchesRow(resolvedDaily),
+                    SizedBox(height: 18.h),
+                    Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
+                    SizedBox(height: 20.h),
+                  ],
+                  if (_showProfileBanner) ...[
+                    _buildProfileCompletionBanner(completionPercentage),
+                    SizedBox(height: 18.h),
+                    Divider(
+                      thickness: 4,
+                      color: Colors.black.withOpacity(0.05),
+                    ),
+                    SizedBox(height: 20.h),
+                  ],
+                  if (resolvedNew.isNotEmpty) ...[
+                    _buildSectionHeader('New Matches'),
+                    SizedBox(height: 12.h),
+                    _buildMatchesRow(resolvedNew),
+                    SizedBox(height: 20.h),
+                    Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
+                    SizedBox(height: 20.h),
+                  ],
+                  if (resolvedPremium.isNotEmpty) ...[
+                    _buildSectionHeader('Premium Matches'),
+                    SizedBox(height: 12.h),
+                    _buildMatchesRow(resolvedPremium),
+                    SizedBox(height: 20.h),
+                    Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
+                    SizedBox(height: 10.h),
+                  ],
+                  _buildPromoBanner(),
+                  SizedBox(height: 20.h),
+                  if (resolvedRecent.isNotEmpty) ...[
+                    Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
+                    SizedBox(height: 10.h),
+                    _buildSectionHeader('Recent Visited'),
+                    SizedBox(height: 12.h),
+                    _buildMatchGrid(resolvedRecent),
+                    SizedBox(height: 10.h),
+                  ],
+                  Divider(thickness: 4, color: Colors.black.withOpacity(0.05)),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
   // ---------------- Top bar ----------------
-  Widget _buildTopBar() {
+  Widget _buildTopBar({int unreadCount = 0}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
         //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.menu, size: 24.sp, color: Colors.black87),
+          Builder(
+            builder: (ctx) => GestureDetector(
+              onTap: () => Scaffold.of(ctx).openDrawer(),
+              child: Icon(Icons.menu, size: 24.sp, color: Colors.black87),
+            ),
+          ),
           SizedBox(width: 10.w),
           Text(
             'Vivah',
@@ -1267,18 +1331,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 size: 24.sp,
                 color: Colors.black87,
               ),
-              Positioned(
-                right: -1.w,
-                top: -1.w,
-                child: Container(
-                  width: 8.w,
-                  height: 8.w,
-                  decoration: const BoxDecoration(
-                    color: AppColors.coral,
-                    shape: BoxShape.circle,
+              if (unreadCount > 0)
+                Positioned(
+                  right: -1.w,
+                  top: -1.w,
+                  child: Container(
+                    width: 8.w,
+                    height: 8.w,
+                    decoration: const BoxDecoration(
+                      color: AppColors.coral,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ],
@@ -1287,22 +1352,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ---------------- Quick action cards ----------------
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions({
+    int interestReceived = 0,
+    int interestAccepted = 0,
+    int contactsViewed = 0,
+  }) {
     final actions = [
       _QuickAction(
         icon: 'assets/image/supervisor_account.png',
         label: 'Interest\nReceived',
-        showBadge: true,
+        showBadge: interestReceived > 0,
+        badgeCount: interestReceived,
       ),
       _QuickAction(
         icon: 'assets/image/heart_check.png',
         label: 'Interest\nAccepted',
         showBadge: false,
+        badgeCount: interestAccepted,
       ),
       _QuickAction(
         icon: 'assets/image/supervisor_account (1).png',
         label: 'Contacts\nViewed',
         showBadge: false,
+        badgeCount: contactsViewed,
       ),
     ];
 
@@ -1355,7 +1427,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               borderRadius: BorderRadius.circular(10.r),
                             ),
                             child: Text(
-                              '3',
+                              '${a.badgeCount}',
                               style: GoogleFonts.tasaOrbiter(
                                 fontSize: 9.sp,
                                 fontWeight: FontWeight.w700,
@@ -1412,16 +1484,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ---------------- Daily matches (horizontal small cards) ----------------
-  Widget _buildDailyMatchesRow() {
+  Widget _buildDailyMatchesRow(List<MatchProfile> matches) {
     return SizedBox(
       height: 150.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: dailyMatches.length,
+        itemCount: matches.length,
         separatorBuilder: (_, __) => SizedBox(width: 12.w),
         itemBuilder: (context, index) {
-          final m = dailyMatches[index];
+          final m = matches[index];
           return SizedBox(
             width: 100.w,
             child: Column(
@@ -1429,11 +1501,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12.r),
-                  child: Image.asset(
+                  child: _profileImage(
                     m.image,
                     width: 100.w,
                     height: 130.w,
-                    fit: BoxFit.cover,
+                    errorIconSize: 40.sp,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -1465,85 +1537,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // // ---------------- Profile completion banner ----------------
-  // Widget _buildProfileCompletionBanner() {
-  //   return Padding(
-  //     padding: EdgeInsets.symmetric(horizontal: 16.w),
-  //     child: Container(
-  //       padding: EdgeInsets.all(14.w),
-  //       decoration: BoxDecoration(
-  //         gradient: const LinearGradient(
-  //           colors: [Color(0xFFFFEFC7), Color(0xFFFFD9E0)],
-  //           begin: Alignment.topLeft,
-  //           end: Alignment.bottomRight,
-  //         ),
-  //         borderRadius: BorderRadius.circular(14.r),
-  //       ),
-  //       child: Row(
-  //         //crossAxisAlignment: CrossAxisAlignment.center,
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Image.asset(
-  //             'assets/image/Group 1000006498.png',
-  //             width: 60.w,
-  //             height: 60.w,
-  //           ),
-  //           SizedBox(width: 12.w),
-  //           Expanded(
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Text(
-  //                   'Your profile is 75% complete',
-  //                   style: GoogleFonts.tasaOrbiter(
-  //                     fontSize: 14.sp,
-  //                     fontWeight: FontWeight.w700,
-  //                     color: Colors.black87,
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 4.h),
-  //                 Text(
-  //                   'Add a few more details to get the\nbest matches!',
-  //                   style: GoogleFonts.tasaOrbiter(
-  //                     fontSize: 11.sp,
-  //                     fontWeight: FontWeight.w400,
-  //                     color: Colors.black54,
-  //                     height: 1.35,
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 8.h),
-  //                 Row(
-  //                   mainAxisSize: MainAxisSize.min,
-  //                   children: [
-  //                     Text(
-  //                       'Complete My Profile',
-  //                       style: GoogleFonts.tasaOrbiter(
-  //                         fontSize: 12.sp,
-  //                         fontWeight: FontWeight.w700,
-  //                         color: AppColors.coral,
-  //                       ),
-  //                     ),
-  //                     Icon(
-  //                       Icons.chevron_right,
-  //                       size: 15.sp,
-  //                       color: AppColors.coral,
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //           InkWell(
-  //             onTap: () => setState(() => _showProfileBanner = false),
-  //             child: Icon(Icons.close, size: 16.sp, color: Colors.black45),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
-  Widget _buildProfileCompletionBanner() {
+  Widget _buildProfileCompletionBanner(int? percentage) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Container(
@@ -1571,7 +1566,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your profile is 75% complete',
+                    'Your profile is ${percentage ?? 75}% complete',
                     style: GoogleFonts.tasaOrbiter(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
@@ -1620,27 +1615,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ---------------- New / Premium matches horizontal row ----------------
+  Widget _buildMatchesRow(List<MatchProfile> matches) {
+    if (matches.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      height: 300.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: matches.length,
+        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        itemBuilder: (context, index) => SizedBox(
+          width: 170.w,
+          child: _MatchCard(profile: matches[index]),
+        ),
+      ),
+    );
+  }
+
   // ---------------- 2-column match grid with Connect Now button ----------------
+  // Always laid out two-per-row regardless of how many matches the API
+  // returns, so a 1/3/5-length list doesn't stretch cards across the full
+  // width or squeeze them into extra columns.
   Widget _buildMatchGrid(List<MatchProfile> matches) {
+    if (matches.isEmpty) return const SizedBox.shrink();
+    final rows = <Widget>[];
+    for (int i = 0; i < matches.length; i += 2) {
+      final hasSecond = i + 1 < matches.length;
+      rows.add(
+        Padding(
+          padding: EdgeInsets.only(bottom: i + 2 < matches.length ? 14.h : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _MatchCard(profile: matches[i])),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: hasSecond
+                    ? _MatchCard(profile: matches[i + 1])
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: matches
-            .asMap()
-            .entries
-            .map(
-              (entry) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: entry.key == matches.length - 1 ? 0 : 10.w,
-                  ),
-                  child: _MatchCard(profile: entry.value),
-                ),
-              ),
-            )
-            .toList(),
-      ),
+      child: Column(children: rows),
     );
   }
 
@@ -1692,21 +1714,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 8.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Text(
-                    'Upgrade Now',
-                    style: GoogleFonts.tasaOrbiter(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SubscriptionPlanScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Text(
+                      'Upgrade Now',
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ),
@@ -1821,7 +1853,12 @@ class _MatchCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: 140.h,
-            child: Image.asset(profile.image, fit: BoxFit.cover),
+            child: _profileImage(
+              profile.image,
+              width: double.infinity,
+              height: 140.h,
+              errorIconSize: 44.sp,
+            ),
           ),
           Padding(
             padding: EdgeInsets.all(10.w),
@@ -1886,11 +1923,13 @@ class _QuickAction {
   final String icon;
   final String label;
   final bool showBadge;
+  final int badgeCount;
 
   const _QuickAction({
     required this.icon,
     required this.label,
     this.showBadge = false,
+    this.badgeCount = 0,
   });
 }
 

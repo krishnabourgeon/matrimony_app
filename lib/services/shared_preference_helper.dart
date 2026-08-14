@@ -38,4 +38,27 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
   }
+
+  // Clears just the session token so the app treats the user as logged out.
+  // Deliberately leaves "registration_complete" alone — a logged-out user on
+  // a device that already finished onboarding should land back on the
+  // sign-in screen next launch, not the new-user onboarding wizard.
+  static Future<void> logout() async {
+    AppConfig.accessToken = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("token");
+  }
+
+  // Marks that this device has finished the onboarding wizard at least once.
+  // Backed by SharedPreferences, which is wiped on uninstall — so a fresh
+  // install always starts at onboarding again, never auto-routed to sign-in.
+  static Future<void> saveRegistrationComplete() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("registration_complete", true);
+  }
+
+  static Future<bool> isRegistrationComplete() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("registration_complete") ?? false;
+  }
 }

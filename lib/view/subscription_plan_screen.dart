@@ -320,26 +320,39 @@
 
 // ═══════════════════════════════════════════════════════════════
 //  SUBSCRIPTION PLAN SCREEN — shown right after login
-//  Standard pattern: vertical selectable plan list + sticky bottom CTA
+//  3 gradient plan cards in a swipeable carousel + sticky page dots
 // ═══════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
-import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
-import 'package:matrimony_app/view/main_screen.dart';
+import 'package:matrimony_app/view/success_screen.dart';
+
+class _Palette {
+  _Palette._();
+  static const Color coral = Color(0xFFFF3356);
+  static const Color coralDark = Color(0xFFE01F42);
+  static const Color coralLight = Color(0xFFFFEEF1);
+  static const Color ink = Color(0xFF1A1A1A);
+  static const Color subtleWhite = Color(0xFFFFFFFF);
+  static const Color fieldBg = Color(0xFFF5F5F7);
+  static const Color hintText = Color(0xFF8A8A8E);
+}
 
 class SubscriptionPlan {
   final String title;
   final String price;
   final String duration;
   final List<String> features;
-  final String badge; // '' if none
+  final String ctaLabel;
+  final bool isFree;
   const SubscriptionPlan({
     required this.title,
     required this.price,
     required this.duration,
     required this.features,
-    this.badge = '',
+    required this.ctaLabel,
+    this.isFree = false,
   });
 }
 
@@ -350,33 +363,36 @@ class SubscriptionPlanScreen extends StatefulWidget {
     SubscriptionPlan(
       title: 'Premium',
       price: '₹245.00',
-      duration: '2 days',
+      duration: '30 days',
       features: [
         'Send interests to 5 profiles',
         'View detailed profiles for up to 10 members',
         'Chat with unlimited profiles',
       ],
-      badge: 'BEST VALUE',
+      ctaLabel: 'Choose Plan',
     ),
     SubscriptionPlan(
-      title: 'Launching Offer',
+      title: 'Launching offer package',
       price: '₹199.00',
-      duration: 'Unlimited',
+      duration: '30 days',
       features: [
         'Send interests to 5 profiles',
         'View detailed profiles for up to 10 members',
         'Chat with unlimited profiles',
       ],
+      ctaLabel: 'Choose Plan',
     ),
     SubscriptionPlan(
       title: 'Free Member',
       price: '₹0.00',
-      duration: 'Unlimited',
+      duration: '30 days',
       features: [
         'Send interests to 5 profiles',
         'View detailed profiles for up to 5 members',
         'Chat with unlimited profiles',
       ],
+      ctaLabel: 'Continue as Free Member',
+      isFree: true,
     ),
   ];
 
@@ -385,80 +401,116 @@ class SubscriptionPlanScreen extends StatefulWidget {
 }
 
 class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
-  late int _selectedIndex;
+  late final PageController _pageController;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    final defaultIndex =
-        SubscriptionPlanScreen._plans.indexWhere((p) => p.badge.isNotEmpty);
-    _selectedIndex = defaultIndex == -1 ? 0 : defaultIndex;
+    _pageController = PageController(viewportFraction: 0.86);
   }
 
-  void _confirmPlan(BuildContext context) {
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _selectPlan(SubscriptionPlan plan) {
     // TODO: hook up real payment / plan-selection API call here.
-    Navigator.pushAndRemoveUntil(
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const MainShell()),
-      (route) => false,
+      MaterialPageRoute(builder: (_) => const AllSetScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final plans = SubscriptionPlanScreen._plans;
-    final selectedPlan = plans[_selectedIndex];
-    final isFree = selectedPlan.price.trim() == '₹0.00';
+    return Scaffold(
+      backgroundColor: _Palette.subtleWhite,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(),
+            SizedBox(height: 18.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
+                decoration: BoxDecoration(
+                  color: _Palette.fieldBg,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Text(
+                  'Choose Your Subscription & Make Payment Securely',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                    color: _Palette.ink,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 22.h),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: plans.length,
+                onPageChanged: (i) => setState(() => _currentPage = i),
+                itemBuilder: (context, index) {
+                  final plan = plans[index];
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                    child: Center(
+                      child: _PlanCard(plan: plan, onTap: () => _selectPlan(plan)),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = 0; i < plans.length; i++)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: EdgeInsets.symmetric(horizontal: 4.w),
+                    width: _currentPage == i ? 20.w : 7.w,
+                    height: 7.h,
+                    decoration: BoxDecoration(
+                      color: _currentPage == i ? _Palette.coral : _Palette.fieldBg,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: 24.h),
+          ],
+        ),
+      ),
+    );
+  }
 
-    return BlushScaffold(
-      child: Column(
+  Widget _buildTopBar() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 0),
+      child: Row(
         children: [
-          const TopBar(showBack: false),
-          const SizedBox(height: 4),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'Choose Your Plan',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppColors.kDarkSlate,
+          GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              width: 36.w,
+              height: 36.w,
+              decoration: const BoxDecoration(
+                color: _Palette.fieldBg,
+                shape: BoxShape.circle,
               ),
+              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
             ),
-          ),
-          const SizedBox(height: 4),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'Unlock more matches with a plan that fits you',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppColors.kSlate,
-              ),
-            ),
-          ),
-          const SizedBox(height: 18),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-              itemCount: plans.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemBuilder: (context, index) {
-                final plan = plans[index];
-                final selected = index == _selectedIndex;
-                return _PlanTile(
-                  plan: plan,
-                  selected: selected,
-                  onTap: () => setState(() => _selectedIndex = index),
-                );
-              },
-            ),
-          ),
-          _BottomCta(
-            plan: selectedPlan,
-            isFree: isFree,
-            onPressed: () => _confirmPlan(context),
           ),
         ],
       ),
@@ -466,190 +518,125 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   }
 }
 
-class _PlanTile extends StatelessWidget {
+class _PlanCard extends StatelessWidget {
   final SubscriptionPlan plan;
-  final bool selected;
   final VoidCallback onTap;
-  const _PlanTile({
-    required this.plan,
-    required this.selected,
-    required this.onTap,
-  });
+  const _PlanCard({required this.plan, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppColors.r16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppColors.r16),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.kBorder,
-            width: selected ? 1.6 : 1,
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(20.w, 25.h, 20.w, 25.h),
+      decoration: BoxDecoration(
+        // gradient: const LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [_Palette.coral, _Palette.coralLight],
+        // ),
+        color: AppColors.coral,
+        borderRadius: BorderRadius.circular(18.r),
+        boxShadow: [
+          BoxShadow(
+            color: _Palette.coral.withOpacity(0.25),
+            blurRadius: 14,
+            offset: const Offset(0, 8),
           ),
-          boxShadow: selected ? AppColors.shadowSm : AppColors.shadowXs,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                _SelectionDot(selected: selected),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    plan.title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.kDarkSlate,
-                    ),
-                  ),
-                ),
-                if (plan.badge.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      gradient: AppColors.gradGold,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      plan.badge,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-              ],
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            plan.title,
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w800,
+              color: _Palette.subtleWhite,
             ),
-            const SizedBox(height: 10),
-            Row(
+          ),
+          SizedBox(height: 12.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 15.h),
+            decoration: BoxDecoration(
+              color: _Palette.subtleWhite,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
                   plan.price,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.kDarkSlate,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w800,
+                    color: _Palette.ink,
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6.w),
                 Text(
-                  '/ ${plan.duration}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                  plan.duration,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _Palette.coral,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            ...plan.features.map(
-              (f) => Padding(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.check_circle, color: AppColors.primary, size: 14),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        f,
-                        style: const TextStyle(
-                          color: AppColors.kSlate,
-                          fontSize: 12,
-                          height: 1.3,
-                        ),
+          ),
+          SizedBox(height: 12.h),
+          ...plan.features.map(
+            (f) => Padding(
+              padding: EdgeInsets.only(bottom: 7.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '✦',
+                    style: TextStyle(fontSize: 15.sp, color: _Palette.subtleWhite),
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      f,
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 17.5.sp,
+                        fontWeight: FontWeight.w500,
+                        color: _Palette.subtleWhite,
+                        height: 1.3,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SelectionDot extends StatelessWidget {
-  final bool selected;
-  const _SelectionDot({required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: selected ? AppColors.primary : Colors.transparent,
-        border: Border.all(
-          color: selected ? AppColors.primary : AppColors.kBorder,
-          width: 1.6,
-        ),
-      ),
-      child: selected
-          ? const Icon(Icons.check, size: 13, color: Colors.white)
-          : null,
-    );
-  }
-}
-
-class _BottomCta extends StatelessWidget {
-  final SubscriptionPlan plan;
-  final bool isFree;
-  final VoidCallback onPressed;
-  const _BottomCta({
-    required this.plan,
-    required this.isFree,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          boxShadow: AppColors.shadowXs,
-        ),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppColors.r12),
-              ),
-              elevation: 0,
-            ),
-            child: Text(
-              isFree ? 'Continue as Free Member' : 'Continue with ${plan.title}',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
+                  ),
+                ],
               ),
             ),
           ),
-        ),
+          SizedBox(height: 6.h),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              height: 50.h,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _Palette.coralLight,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Text(
+                plan.ctaLabel,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 19.5.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _Palette.ink,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

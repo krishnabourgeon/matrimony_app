@@ -93,6 +93,42 @@ class BaseClient {
     }
   }
 
+  //POST MULTIPART METHOD (file uploads, e.g. photos)
+  static Future<dynamic> postMultipart(
+    String api, {
+    Map<String, String>? fields,
+    Map<String, File>? files,
+  }) async {
+    String bearerToken = await token;
+    var uri = Uri.parse(AppConfig.baseUrl + api);
+    bool check = await isInternetAvailable();
+    if (check) {
+      try {
+        var request = http.MultipartRequest('POST', uri);
+        // Do NOT set Content-Type manually — http.MultipartRequest sets the
+        // multipart/form-data boundary itself; overriding it breaks parsing.
+        request.headers[HttpHeaders.acceptHeader] = _appJson;
+        request.headers[HttpHeaders.authorizationHeader] = 'Bearer $bearerToken';
+        if (fields != null) request.fields.addAll(fields);
+        if (files != null) {
+          for (final entry in files.entries) {
+            request.files.add(await http.MultipartFile.fromPath(entry.key, entry.value.path));
+          }
+        }
+        var streamedResponse = await request.send().timeout(const Duration(seconds: timeDuration));
+        var response = await http.Response.fromStream(streamedResponse);
+        return _processResponse(response);
+      } on SocketException {
+        throw FetchDataException('No Internet connection', uri.toString());
+      } on TimeoutException {
+        throw ApiNotRespondingException(
+          'API not responded in time',
+          uri.toString(),
+        );
+      }
+    }
+  }
+
   static dynamic _processResponse(http.Response response) {
     print(response.statusCode);
     switch (response.statusCode) {

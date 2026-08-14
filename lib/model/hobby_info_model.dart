@@ -9,41 +9,41 @@ HobbyInfoModel hobbyInfoModelFromJson(String str) => HobbyInfoModel.fromJson(jso
 String hobbyInfoModelToJson(HobbyInfoModel data) => json.encode(data.toJson());
 
 class HobbyInfoModel {
-    String message;
-    Data data;
+    String? message;
+    Data? data;
 
     HobbyInfoModel({
-        required this.message,
-        required this.data,
+        this.message,
+        this.data,
     });
 
     factory HobbyInfoModel.fromJson(Map<String, dynamic> json) => HobbyInfoModel(
         message: json["message"],
-        data: Data.fromJson(json["data"]),
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
     );
 
     Map<String, dynamic> toJson() => {
         "message": message,
-        "data": data.toJson(),
+        "data": data?.toJson(),
     };
 }
 
 class Data {
-    List<String> hobbies;
-    String otherHobbies;
+    List<String>? hobbies;
+    String? otherHobbies;
 
     Data({
-        required this.hobbies,
-        required this.otherHobbies,
+        this.hobbies,
+        this.otherHobbies,
     });
 
     factory Data.fromJson(Map<String, dynamic> json) => Data(
-        hobbies: List<String>.from(json["hobbies"].map((x) => x)),
+        hobbies: json["hobbies"] == null ? null : List<String>.from(json["hobbies"].map((x) => x)),
         otherHobbies: json["other_hobbies"],
     );
 
     Map<String, dynamic> toJson() => {
-        "hobbies": List<dynamic>.from(hobbies.map((x) => x)),
+        "hobbies": hobbies == null ? null : List<dynamic>.from(hobbies!.map((x) => x)),
         "other_hobbies": otherHobbies,
     };
 }

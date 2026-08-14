@@ -9,82 +9,82 @@ FamilyModel familyModelFromJson(String str) => FamilyModel.fromJson(json.decode(
 String familyModelToJson(FamilyModel data) => json.encode(data.toJson());
 
 class FamilyModel {
-    String message;
-    Data data;
+    String? message;
+    Data? data;
 
     FamilyModel({
-        required this.message,
-        required this.data,
+        this.message,
+        this.data,
     });
 
     factory FamilyModel.fromJson(Map<String, dynamic> json) => FamilyModel(
         message: json["message"],
-        data: Data.fromJson(json["data"]),
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
     );
 
     Map<String, dynamic> toJson() => {
         "message": message,
-        "data": data.toJson(),
+        "data": data?.toJson(),
     };
 }
 
 class Data {
-    Family family;
-    String mobile2;
-    int mobile2Whatsapp;
+    Family? family;
+    String? mobile2;
+    int? mobile2Whatsapp;
 
     Data({
-        required this.family,
-        required this.mobile2,
-        required this.mobile2Whatsapp,
+        this.family,
+        this.mobile2,
+        this.mobile2Whatsapp,
     });
 
     factory Data.fromJson(Map<String, dynamic> json) => Data(
-        family: Family.fromJson(json["family"]),
+        family: json["family"] == null ? null : Family.fromJson(json["family"]),
         mobile2: json["mobile_2"],
         mobile2Whatsapp: json["mobile_2_whatsapp"],
     );
 
     Map<String, dynamic> toJson() => {
-        "family": family.toJson(),
+        "family": family?.toJson(),
         "mobile_2": mobile2,
         "mobile_2_whatsapp": mobile2Whatsapp,
     };
 }
 
 class Family {
-    int customerId;
-    int familyTypeId;
-    int familyStatusId;
-    int familyValueId;
-    int membersCount;
-    int brotherCount;
-    int sisterCount;
-    int brotherMarriedCount;
-    int sisterMarriedCount;
-    int fatherJobId;
-    int motherJobId;
-    int familyPropertyValueId;
-    DateTime updatedAt;
-    DateTime createdAt;
-    int id;
+    int? customerId;
+    int? familyTypeId;
+    int? familyStatusId;
+    int? familyValueId;
+    int? membersCount;
+    int? brotherCount;
+    int? sisterCount;
+    int? brotherMarriedCount;
+    int? sisterMarriedCount;
+    int? fatherJobId;
+    int? motherJobId;
+    int? familyPropertyValueId;
+    DateTime? updatedAt;
+    DateTime? createdAt;
+    int? id;
 
     Family({
-        required this.customerId,
-        required this.familyTypeId,
-        required this.familyStatusId,
-        required this.familyValueId,
-        required this.membersCount,
-        required this.brotherCount,
-        required this.sisterCount,
-        required this.brotherMarriedCount,
-        required this.sisterMarriedCount,
-        required this.fatherJobId,
-        required this.motherJobId,
-        required this.familyPropertyValueId,
-        required this.updatedAt,
-        required this.createdAt,
-        required this.id,
+        this.customerId,
+        this.familyTypeId,
+        this.familyStatusId,
+        this.familyValueId,
+        this.membersCount,
+        this.brotherCount,
+        this.sisterCount,
+        this.brotherMarriedCount,
+        this.sisterMarriedCount,
+        this.fatherJobId,
+        this.motherJobId,
+        this.familyPropertyValueId,
+        this.updatedAt,
+        this.createdAt,
+        this.id,
     });
 
     factory Family.fromJson(Map<String, dynamic> json) => Family(
@@ -100,8 +100,8 @@ class Family {
         fatherJobId: json["father_job_id"],
         motherJobId: json["mother_job_id"],
         familyPropertyValueId: json["family_property_value_id"],
-        updatedAt: DateTime.parse(json["updated_at"]),
-        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
         id: json["id"],
     );
 
@@ -118,8 +118,8 @@ class Family {
         "father_job_id": fatherJobId,
         "mother_job_id": motherJobId,
         "family_property_value_id": familyPropertyValueId,
-        "updated_at": updatedAt.toIso8601String(),
-        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
         "id": id,
     };
 }

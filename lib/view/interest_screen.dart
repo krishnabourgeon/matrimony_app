@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:matrimony_app/model/profile_model.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/custom_widgets/profile_image.dart';
-import 'package:matrimony_app/view/user_detail_screen.dart';
 
 class InterestsScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -196,7 +195,7 @@ class _InterestsScreenState extends State<InterestsScreen>
       itemBuilder: (ctx, i) => _InterestCard(
         profile: list[i],
         tabIndex: _tab.index,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserDetailScreen(profile: list[i]))),
+        //onTap: () => //Navigator.push(context, MaterialPageRoute(builder: (_) => UserDetailScreen(profile: list[i]))),
         onAction: () => setState(() {}),
       ),
     );
@@ -207,11 +206,11 @@ class _InterestsScreenState extends State<InterestsScreen>
 class _InterestCard extends StatefulWidget {
   final Profile profile;
   final int tabIndex;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final VoidCallback onAction;
   const _InterestCard({
     required this.profile, required this.tabIndex,
-    required this.onTap, required this.onAction,
+     this.onTap, required this.onAction,
   });
   @override
   State<_InterestCard> createState() => _InterestCardState();

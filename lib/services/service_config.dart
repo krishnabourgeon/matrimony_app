@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:async/async.dart';
@@ -12,6 +13,7 @@ import 'package:matrimony_app/model/community_location.dart';
 import 'package:matrimony_app/model/countries_model.dart';
 import 'package:matrimony_app/model/created_for_model.dart';
 import 'package:matrimony_app/model/curriencies_model.dart';
+import 'package:matrimony_app/model/dashboard_model.dart';
 import 'package:matrimony_app/model/diets_model.dart';
 import 'package:matrimony_app/model/district_model.dart';
 import 'package:matrimony_app/model/education_model.dart';
@@ -23,15 +25,20 @@ import 'package:matrimony_app/model/family_values_model.dart';
 import 'package:matrimony_app/model/gender_model.dart';
 import 'package:matrimony_app/model/gotar_model.dart';
 import 'package:matrimony_app/model/hobbies_model.dart';
+import 'package:matrimony_app/model/hobby_info_model.dart';
+import 'package:matrimony_app/model/horoscope_model.dart';
+import 'package:matrimony_app/model/image_types_model.dart';
 import 'package:matrimony_app/model/income_model.dart';
 import 'package:matrimony_app/model/job_industries_model.dart';
 import 'package:matrimony_app/model/marital_statuses_model.dart';
 import 'package:matrimony_app/model/mother_tongue.dart';
 import 'package:matrimony_app/model/occupations_model.dart';
 import 'package:matrimony_app/model/personal_model.dart';
+import 'package:matrimony_app/model/photos_model.dart';
 import 'package:matrimony_app/model/professional_model.dart';
 import 'package:matrimony_app/model/religions_model.dart';
 import 'package:matrimony_app/model/residiential_model.dart';
+import 'package:matrimony_app/model/sign_in_model.dart';
 import 'package:matrimony_app/model/signup_model.dart';
 import 'package:matrimony_app/model/skin_type_model.dart';
 import 'package:matrimony_app/model/stars_model.dart';
@@ -44,16 +51,11 @@ import 'base_client.dart';
 import 'shared_preference_helper.dart';
 
 class ServiceConfig {
-  // Pulls the real reason out of a Laravel-style validation error body, e.g.
-  //   {"errors": {"email": ["The email address has already been taken."]},
-  //    "message": "Validation failed."}
-  // The per-field messages under "errors" are what the user actually needs
-  // to see — the top-level "message" is just a generic "Validation failed."
-  // and is only used as a fallback when "errors" isn't present.
-  static String _extractErrorMessage(String? rawBody, {String fallback = 'Something went wrong'}) {
-    // A 302 redirect to the login page (returned as an HTML body instead of
-    // JSON) means the request went out unauthenticated — most commonly an
-    // empty/expired bearer token rather than a validation failure.
+  
+  static String _extractErrorMessage(
+    String? rawBody, {
+    String fallback = 'Something went wrong',
+  }) {
     if (rawBody != null && rawBody.trimLeft().startsWith('<')) {
       return 'Your session has expired. Please verify your mobile number again.';
     }
@@ -77,46 +79,6 @@ class ServiceConfig {
     } catch (_) {}
     return fallback;
   }
-
-  // Future<Result> login({String? email, String? password}) async {
-  //   Map<String, dynamic> body = {
-  //     'email': email ?? '',
-  //     'password': password ?? '',
-  //   };
-  //   Result res = await BaseClient.post('auth/login', body: body);
-  //   if (res.isError) {
-  //     ErrorResponseModel errorResponseModel = ErrorResponseModel(
-  //       errorMessage: 'OOps...!, login failed',
-  //     );
-  //     return Result.error(errorResponseModel);
-  //   } else {
-  //     var response = res.asValue!.value;
-  //     LoginResponseModel loginResponseModel = LoginResponseModel.fromJson(
-  //       response,
-  //     );
-  //     return (loginResponseModel.status ?? false)
-  //         ? Result.value(loginResponseModel)
-  //         : Result.error(loginResponseModel);
-  //   }
-  // }
-
-  // Future<Result> getDeities() async {
-  //   Result res = await BaseClient.get('deities');
-  //   if (res.isError) {
-  //     ErrorResponseModel errorResponseModel = ErrorResponseModel(
-  //       errorMessage: 'OOps...!, Something went wrong',
-  //     );
-  //     return Result.error(errorResponseModel);
-  //   } else {
-  //     var response = res.asValue!.value;
-  //     debugPrint('-----------------deities response $response-------------------');
-  //     print("-----------------deities response $response-------------------");
-  //     DeitiesResponse deitiesResponse = DeitiesResponse.fromJson(response);
-  //     return (deitiesResponse.status ?? false)
-  //         ? Result.value(deitiesResponse)
-  //         : Result.error(deitiesResponse);
-  //   }
-  // }
 
   Future<Result> getCreatedFor() async {
     Result res = await BaseClient.get('created-fors');
@@ -185,10 +147,6 @@ class ServiceConfig {
             : Result.error(signUpResponseModel);
       }
     } on AppException catch (e) {
-      // 400/422 responses are thrown by BaseClient instead of returned as a
-      // Result, so the real validation-error body (e.g. "The mobile number
-      // has already been taken.") lives in e.message — parse it here instead
-      // of letting it get swallowed as a generic exception upstream.
       debugPrint('signup validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(errorMessage: _extractErrorMessage(e.message)),
@@ -213,12 +171,6 @@ class ServiceConfig {
         debugPrint('verify otp response $response');
         VerifyOtpModel verifyOtpModel = VerifyOtpModel.fromJson(response);
         if (verifyOtpModel.token.isNotEmpty) {
-          // Every request after this one (basic-info, community-location, ...)
-          // relies on BaseClient.token, which reads from here. Without saving
-          // it now, those calls go out with an empty bearer token and the
-          // backend 302-redirects them to the login page instead of
-          // returning JSON, which used to surface as a generic "Something
-          // went wrong" with no real error text to parse.
           await SharedPreferenceHelper.saveToken(verifyOtpModel.token);
         }
         return verifyOtpModel.token.isNotEmpty
@@ -233,7 +185,10 @@ class ServiceConfig {
       debugPrint('verify otp validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Invalid OTP. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Invalid OTP. Please try again',
+          ),
         ),
       );
     }
@@ -255,15 +210,24 @@ class ServiceConfig {
     }
   }
 
-  Future<Result> basicInfo(String email,String password,String passwordconfirmation,String dob,int genderid) async {
+  Future<Result> basicInfo(
+    String email,
+    String password,
+    String passwordconfirmation,
+    String dob,
+    int genderid,
+  ) async {
     try {
-      Result res = await BaseClient.post('basic-info',body: {
-        'email':email,
-        'password':password,
-        'password_confirmation':passwordconfirmation,
-        'dob':dob,
-        'gender_id':genderid
-      });
+      Result res = await BaseClient.post(
+        'basic-info',
+        body: {
+          'email': email,
+          'password': password,
+          'password_confirmation': passwordconfirmation,
+          'dob': dob,
+          'gender_id': genderid,
+        },
+      );
       if (res.isError) {
         ErrorResponseModel errorResponseModel = ErrorResponseModel(
           errorMessage: 'OOps...!, Something went wrong',
@@ -279,15 +243,16 @@ class ServiceConfig {
       debugPrint('basic info validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Something went wrong. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
         ),
       );
     }
   }
 
-
-
-    Future<Result> getReligion() async {
+  Future<Result> getReligion() async {
     Result res = await BaseClient.get('religions');
     if (res.isError) {
       ErrorResponseModel errorResponseModel = ErrorResponseModel(
@@ -297,13 +262,14 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       ReligionsModel religionModel = ReligionsModel.fromJson(response);
-      return (religionModel.religions != null && religionModel.religions.isNotEmpty)
+      return (religionModel.religions != null &&
+              religionModel.religions.isNotEmpty)
           ? Result.value(religionModel)
           : Result.error(religionModel);
     }
   }
 
-    Future<Result> getCast(int religionid) async {
+  Future<Result> getCast(int religionid) async {
     Result res = await BaseClient.get('castes/$religionid');
     if (res.isError) {
       ErrorResponseModel errorResponseModel = ErrorResponseModel(
@@ -319,7 +285,6 @@ class ServiceConfig {
     }
   }
 
-
   Future<Result> getSubCast(int castid) async {
     Result res = await BaseClient.get('sub-castes/$castid');
     if (res.isError) {
@@ -330,7 +295,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       SubcastesModel subCastModel = SubcastesModel.fromJson(response);
-      return (subCastModel.subCastes != null && subCastModel.subCastes.isNotEmpty)
+      return (subCastModel.subCastes != null &&
+              subCastModel.subCastes.isNotEmpty)
           ? Result.value(subCastModel)
           : Result.error(subCastModel);
     }
@@ -352,7 +318,7 @@ class ServiceConfig {
     }
   }
 
-   Future<Result> getCountries() async {
+  Future<Result> getCountries() async {
     Result res = await BaseClient.get('countries');
     if (res.isError) {
       ErrorResponseModel errorResponseModel = ErrorResponseModel(
@@ -362,13 +328,14 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       CountriesModel countriesModel = CountriesModel.fromJson(response);
-      return (countriesModel.countries != null && countriesModel.countries.isNotEmpty)
+      return (countriesModel.countries != null &&
+              countriesModel.countries.isNotEmpty)
           ? Result.value(countriesModel)
           : Result.error(countriesModel);
     }
   }
 
-   Future<Result> getStates(int countryid) async {
+  Future<Result> getStates(int countryid) async {
     Result res = await BaseClient.get('states/$countryid');
     if (res.isError) {
       ErrorResponseModel errorResponseModel = ErrorResponseModel(
@@ -384,8 +351,7 @@ class ServiceConfig {
     }
   }
 
-
-   Future<Result> getDistricts(int stateid) async {
+  Future<Result> getDistricts(int stateid) async {
     Result res = await BaseClient.get('districts/$stateid');
     if (res.isError) {
       ErrorResponseModel errorResponseModel = ErrorResponseModel(
@@ -395,14 +361,14 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       DistrictModel districtsModel = DistrictModel.fromJson(response);
-      return (districtsModel.districts != null && districtsModel.districts.isNotEmpty)
+      return (districtsModel.districts != null &&
+              districtsModel.districts.isNotEmpty)
           ? Result.value(districtsModel)
           : Result.error(districtsModel);
     }
   }
 
-
-   Future<Result> communityandLocation(
+  Future<Result> communityandLocation(
     int nativecountryid,
     int nativestateid,
     int nativedistrictid,
@@ -421,30 +387,33 @@ class ServiceConfig {
     int casteid,
     int subcasteid,
     int gotraid,
-    String castematch
-    ) async {
+    String castematch,
+  ) async {
     try {
-      Result res = await BaseClient.post('community-location',body: {
-        'native_country_id':nativecountryid,
-        'native_state_id':nativestateid,
-        "native_district_id": nativedistrictid,
-        "native_description": nativedescription,
-        "permanent_country_id": permanentcountryid,
-        "permanent_state_id": permanentstateid,
-        "permanent_district_id": permanentdistrictid,
-        "permanent_address": permanentaddress,
-        "permanent_pincode": permanentpincode,
-        "current_country_id": currentcountryid,
-        "current_state_id": currentstateid,
-        "current_district_id": currentdistrictid,
-        "current_address": currentaddress,
-        "current_pincode": currentpincode,
-        "religion_id": religionid,
-        "caste_id": casteid,
-        "sub_caste_id": subcasteid,
-        "gotra_id": gotraid,
-        "caste_match": castematch
-      });
+      Result res = await BaseClient.post(
+        'community-location',
+        body: {
+          'native_country_id': nativecountryid,
+          'native_state_id': nativestateid,
+          "native_district_id": nativedistrictid,
+          "native_description": nativedescription,
+          "permanent_country_id": permanentcountryid,
+          "permanent_state_id": permanentstateid,
+          "permanent_district_id": permanentdistrictid,
+          "permanent_address": permanentaddress,
+          "permanent_pincode": permanentpincode,
+          "current_country_id": currentcountryid,
+          "current_state_id": currentstateid,
+          "current_district_id": currentdistrictid,
+          "current_address": currentaddress,
+          "current_pincode": currentpincode,
+          "religion_id": religionid,
+          "caste_id": casteid,
+          "sub_caste_id": subcasteid,
+          "gotra_id": gotraid,
+          "caste_match": castematch,
+        },
+      );
       if (res.isError) {
         ErrorResponseModel errorResponseModel = ErrorResponseModel(
           errorMessage: 'OOps...!, Something went wrong',
@@ -453,14 +422,18 @@ class ServiceConfig {
       } else {
         var response = res.asValue!.value;
         debugPrint('community and location response $response');
-        CommunityLocationModel communityAndLocationModel = CommunityLocationModel.fromJson(response);
+        CommunityLocationModel communityAndLocationModel =
+            CommunityLocationModel.fromJson(response);
         return Result.value(communityAndLocationModel);
       }
     } on AppException catch (e) {
       debugPrint('community and location validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Something went wrong. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
         ),
       );
     }
@@ -476,7 +449,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       EducationModel educationModel = EducationModel.fromJson(response);
-      return (educationModel.educations != null && educationModel.educations.isNotEmpty)
+      return (educationModel.educations != null &&
+              educationModel.educations.isNotEmpty)
           ? Result.value(educationModel)
           : Result.error(educationModel);
     }
@@ -491,13 +465,15 @@ class ServiceConfig {
       return Result.error(errorResponseModel);
     } else {
       var response = res.asValue!.value;
-      JobIndustriesModel jobIndustriesModel = JobIndustriesModel.fromJson(response);
-      return (jobIndustriesModel.jobIndustries != null && jobIndustriesModel.jobIndustries.isNotEmpty)
+      JobIndustriesModel jobIndustriesModel = JobIndustriesModel.fromJson(
+        response,
+      );
+      return (jobIndustriesModel.jobIndustries != null &&
+              jobIndustriesModel.jobIndustries.isNotEmpty)
           ? Result.value(jobIndustriesModel)
           : Result.error(jobIndustriesModel);
     }
   }
-
 
   Future<Result> getOccupation() async {
     Result res = await BaseClient.get('occupations');
@@ -509,7 +485,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       OccupationsModel occupationsModel = OccupationsModel.fromJson(response);
-      return (occupationsModel.occupations != null && occupationsModel.occupations.isNotEmpty)
+      return (occupationsModel.occupations != null &&
+              occupationsModel.occupations.isNotEmpty)
           ? Result.value(occupationsModel)
           : Result.error(occupationsModel);
     }
@@ -525,12 +502,12 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       ResidentialModel residentialModel = ResidentialModel.fromJson(response);
-      return (residentialModel.residentialStatuses != null && residentialModel.residentialStatuses.isNotEmpty)
+      return (residentialModel.residentialStatuses != null &&
+              residentialModel.residentialStatuses.isNotEmpty)
           ? Result.value(residentialModel)
           : Result.error(residentialModel);
     }
   }
-
 
   Future<Result> getCurrencies() async {
     Result res = await BaseClient.get('currencies');
@@ -542,7 +519,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       CurrenciesModel currenciesModel = CurrenciesModel.fromJson(response);
-      return (currenciesModel.currencies != null && currenciesModel.currencies.isNotEmpty)
+      return (currenciesModel.currencies != null &&
+              currenciesModel.currencies.isNotEmpty)
           ? Result.value(currenciesModel)
           : Result.error(currenciesModel);
     }
@@ -564,8 +542,6 @@ class ServiceConfig {
     }
   }
 
-
-
   Future<Result> professionalDetails(
     int highesteducationid,
     String educationdesc,
@@ -578,21 +554,24 @@ class ServiceConfig {
     int currencyid,
     int incomeslabid,
     List<int> languages,
-    ) async {
+  ) async {
     try {
-      Result res = await BaseClient.post('professional-info',body: {
-        "highest_education_id": highesteducationid,
-        "education_desc": educationdesc,
-        "job_industry_id": jobindustryid,
-        "occupation_id": occupationid,
-        "working_country_id": workingcountryid,
-        "working_state_id": workingstateid,
-        "working_district_id": workingdistrictid,
-        "residential_status_id": residentialstatusid,
-        "currency_id": currencyid,
-        "income_slab_id": incomeslabid,
-        "languages": languages
-      });
+      Result res = await BaseClient.post(
+        'professional-info',
+        body: {
+          "highest_education_id": highesteducationid,
+          "education_desc": educationdesc,
+          "job_industry_id": jobindustryid,
+          "occupation_id": occupationid,
+          "working_country_id": workingcountryid,
+          "working_state_id": workingstateid,
+          "working_district_id": workingdistrictid,
+          "residential_status_id": residentialstatusid,
+          "currency_id": currencyid,
+          "income_slab_id": incomeslabid,
+          "languages": languages,
+        },
+      );
       if (res.isError) {
         ErrorResponseModel errorResponseModel = ErrorResponseModel(
           errorMessage: 'OOps...!, Something went wrong',
@@ -601,14 +580,19 @@ class ServiceConfig {
       } else {
         var response = res.asValue!.value;
         debugPrint('Professional info response $response');
-        ProfessionalModel professionalModel = ProfessionalModel.fromJson(response);
+        ProfessionalModel professionalModel = ProfessionalModel.fromJson(
+          response,
+        );
         return Result.value(professionalModel);
       }
     } on AppException catch (e) {
       debugPrint('Professional info validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Something went wrong. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
         ),
       );
     }
@@ -623,14 +607,15 @@ class ServiceConfig {
       return Result.error(errorResponseModel);
     } else {
       var response = res.asValue!.value;
-      MaritalStatusesModel maritalStatusesModel = MaritalStatusesModel.fromJson(response);
-      return (maritalStatusesModel.maritalStatuses != null && maritalStatusesModel.maritalStatuses.isNotEmpty)
+      MaritalStatusesModel maritalStatusesModel = MaritalStatusesModel.fromJson(
+        response,
+      );
+      return (maritalStatusesModel.maritalStatuses != null &&
+              maritalStatusesModel.maritalStatuses.isNotEmpty)
           ? Result.value(maritalStatusesModel)
           : Result.error(maritalStatusesModel);
     }
   }
-
-
 
   Future<Result> getSkinColor() async {
     Result res = await BaseClient.get('skin-types');
@@ -642,7 +627,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       SkinTypeModel skinTypeModel = SkinTypeModel.fromJson(response);
-      return (skinTypeModel.skinTypes != null && skinTypeModel.skinTypes.isNotEmpty)
+      return (skinTypeModel.skinTypes != null &&
+              skinTypeModel.skinTypes.isNotEmpty)
           ? Result.value(skinTypeModel)
           : Result.error(skinTypeModel);
     }
@@ -658,7 +644,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       BodyTypesModel bodyTypeModel = BodyTypesModel.fromJson(response);
-      return (bodyTypeModel.bodyTypes != null && bodyTypeModel.bodyTypes.isNotEmpty)
+      return (bodyTypeModel.bodyTypes != null &&
+              bodyTypeModel.bodyTypes.isNotEmpty)
           ? Result.value(bodyTypeModel)
           : Result.error(bodyTypeModel);
     }
@@ -674,7 +661,8 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       BloodGroupModel bloodGroupModel = BloodGroupModel.fromJson(response);
-      return (bloodGroupModel.bloodGroups != null && bloodGroupModel.bloodGroups.isNotEmpty)
+      return (bloodGroupModel.bloodGroups != null &&
+              bloodGroupModel.bloodGroups.isNotEmpty)
           ? Result.value(bloodGroupModel)
           : Result.error(bloodGroupModel);
     }
@@ -712,8 +700,6 @@ class ServiceConfig {
     }
   }
 
-
-
   Future<Result> getValueslabs() async {
     Result res = await BaseClient.get('value-slabs');
     if (res.isError) {
@@ -724,14 +710,14 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       ValueSlabModel valueSlabsModel = ValueSlabModel.fromJson(response);
-      return (valueSlabsModel.valueSlabs != null && valueSlabsModel.valueSlabs.isNotEmpty)
+      return (valueSlabsModel.valueSlabs != null &&
+              valueSlabsModel.valueSlabs.isNotEmpty)
           ? Result.value(valueSlabsModel)
           : Result.error(valueSlabsModel);
     }
   }
 
-
-    Future<Result> personalDetails(
+  Future<Result> personalDetails(
     int maritalstatusid,
     int childcount,
     int height,
@@ -746,24 +732,27 @@ class ServiceConfig {
     int drinkinghabitid,
     int smokinghabitid,
     int havepet,
-    ) async {
+  ) async {
     try {
-      Result res = await BaseClient.post('personal-info',body: {
-        "marital_status_id": maritalstatusid,
-        "child_count": childcount,
-        "height": height,
-        "weight": weight,
-        "skin_type_id": skintypeid,
-        "body_type_id": bodytypeid,
-        "blood_group_id": bloodgroupid,
-        "disability_status": disabilitystatus,
-        "disability_desc": disabilitydesc,
-        "major_surgery": majorsurgery,
-        "diet_id": dietid,
-        "drinking_habit_id": drinkinghabitid,
-        "smoking_habit_id": smokinghabitid,
-        "have_pet": havepet
-      });
+      Result res = await BaseClient.post(
+        'personal-info',
+        body: {
+          "marital_status_id": maritalstatusid,
+          "child_count": childcount,
+          "height": height,
+          "weight": weight,
+          "skin_type_id": skintypeid,
+          "body_type_id": bodytypeid,
+          "blood_group_id": bloodgroupid,
+          "disability_status": disabilitystatus,
+          "disability_desc": disabilitydesc,
+          "major_surgery": majorsurgery,
+          "diet_id": dietid,
+          "drinking_habit_id": drinkinghabitid,
+          "smoking_habit_id": smokinghabitid,
+          "have_pet": havepet,
+        },
+      );
       if (res.isError) {
         ErrorResponseModel errorResponseModel = ErrorResponseModel(
           errorMessage: 'OOps...!, Something went wrong',
@@ -779,12 +768,14 @@ class ServiceConfig {
       debugPrint('Personal info validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Something went wrong. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
         ),
       );
     }
   }
-
 
   Future<Result> getFamilyStatus() async {
     Result res = await BaseClient.get('family-statuses');
@@ -795,8 +786,11 @@ class ServiceConfig {
       return Result.error(errorResponseModel);
     } else {
       var response = res.asValue!.value;
-      FamilyStatusesModel familyStatusesModel = FamilyStatusesModel.fromJson(response);
-      return (familyStatusesModel.familyStatuses != null && familyStatusesModel.familyStatuses.isNotEmpty)
+      FamilyStatusesModel familyStatusesModel = FamilyStatusesModel.fromJson(
+        response,
+      );
+      return (familyStatusesModel.familyStatuses != null &&
+              familyStatusesModel.familyStatuses.isNotEmpty)
           ? Result.value(familyStatusesModel)
           : Result.error(familyStatusesModel);
     }
@@ -812,13 +806,13 @@ class ServiceConfig {
     } else {
       var response = res.asValue!.value;
       FamilyTypeModel familyTypesModel = FamilyTypeModel.fromJson(response);
-      return (familyTypesModel.familyTypes != null && familyTypesModel.familyTypes.isNotEmpty)
+      return (familyTypesModel.familyTypes != null &&
+              familyTypesModel.familyTypes.isNotEmpty)
           ? Result.value(familyTypesModel)
           : Result.error(familyTypesModel);
     }
   }
 
-  
   Future<Result> getFamilyValue() async {
     Result res = await BaseClient.get('family-values');
     if (res.isError) {
@@ -828,14 +822,15 @@ class ServiceConfig {
       return Result.error(errorResponseModel);
     } else {
       var response = res.asValue!.value;
-      FamilyValuesModel familyValuesModel = FamilyValuesModel.fromJson(response);
-      return (familyValuesModel.familyValues != null && familyValuesModel.familyValues.isNotEmpty)
+      FamilyValuesModel familyValuesModel = FamilyValuesModel.fromJson(
+        response,
+      );
+      return (familyValuesModel.familyValues != null &&
+              familyValuesModel.familyValues.isNotEmpty)
           ? Result.value(familyValuesModel)
           : Result.error(familyValuesModel);
     }
   }
-
-
 
   Future<Result> familyInfo(
     int familytypeid,
@@ -850,22 +845,25 @@ class ServiceConfig {
     int motherjobid,
     int familypropertyvalueid,
     String mobile2,
-    ) async {
+  ) async {
     try {
-      Result res = await BaseClient.post('family-info',body: {
-        "family_type_id": familytypeid,
-        "family_status_id": familystatusid,
-        "family_value_id": familyvalueid,
-        "members_count": memberscount,
-        "brother_count": brothercount,
-        "sister_count": sistercount,
-        "brother_married_count": brothermarriedcount,
-        "sister_married_count": sistermarriedcount,
-        "father_job_id": fatherjobid,
-        "mother_job_id": motherjobid,
-        "family_property_value_id": familypropertyvalueid,
-        "mobile_2": mobile2,
-      });
+      Result res = await BaseClient.post(
+        'family-info',
+        body: {
+          "family_type_id": familytypeid,
+          "family_status_id": familystatusid,
+          "family_value_id": familyvalueid,
+          "members_count": memberscount,
+          "brother_count": brothercount,
+          "sister_count": sistercount,
+          "brother_married_count": brothermarriedcount,
+          "sister_married_count": sistermarriedcount,
+          "father_job_id": fatherjobid,
+          "mother_job_id": motherjobid,
+          "family_property_value_id": familypropertyvalueid,
+          "mobile_2": mobile2,
+        },
+      );
       if (res.isError) {
         ErrorResponseModel errorResponseModel = ErrorResponseModel(
           errorMessage: 'OOps...!, Something went wrong',
@@ -881,12 +879,14 @@ class ServiceConfig {
       debugPrint('family info validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Something went wrong. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
         ),
       );
     }
   }
-
 
   Future<Result> gethobbies() async {
     Result res = await BaseClient.get('hobbies');
@@ -904,17 +904,12 @@ class ServiceConfig {
     }
   }
 
-
-
-    Future<Result> hobbyInfo(
-      List<int> hobbies,
-      String otherHobbies,
-    ) async {
+  Future<Result> hobbyInfo(List<int> hobbies, String otherHobbies) async {
     try {
-      Result res = await BaseClient.post('hobby-info',body: {
-        "hobbies": hobbies,
-        "other_hobbies": otherHobbies,
-      });
+      Result res = await BaseClient.post(
+        'hobby-info',
+        body: {"hobbies": hobbies, "other_hobbies": otherHobbies},
+      );
       if (res.isError) {
         ErrorResponseModel errorResponseModel = ErrorResponseModel(
           errorMessage: 'OOps...!, Something went wrong',
@@ -922,22 +917,24 @@ class ServiceConfig {
         return Result.error(errorResponseModel);
       } else {
         var response = res.asValue!.value;
-        debugPrint('family info response $response');
-        HobbiesModel hobbiesModel =  HobbiesModel.fromJson(response);
-        return Result.value(hobbiesModel);
+        debugPrint('hobby info response $response');
+        HobbyInfoModel hobbyInfoModel = HobbyInfoModel.fromJson(response);
+        return Result.value(hobbyInfoModel);
       }
     } on AppException catch (e) {
-      debugPrint('family info validation error: ${e.message}');
+      debugPrint('hobby info validation error: ${e.message}');
       return Result.error(
         ErrorResponseModel(
-          errorMessage: _extractErrorMessage(e.message, fallback: 'Something went wrong. Please try again'),
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
         ),
       );
     }
   }
 
-
-    Future<Result> getStars() async {
+  Future<Result> getStars() async {
     Result res = await BaseClient.get('stars');
     if (res.isError) {
       ErrorResponseModel errorResponseModel = ErrorResponseModel(
@@ -953,5 +950,154 @@ class ServiceConfig {
     }
   }
 
+  Future<Result> horoscopeInfo(
+    String dobhoroscope,
+    String birthtime,
+    String birthtimeperiod,
+    String birthplace,
+    int starid,
+    int issudhajathakam,
+    int isdoshajathakam,
+    int show,
+    int matchtypeid,
+    int starmatch,
+    String doshatype,
+  ) async {
+    try {
+      Result res = await BaseClient.post(
+        'horoscope-info',
+        body: {
+          "dob_horoscope": dobhoroscope,
+          "birth_time": birthtime,
+          "birth_time_period": birthtimeperiod,
+          "birth_place": birthplace,
+          "star_id": starid,
+          "is_sudha_jathakam": issudhajathakam,
+          "is_dosha_jathakam": isdoshajathakam,
+          "show": show,
+          "star_match": starmatch,
+          "match_type_id": matchtypeid,
+          "dosha_type": doshatype,
+        },
+      );
+      if (res.isError) {
+        ErrorResponseModel errorResponseModel = ErrorResponseModel(
+          errorMessage: 'OOps...!, Something went wrong',
+        );
+        return Result.error(errorResponseModel);
+      } else {
+        var response = res.asValue!.value;
+        debugPrint('horoscope info response $response');
+        HoroscopeModel horoscopeModel = HoroscopeModel.fromJson(response);
+        return Result.value(horoscopeModel);
+      }
+    } on AppException catch (e) {
+      debugPrint('horoscope info validation error: ${e.message}');
+      return Result.error(
+        ErrorResponseModel(
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
+        ),
+      );
+    }
+  }
 
+  Future<Result> SignIn(String mobile) async {
+    try {
+      Result res = await BaseClient.post(
+        'signin',
+        body: {"mobile_number": mobile},
+      );
+      if (res.isError) {
+        ErrorResponseModel errorResponseModel = ErrorResponseModel(
+          errorMessage: 'OOps...!, Something went wrong',
+        );
+        return Result.error(errorResponseModel);
+      } else {
+        var response = res.asValue!.value;
+        debugPrint('SingIn response $response');
+        SignInModel signInModel = SignInModel.fromJson(response);
+        return Result.value(signInModel);
+      }
+    } on AppException catch (e) {
+      debugPrint('SingIn validation error: ${e.message}');
+      return Result.error(
+        ErrorResponseModel(
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
+        ),
+      );
+    }
+  }
+
+  // Endpoint name is a guess (no catalog endpoint was ever wired to the
+  // pre-existing but unused ImageTypesModel) — confirm against the real API
+  // if this 404s, and swap the string below.
+  Future<Result> getImageTypes() async {
+    Result res = await BaseClient.get('image-types');
+    if (res.isError) {
+      ErrorResponseModel errorResponseModel = ErrorResponseModel(
+        errorMessage: 'OOps...!, Something went wrong',
+      );
+      return Result.error(errorResponseModel);
+    } else {
+      var response = res.asValue!.value;
+      ImageTypesModel imageTypesModel = ImageTypesModel.fromJson(response);
+      return (imageTypesModel.imageTypes.isNotEmpty)
+          ? Result.value(imageTypesModel)
+          : Result.error(imageTypesModel);
+    }
+  }
+
+  Future<Result> uploadPhotos(
+    Map<String, String> fields,
+    Map<String, File> files,
+  ) async {
+    try {
+      Result res = await BaseClient.postMultipart(
+        'photos',
+        fields: fields,
+        files: files,
+      );
+      if (res.isError) {
+        ErrorResponseModel errorResponseModel = ErrorResponseModel(
+          errorMessage: 'OOps...!, Something went wrong',
+        );
+        return Result.error(errorResponseModel);
+      } else {
+        var response = res.asValue!.value;
+        debugPrint('photos upload response $response');
+        PhotosModel photosModel = PhotosModel.fromJson(response);
+        return Result.value(photosModel);
+      }
+    } on AppException catch (e) {
+      debugPrint('photos upload validation error: ${e.message}');
+      return Result.error(
+        ErrorResponseModel(
+          errorMessage: _extractErrorMessage(
+            e.message,
+            fallback: 'Something went wrong. Please try again',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<Result> getDashboard() async {
+    Result res = await BaseClient.get('home');
+    if (res.isError) {
+      ErrorResponseModel errorResponseModel = ErrorResponseModel(
+        errorMessage: 'OOps...!, Something went wrong',
+      );
+      return Result.error(errorResponseModel);
+    } else {
+      var response = res.asValue!.value;
+      DashboardModel dashboardModel = DashboardModel.fromJson(response);
+      return Result.value(dashboardModel);
+    }
+  }
 }

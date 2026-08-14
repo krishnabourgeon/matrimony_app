@@ -557,7 +557,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/services/shared_preference_helper.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/login_screen.dart';
+import 'package:matrimony_app/view/main_screen.dart';
 import 'package:matrimony_app/view/onboarding_screen.dart';
 
 /// Simple, bold splash screen: a solid coral field with the wordmark
@@ -599,19 +602,33 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(milliseconds: 1700), () {
       if (mounted) setState(() => _exiting = true);
     });
-    Future.delayed(const Duration(milliseconds: 2100), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 450),
-            pageBuilder: (_, animation, __) => FadeTransition(
-              opacity: animation,
-              child: const OnboardingScreen(),
-            ),
+    Future.delayed(const Duration(milliseconds: 2100), () async {
+      // A saved session token means the user is still logged in — skip
+      // straight to the dashboard, no sign-in/OTP needed. Logging out clears
+      // just the token (see SharedPreferenceHelper.logout), so this only
+      // stops applying once they explicitly log out.
+      //
+      // Otherwise, a device that already finished onboarding once (flag
+      // lives in SharedPreferences, which is wiped on uninstall) skips
+      // straight to sign-in instead of the new-user wizard.
+      final token = await SharedPreferenceHelper.getToken();
+      final alreadyRegistered = await SharedPreferenceHelper.isRegistrationComplete();
+      if (!mounted) return;
+
+      final Widget target = token.isNotEmpty
+          ? const MainShell()
+          : (alreadyRegistered ? const SignInScreen() : const OnboardingScreen());
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 450),
+          pageBuilder: (_, animation, __) => FadeTransition(
+            opacity: animation,
+            child: target,
           ),
-        );
-      }
+        ),
+      );
     });
   }
 

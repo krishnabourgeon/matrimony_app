@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/image_types_model.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/family_details_screen.dart';
 import 'package:matrimony_app/view/hobbies_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
@@ -43,7 +46,8 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     'Formal',
   ];
 
-  // Slot 0 is the primary profile photo (unlabeled); slots 1-7 map to _slotLabels.
+  // Slot 0 is the primary profile photo (unlabeled); slots 1-7 map to
+  // _slotLabels (or to fetched ImageTypes when that list is available).
   final List<File?> _photos = List<File?>.filled(8, null);
   final _picker = ImagePicker();
 
@@ -54,13 +58,18 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   bool _isSubmittingProfile = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RegisterProvider>().getImageTypes();
+    });
+  }
+
+  @override
   void dispose() {
     _aboutCtrl.dispose();
     super.dispose();
   }
-
-  // Required: at least one photo uploaded.
-  bool get _isFormValid => _photos.any((f) => f != null);
 
   Future<void> _pickPhoto(int index) async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
@@ -72,19 +81,56 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     setState(() => _photos[index] = null);
   }
 
+  // Uses the fetched image-type catalog for slot->type_id/name when
+  // available, falling back to the hardcoded labels if that endpoint isn't
+  // reachable (sequential ids 1..8, slot 0 = "Profile Photo").
+  ImageType? _fetchedTypeForSlot(int index) {
+    final types = context.read<RegisterProvider>().imageTypesModel?.imageTypes;
+    if (types != null && index < types.length) return types[index];
+    return null;
+  }
+
+  int _typeIdForSlot(int index) => _fetchedTypeForSlot(index)?.id ?? (index + 1);
+
+  String? _labelForSlot(int index) {
+    if (index == 0) return null;
+    return _fetchedTypeForSlot(index)?.name ?? _slotLabels[index - 1];
+  }
+
+  // Photos and the about text are both optional — whatever's picked gets
+  // uploaded, unset slots are simply skipped.
+  Future<bool> _uploadPhotos() {
+    final provider = context.read<RegisterProvider>();
+    final Map<String, String> fields = {'about': _aboutCtrl.text.trim()};
+    final Map<String, File> files = {};
+    int uploadIndex = 0;
+    for (int i = 0; i < _photos.length; i++) {
+      final file = _photos[i];
+      if (file == null) continue;
+      fields['images[$uploadIndex][type_id]'] = '${_typeIdForSlot(i)}';
+      fields['images[$uploadIndex][is_main_image]'] = i == 0 ? '1' : '0';
+      files['images[$uploadIndex][image]'] = file;
+      uploadIndex++;
+    }
+    return provider.uploadPhotos(fields: fields, files: files);
+  }
+
   void _handleContinue() {
     FocusScope.of(context).unfocus();
 
     setState(() => _isSubmitting = true);
-
-    // TODO: wire up actual save/continue API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    _uploadPhotos().then((success) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => FamilyDetailsScreen()),
-      );
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => FamilyDetailsScreen()),
+        );
+      } else {
+        _showSnack(provider.photosError ?? 'Something went wrong. Please try again');
+      }
     });
   }
 
@@ -94,17 +140,31 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     FocusScope.of(context).unfocus();
 
     setState(() => _isSubmittingProfile = true);
-
-    // TODO: wire up actual submit-profile API call here.
-    Future.delayed(const Duration(milliseconds: 900), () {
+    final provider = context.read<RegisterProvider>();
+    _uploadPhotos().then((success) {
       if (!mounted) return;
       setState(() => _isSubmittingProfile = false);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainShell()),
-        (route) => false,
-      );
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainShell()),
+          (route) => false,
+        );
+      } else {
+        _showSnack(provider.photosError ?? 'Something went wrong. Please try again');
+      }
     });
+  }
+
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
+        backgroundColor: _Palette.ink,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+      ),
+    );
   }
 
   @override
@@ -213,7 +273,8 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   // Photo grid: slot 0 = primary photo, slots 1-7 = labeled categories.
   // ---------------------------------------------------------------------
   Widget _buildPhotoGrid() {
-    return GridView.builder(
+    return Consumer<RegisterProvider>(
+      builder: (context, provider, _) => GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _photos.length,
@@ -224,7 +285,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
         childAspectRatio: 0.85,
       ),
       itemBuilder: (context, index) {
-        final label = index == 0 ? null : _slotLabels[index - 1];
+        final label = _labelForSlot(index);
         return _PhotoSlot(
           file: _photos[index],
           label: label,
@@ -232,6 +293,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
           onRemove: () => _removePhoto(index),
         );
       },
+      ),
     );
   }
 

@@ -289,6 +289,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/custom_widgets/shortlist_badge.dart';
 import 'package:matrimony_app/view/match_profile_detail_screen.dart';
 import 'package:matrimony_app/view/search_preferences_screen.dart';
 
@@ -297,6 +298,9 @@ class MatchProfileItem {
   final String line1;
   final String line2;
   final String image;
+  // Full photo gallery for this profile, in display order. Falls back to
+  // just [image] wherever it's left empty.
+  final List<String> images;
   final int photoCount;
   final bool isPremium;
   final String contactNo;
@@ -334,6 +338,7 @@ class MatchProfileItem {
     required this.line1,
     required this.line2,
     required this.image,
+    this.images = const [],
     this.photoCount = 1,
     this.isPremium = false,
     this.age = 0,
@@ -374,10 +379,19 @@ class MatchesScreen extends StatefulWidget {
 }
 
 class _MatchesScreenState extends State<MatchesScreen> {
-  int _activeTab = 1; // "New" selected by default, matching reference
+  int _activeTab = 1; // "Daily (20)" selected by default
   int _navIndex = 1; // Matches tab active
 
-  final List<String> tabs = const ['Search', 'New (10)', 'Daily (20)', 'My Matches'];
+  final List<String> tabs = const [
+    'Search',
+    'All Matches',
+    'Newly Joined',
+    'Shortlisted You',
+    'Viewed You',
+    'Shortlisted By You',
+    'Already Viewed',
+    'Online',
+  ];
 
   final List<MatchProfileItem> profiles = const [
     MatchProfileItem(
@@ -385,6 +399,11 @@ class _MatchesScreenState extends State<MatchesScreen> {
       line1: "26 Yrs, 5'2\" · Finance Professional",
       line2: 'Malayalam, Thiyya · Kozhikode, Kerala',
       image: 'assets/image/user1.png',
+      images: [
+        'assets/image/user1.png',
+        'assets/image/user2.png',
+        'assets/image/user3.png',
+      ],
       photoCount: 4,
       age: 26,
       height: "5'2\"",
@@ -588,142 +607,8 @@ class _MatchesScreenState extends State<MatchesScreen> {
     ),
   ];
 
-  // Small round-avatar row shown at the top of the "My Matches" tab.
-  final List<MatchProfileItem> preferenceMatches = const [
-    MatchProfileItem(
-      name: 'Chandhini',
-      line1: "26 Yrs, 5'2\"",
-      line2: 'Ernakulam, Kerala',
-      image: 'assets/image/riys.png',
-      age: 26,
-      height: "5'2\"",
-      location: 'Ernakulam, Kerala',
-    ),
-    MatchProfileItem(
-      name: 'Dhanya',
-      line1: "25 Yrs, 5'2\"",
-      line2: 'Kannur, Kerala',
-      image: 'assets/image/archana.png',
-      age: 25,
-      height: "5'2\"",
-      location: 'Kannur, Kerala',
-    ),
-    MatchProfileItem(
-      name: 'Meera',
-      line1: "24 Yrs, 5'2\"",
-      line2: 'Alappuzha, Kerala',
-      image: 'assets/image/priya.png',
-      age: 24,
-      height: "5'2\"",
-      location: 'Alappuzha, Kerala',
-    ),
-  ];
-
-  // Full cards shown under the "My Matches" tab.
-  final List<MatchProfileItem> myMatchesProfiles = const [
-    MatchProfileItem(
-      name: 'Saranya',
-      line1: "24 Yrs, 5'2\" · Human Resource Manager",
-      line2: 'Malayalam, Vishwakarma · Palakkad, Kerala',
-      image: 'assets/image/user1.png',
-      photoCount: 4,
-      age: 24,
-      height: "5'2\"",
-      motherTongue: 'Malayalam',
-      religion: 'Hindu',
-      community: 'Vishwakarma',
-      education: 'MBA HR',
-      profession: 'Human Resource Manager',
-      location: 'Palakkad, Kerala',
-      about:
-          'Saranya works as an HR manager and enjoys reading and classical music. '
-          'Looking for a caring, understanding partner.',
-      fatherOccupation: 'Business',
-      motherOccupation: 'Homemaker',
-      siblings: '1 Brother (Married)',
-      diet: 'Vegetarian',
-      profileId: 'SH667340',
-      managedBy: 'Self',
-      birthDate: '11 Jan 2001',
-      zodiac: 'Capricorn',
-      hobbies: const ['Reading', 'Classical Music'],
-      familyStatus: 'Moderate',
-      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
-      professionDetail: 'HR Profession in a private Company',
-      annualIncomeSelf: 'INR 6 - 10 Lakh',
-      annualIncomeFamily: 'INR 8 - 20 Lakh',
-      educationField: 'Human Resources',
-    ),
-    MatchProfileItem(
-      name: 'Devika',
-      line1: "25 Yrs, 5'3\" · Bank Officer",
-      line2: 'Malayalam, Vishwakarma · Kollam, Kerala',
-      image: 'assets/image/user2.png',
-      photoCount: 3,
-      age: 25,
-      height: "5'3\"",
-      motherTongue: 'Malayalam',
-      religion: 'Hindu',
-      community: 'Vishwakarma',
-      education: 'MBA Finance',
-      profession: 'Bank Officer',
-      location: 'Kollam, Kerala',
-      about:
-          'Devika is a bank officer who loves painting and yoga. '
-          'Looking for a sincere, family-oriented partner.',
-      fatherOccupation: 'Farmer',
-      motherOccupation: 'Homemaker',
-      siblings: 'None',
-      diet: 'Vegetarian',
-      profileId: 'SH778213',
-      managedBy: 'Self',
-      birthDate: '30 Apr 2000',
-      zodiac: 'Taurus',
-      hobbies: const ['Painting', 'Yoga'],
-      familyStatus: 'Moderate',
-      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
-      professionDetail: 'Banking Profession at a nationalised Bank',
-      annualIncomeSelf: 'INR 6 - 10 Lakh',
-      annualIncomeFamily: 'INR 8 - 20 Lakh',
-      educationField: 'Finance',
-    ),
-    MatchProfileItem(
-      name: 'Anjali',
-      line1: "23 Yrs, 5'2\" · Teacher",
-      line2: 'Malayalam, Vishwakarma · Kottayam, Kerala',
-      image: 'assets/image/user3.png',
-      photoCount: 3,
-      age: 23,
-      height: "5'2\"",
-      motherTongue: 'Malayalam',
-      religion: 'Hindu',
-      community: 'Vishwakarma',
-      education: 'B.Ed',
-      profession: 'Teacher',
-      location: 'Kottayam, Kerala',
-      about:
-          'Anjali is a school teacher who enjoys storytelling and gardening. '
-          'Seeking a kind, understanding life partner.',
-      fatherOccupation: 'Government Employee',
-      motherOccupation: 'Teacher',
-      siblings: '1 Sister (Married)',
-      diet: 'Vegetarian',
-      profileId: 'SH889456',
-      managedBy: 'Parent',
-      birthDate: '17 Jul 2002',
-      zodiac: 'Cancer',
-      hobbies: const ['Storytelling', 'Gardening'],
-      familyStatus: 'Moderate',
-      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
-      professionDetail: 'Teaching Profession at a Government School',
-      annualIncomeSelf: 'INR 4 - 8 Lakh',
-      annualIncomeFamily: 'INR 8 - 20 Lakh',
-      educationField: 'Education',
-    ),
-  ];
-
   List<MatchProfileItem> get _currentProfiles =>
-      _activeTab == 2 ? dailyProfiles : _activeTab == 3 ? myMatchesProfiles : profiles;
+      _activeTab == 1 ? dailyProfiles : profiles;
 
   @override
   Widget build(BuildContext context) {
@@ -737,112 +622,21 @@ class _MatchesScreenState extends State<MatchesScreen> {
             SizedBox(height: 10.h),
             _buildTabs(),
             SizedBox(height: 8.h),
-            if (_activeTab == 0) ...[
-              _buildSearchByLocationBar(),
-              SizedBox(height: 8.h),
-            ],
             Expanded(
-              child: _activeTab == 3
-                  ? _buildMyMatchesBody()
-                  : ListView.separated(
-                      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
-                      itemCount: currentProfiles.length,
-                      separatorBuilder: (_, __) => SizedBox(height: 14.h),
-                      itemBuilder: (context, index) => _MatchProfileCard(
-                        item: currentProfiles[index],
-                        allProfiles: currentProfiles,
-                      ),
-                    ),
+              child: ListView.separated(
+                padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+                itemCount: currentProfiles.length,
+                separatorBuilder: (_, __) => SizedBox(height: 14.h),
+                itemBuilder: (context, index) => _MatchProfileCard(
+                  item: currentProfiles[index],
+                  allProfiles: currentProfiles,
+                ),
+              ),
             ),
           ],
         ),
       ),
 
-    );
-  }
-
-  // ---------------- "Search by location" bar (Search tab) ----------------
-  Widget _buildSearchByLocationBar() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20.r),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const SearchPreferencesScreen()),
-        ),
-        child: Container(
-          height: 42.h,
-          padding: EdgeInsets.symmetric(horizontal: 14.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF4F4F4),
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.search, size: 17.sp, color: Colors.black45),
-              SizedBox(width: 8.w),
-              Text(
-                'Search by location',
-                style: GoogleFonts.tasaOrbiter(fontSize: 12.5.sp, color: Colors.black45),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------- "My Matches" tab body ----------------
-  Widget _buildMyMatchesBody() {
-    return ListView(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                'Matching most of your preferences',
-                style: GoogleFonts.tasaOrbiter(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black87),
-              ),
-            ),
-            InkWell(
-              onTap: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.edit_outlined, size: 13.sp, color: const Color(0xFF5A6ACF)),
-                  SizedBox(width: 3.w),
-                  Text('Edit', style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF5A6ACF))),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        SizedBox(
-          height: 195.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: preferenceMatches.length,
-            separatorBuilder: (_, __) => SizedBox(width: 10.w),
-            itemBuilder: (context, index) => _SmallMatchCard(
-              item: preferenceMatches[index],
-              allProfiles: preferenceMatches,
-            ),
-          ),
-        ),
-        SizedBox(height: 16.h),
-       // _buildFilterSortBar(),
-        SizedBox(height: 16.h),
-        ...myMatchesProfiles.map(
-          (p) => Padding(
-            padding: EdgeInsets.only(bottom: 14.h),
-            child: _MatchProfileCard(item: p, allProfiles: myMatchesProfiles),
-          ),
-        ),
-      ],
     );
   }
 
@@ -874,7 +668,16 @@ class _MatchesScreenState extends State<MatchesScreen> {
           final selected = _activeTab == index;
           final isSearch = index == 0;
           return InkWell(
-            onTap: () => setState(() => _activeTab = index),
+            onTap: () {
+              if (isSearch) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SearchPreferencesScreen()),
+                );
+                return;
+              }
+              setState(() => _activeTab = index);
+            },
             borderRadius: BorderRadius.circular(18.r),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
@@ -972,7 +775,14 @@ class _MatchProfileCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(item.image, fit: BoxFit.cover),
+            Image.asset(
+              item.image,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                color: AppColors.primaryLight,
+                child: Icon(Icons.person, size: 64.sp, color: AppColors.primary),
+              ),
+            ),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -1010,7 +820,14 @@ class _MatchProfileCard extends StatelessWidget {
                   ),
                 ),
               ),
- 
+
+            // top-left: shortlist (offset below the premium ribbon when present)
+            Positioned(
+              top: item.isPremium ? 30.h : 10.h,
+              left: 10.w,
+              child: const ShortlistBadge(),
+            ),
+
             // top-right: menu + photo count
             Positioned(
               top: 10.h,
@@ -1124,84 +941,3 @@ class _MatchProfileCard extends StatelessWidget {
   }
 }
 
-/// Compact round-avatar card used in the "My Matches" preferences row.
-class _SmallMatchCard extends StatelessWidget {
-  final MatchProfileItem item;
-  final List<MatchProfileItem> allProfiles;
-
-  const _SmallMatchCard({required this.item, this.allProfiles = const []});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14.r),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MatchProfileDetailScreen(item: item, allProfiles: allProfiles),
-        ),
-      ),
-      child: Container(
-        width: 118.w,
-        padding: EdgeInsets.all(10.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: const Color(0xFFF0F0F0)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 3))],
-        ),
-        child: Column(
-          children: [
-            ClipOval(
-              child: Image.asset(item.image, width: 106.w, height: 106.w, fit: BoxFit.cover),
-            ),
-            SizedBox(height: 8.h),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    item.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black87),
-                  ),
-                ),
-                SizedBox(width: 3.w),
-                Image.asset('assets/image/verified.png', width: 11.w, height: 11.w),
-              ],
-            ),
-            SizedBox(height: 2.h),
-            Text(
-              item.age > 0 && item.height.isNotEmpty ? '${item.age} Yrs, ${item.height}' : item.line1,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.tasaOrbiter(fontSize: 9.5.sp, color: Colors.black54),
-            ),
-            Text(
-              item.location.isNotEmpty ? item.location : item.line2,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.tasaOrbiter(fontSize: 9.5.sp, color: Colors.black54),
-            ),
-            SizedBox(height: 8.h),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 6.h),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.coralLight,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Text(
-                'Connect Now',
-                style: GoogleFonts.tasaOrbiter(fontSize: 9.5.sp, fontWeight: FontWeight.w700, color: AppColors.coral),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
- 

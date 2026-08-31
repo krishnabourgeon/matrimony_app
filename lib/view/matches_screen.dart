@@ -288,10 +288,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/provider/home_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/provider/shortlist_provider.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/custom_widgets/shortlist_badge.dart';
 import 'package:matrimony_app/view/match_profile_detail_screen.dart';
 import 'package:matrimony_app/view/search_preferences_screen.dart';
+
+/// Renders [image] as a network image when it's a URL (real API data) or a
+/// local asset otherwise (sample/fallback data), with a person-icon
+/// fallback if it's empty or fails to load.
+Widget matchProfileImage(
+  String image, {
+  double? width,
+  double? height,
+  BoxFit fit = BoxFit.cover,
+  required double errorIconSize,
+}) {
+  final errorFallback = Container(
+    width: width,
+    height: height,
+    color: AppColors.primaryLight,
+    child: Icon(Icons.person, size: errorIconSize, color: AppColors.primary),
+  );
+  if (image.isEmpty) return errorFallback;
+  if (image.startsWith('http')) {
+    return Image.network(
+      image,
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (_, __, ___) => errorFallback,
+    );
+  }
+  return Image.asset(
+    image,
+    width: width,
+    height: height,
+    fit: fit,
+    errorBuilder: (_, __, ___) => errorFallback,
+  );
+}
 
 class MatchProfileItem {
   final String name;
@@ -389,9 +428,64 @@ class _MatchesScreenState extends State<MatchesScreen> {
     'Shortlisted You',
     'Viewed You',
     'Shortlisted By You',
-    'Already Viewed',
+    'Viewed By You',
     'Online',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<HomeProvider>();
+      provider.getAllMatches();
+      provider.getNewMatches();
+      provider.getViewedMe();
+      provider.getViewedByMe();
+      provider.getShortlistedYou();
+      provider.getShortlistedByYou();
+    });
+  }
+
+  // Converts an API match (any of the near-identical Match classes from
+  // all_matches_model / new_matches_model / viewed_me_model /
+  // viewed_by_me_model) into the screen's display model. Takes plain fields
+  // instead of a typed Match so it works for all four without import
+  // aliasing (they're separate classes with the same shape).
+  MatchProfileItem _fromApiMatch({
+    String? name,
+    int? age,
+    String? height,
+    String? motherTongue,
+    dynamic community,
+    String? location,
+    String? imageUrl,
+    dynamic id,
+  }) {
+    final communityStr = community?.toString() ?? '';
+    final line1 = [
+      if (age != null) '$age Yrs',
+      if (height != null && height.isNotEmpty) height,
+    ].join(', ');
+    final line2 = [
+      [
+        if (motherTongue != null && motherTongue.isNotEmpty) motherTongue,
+        if (communityStr.isNotEmpty) communityStr,
+      ].join(', '),
+      if (location != null && location.isNotEmpty) location,
+    ].where((s) => s.isNotEmpty).join(' · ');
+    return MatchProfileItem(
+      name: name ?? '',
+      line1: line1,
+      line2: line2,
+      image: imageUrl ?? '',
+      age: age ?? 0,
+      height: height ?? '',
+      motherTongue: motherTongue ?? '',
+      community: communityStr,
+      location: location ?? '',
+      profileId: id?.toString() ?? '',
+    );
+  }
 
   final List<MatchProfileItem> profiles = const [
     MatchProfileItem(
@@ -503,112 +597,154 @@ class _MatchesScreenState extends State<MatchesScreen> {
     ),
   ];
 
-  // Distinct set shown under the "Daily (20)" tab — refreshed picks for today.
-  final List<MatchProfileItem> dailyProfiles = const [
-    MatchProfileItem(
-      name: 'Anushka',
-      line1: "23 Yrs, 5'4\" · Software Engineer",
-      line2: 'Malayalam, Nair · Thrissur, Kerala',
-      image: 'assets/image/archana.png',
-      photoCount: 3,
-      age: 23,
-      height: "5'4\"",
-      motherTongue: 'Malayalam',
-      religion: 'Hindu',
-      community: 'Nair',
-      education: 'B.Tech CSE',
-      profession: 'Software Engineer',
-      location: 'Thrissur, Kerala',
-      about:
-          'Anushka is a software engineer who loves travelling and photography. '
-          'Looking for a partner who is honest, family-oriented and easy going.',
-      fatherOccupation: 'Business',
-      motherOccupation: 'Homemaker',
-      siblings: '1 Brother (Married)',
-      diet: 'Non-Vegetarian',
-      profileId: 'SH225671',
-      managedBy: 'Self',
-      birthDate: '19 Aug 2002',
-      zodiac: 'Leo',
-      hobbies: const ['Travelling', 'Photography'],
-      familyStatus: 'Moderate',
-      familyFinancialStatus: 'Moderate - Annual family income is up to 20 lakhs',
-      professionDetail: 'Software Engineer in an IT Company',
-      annualIncomeSelf: 'INR 6 - 12 Lakh',
-      annualIncomeFamily: 'INR 10 - 20 Lakh',
-      educationField: 'Computer Science',
-    ),
-    MatchProfileItem(
-      name: 'Aishwarya',
-      line1: "24 Yrs, 5'3\" · Doctor",
-      line2: 'Malayalam, Nair · Palakkad, Kerala',
-      image: 'assets/image/priya.png',
-      photoCount: 3,
-      isPremium: true,
-      age: 24,
-      height: "5'3\"",
-      motherTongue: 'Malayalam',
-      religion: 'Hindu',
-      community: 'Nair',
-      education: 'MBBS',
-      profession: 'Doctor',
-      location: 'Palakkad, Kerala',
-      about:
-          'Aishwarya is a doctor who enjoys cooking and classical dance. '
-          'Seeking a caring, like-minded partner to share life with.',
-      fatherOccupation: 'Doctor',
-      motherOccupation: 'Doctor',
-      siblings: '1 Sister (Unmarried)',
-      diet: 'Vegetarian',
-      profileId: 'SH334982',
-      managedBy: 'Self',
-      birthDate: '05 Feb 2001',
-      zodiac: 'Aquarius',
-      hobbies: const ['Cooking', 'Classical Dance'],
-      familyStatus: 'Rich',
-      familyFinancialStatus: 'Affluent - Annual family income is above 40 lakhs',
-      professionDetail: 'Medical Professional at a private Hospital',
-      annualIncomeSelf: 'INR 12 - 20 Lakh',
-      annualIncomeFamily: 'INR 20 - 40 Lakh',
-      educationField: 'Medicine',
-    ),
-    MatchProfileItem(
-      name: 'Chandhini',
-      line1: "26 Yrs, 5'2\" · Architect",
-      line2: 'Malayalam, Nair · Ernakulam, Kerala',
-      image: 'assets/image/riys.png',
-      photoCount: 3,
-      age: 26,
-      height: "5'2\"",
-      motherTongue: 'Malayalam',
-      religion: 'Hindu',
-      community: 'Nair',
-      education: 'B.Arch',
-      profession: 'Architect',
-      location: 'Ernakulam, Kerala',
-      about:
-          'Chandhini is an architect with a passion for art and design. '
-          'Looking for a genuine, understanding life partner.',
-      fatherOccupation: 'Engineer',
-      motherOccupation: 'Homemaker',
-      siblings: 'None',
-      diet: 'Vegetarian',
-      profileId: 'SH551029',
-      managedBy: 'Self',
-      birthDate: '21 Sep 1999',
-      zodiac: 'Virgo',
-      hobbies: const ['Art', 'Design', 'Travelling'],
-      familyStatus: 'Moderate',
-      familyFinancialStatus: 'Moderate - Annual family income is up to 25 lakhs',
-      professionDetail: 'Architect at a private Firm',
-      annualIncomeSelf: 'INR 7 - 14 Lakh',
-      annualIncomeFamily: 'INR 12 - 25 Lakh',
-      educationField: 'Architecture',
-    ),
-  ];
 
-  List<MatchProfileItem> get _currentProfiles =>
-      _activeTab == 1 ? dailyProfiles : profiles;
+  List<MatchProfileItem> get _currentProfiles {
+    final provider = context.watch<HomeProvider>();
+
+    if (_activeTab == 0) {
+      // "Search" — results from the last partner-preference search.
+      final results = context.watch<RegisterProvider>().searchModel?.data;
+      if (results != null && results.isNotEmpty) {
+        return results
+            .map((s) => _fromApiMatch(
+                  name: s.name,
+                  age: s.age,
+                  height: s.height,
+                  motherTongue: s.motherTongue,
+                  community: s.community,
+                  location: s.location,
+                  imageUrl: s.imageUrl,
+                  id: s.id,
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
+    if (_activeTab == 1) {
+      // "All Matches"
+      final apiMatches = provider.allMatchesModel?.matches;
+      if (apiMatches != null && apiMatches.isNotEmpty) {
+        return apiMatches
+            .map((m) => _fromApiMatch(
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl,
+                  id: m.id,
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
+    if (_activeTab == 2) {
+      // "Newly Joined"
+      final apiMatches = provider.newMatchesModel?.matches;
+      if (apiMatches != null && apiMatches.isNotEmpty) {
+        return apiMatches
+            .map((m) => _fromApiMatch(
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl,
+                  id: m.id,
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
+    if (_activeTab == 3) {
+      // "Shortlisted You" — people who shortlisted your profile.
+      final apiMatches = provider.shortlistedYouModel?.matches;
+      if (apiMatches != null && apiMatches.isNotEmpty) {
+        return apiMatches
+            .map((m) => _fromApiMatch(
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl,
+                  id: m.id,
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
+    if (_activeTab == 4) {
+      // "Viewed You" — people who viewed your profile.
+      final apiMatches = provider.viewedMeModel?.matches;
+      if (apiMatches != null && apiMatches.isNotEmpty) {
+        return apiMatches
+            .map((m) => _fromApiMatch(
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl,
+                  id: m.id,
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
+    if (_activeTab == 5) {
+      // "Shortlisted By You" — profiles you shortlisted.
+      final apiMatches = provider.shortlistedByYouModel?.matches;
+      if (apiMatches != null && apiMatches.isNotEmpty) {
+        return apiMatches
+            .map((m) => _fromApiMatch(
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl,
+                  id: m.id,
+                ))
+            .toList();
+      }
+      // Fall back to the local shortlist toggled via ShortlistBadge (e.g.
+      // from Match Detail / Inbox) in case the API list hasn't caught up.
+      return context.watch<ShortlistProvider>().shortlistedProfiles;
+    }
+
+    if (_activeTab == 6) {
+      // "Viewed By You" — profiles you viewed.
+      final apiMatches = provider.viewedByMeModel?.matches;
+      if (apiMatches != null && apiMatches.isNotEmpty) {
+        return apiMatches
+            .map((m) => _fromApiMatch(
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl,
+                  id: m.id,
+                ))
+            .toList();
+      }
+      return const [];
+    }
+
+    return profiles;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -623,15 +759,22 @@ class _MatchesScreenState extends State<MatchesScreen> {
             _buildTabs(),
             SizedBox(height: 8.h),
             Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
-                itemCount: currentProfiles.length,
-                separatorBuilder: (_, __) => SizedBox(height: 14.h),
-                itemBuilder: (context, index) => _MatchProfileCard(
-                  item: currentProfiles[index],
-                  allProfiles: currentProfiles,
-                ),
-              ),
+              child: currentProfiles.isEmpty
+                  ? Center(
+                      child: Text(
+                        'There is no matches',
+                        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+                      itemCount: currentProfiles.length,
+                      separatorBuilder: (_, __) => SizedBox(height: 14.h),
+                      itemBuilder: (context, index) => _MatchProfileCard(
+                        item: currentProfiles[index],
+                        allProfiles: currentProfiles,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -668,12 +811,13 @@ class _MatchesScreenState extends State<MatchesScreen> {
           final selected = _activeTab == index;
           final isSearch = index == 0;
           return InkWell(
-            onTap: () {
+            onTap: () async {
               if (isSearch) {
-                Navigator.push(
+                final searched = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(builder: (_) => const SearchPreferencesScreen()),
                 );
+                if (searched == true) setState(() => _activeTab = 0);
                 return;
               }
               setState(() => _activeTab = index);
@@ -775,14 +919,7 @@ class _MatchProfileCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              item.image,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                color: AppColors.primaryLight,
-                child: Icon(Icons.person, size: 64.sp, color: AppColors.primary),
-              ),
-            ),
+            matchProfileImage(item.image, errorIconSize: 64.sp),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -821,45 +958,46 @@ class _MatchProfileCard extends StatelessWidget {
                 ),
               ),
 
-            // top-left: shortlist (offset below the premium ribbon when present)
-            Positioned(
-              top: item.isPremium ? 30.h : 10.h,
-              left: 10.w,
-              child: const ShortlistBadge(),
-            ),
+            // // top-left: shortlist (offset below the premium ribbon when present)
+            // Positioned(
+            //   top: item.isPremium ? 30.h : 10.h,
+            //   left: 10.w,
+            //   child: ShortlistBadge(profile: item),
+            // ),
 
             // top-right: menu + photo count
             Positioned(
               top: 10.h,
               right: 10.w,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    height: 30.h,
-                    width: 36.h,
-                    padding: EdgeInsets.all(5.w),
-                    decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
-                    child: Icon(Icons.more_horiz, size: 15.sp, color: Colors.white),
-                  ),
-                  SizedBox(height: 8.h),
-                  Container(
-                    height: 30.h,
-                    width: 51.h,
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(width: 3.w),
-                        Icon(Icons.camera_alt_outlined, size: 20.sp, color: Colors.white),
-                        SizedBox(width: 6.w),
-                        Text('${item.photoCount}', style: GoogleFonts.tasaOrbiter(fontSize: 15.sp, fontWeight: FontWeight.w600, color: Colors.white)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              // child: Column(
+              //   crossAxisAlignment: CrossAxisAlignment.end,
+              //   children: [
+              //     // Container(
+              //     //   height: 30.h,
+              //     //   width: 36.h,
+              //     //   padding: EdgeInsets.all(5.w),
+              //     //   decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+              //     //   child: Icon(Icons.more_horiz, size: 15.sp, color: Colors.white),
+              //     // ),
+              //     SizedBox(height: 8.h),
+              //     Container(
+              //       height: 30.h,
+              //       width: 51.h,
+              //       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              //       decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), borderRadius: BorderRadius.circular(12.r)),
+              //       child: Row(
+              //         mainAxisSize: MainAxisSize.min,
+              //         children: [
+              //           SizedBox(width: 3.w),
+              //           Icon(Icons.camera_alt_outlined, size: 20.sp, color: Colors.white),
+              //           SizedBox(width: 6.w),
+              //           Text('${item.photoCount}', style: GoogleFonts.tasaOrbiter(fontSize: 15.sp, fontWeight: FontWeight.w600, color: Colors.white)),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              child: ShortlistBadge(profile: item),
             ),
  
             // bottom content

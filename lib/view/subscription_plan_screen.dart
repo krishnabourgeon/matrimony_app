@@ -325,6 +325,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/get_subscriptionmodel.dart' as sub_model;
+import 'package:matrimony_app/provider/register_provider.dart';
+import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/success_screen.dart';
 
@@ -340,6 +344,7 @@ class _Palette {
 }
 
 class SubscriptionPlan {
+  final int id;
   final String title;
   final String price;
   final String duration;
@@ -347,6 +352,7 @@ class SubscriptionPlan {
   final String ctaLabel;
   final bool isFree;
   const SubscriptionPlan({
+    required this.id,
     required this.title,
     required this.price,
     required this.duration,
@@ -358,43 +364,6 @@ class SubscriptionPlan {
 
 class SubscriptionPlanScreen extends StatefulWidget {
   const SubscriptionPlanScreen({super.key});
-
-  static const _plans = [
-    SubscriptionPlan(
-      title: 'Premium',
-      price: '₹245.00',
-      duration: '30 days',
-      features: [
-        'Send interests to 5 profiles',
-        'View detailed profiles for up to 10 members',
-        'Chat with unlimited profiles',
-      ],
-      ctaLabel: 'Choose Plan',
-    ),
-    SubscriptionPlan(
-      title: 'Launching offer package',
-      price: '₹199.00',
-      duration: '30 days',
-      features: [
-        'Send interests to 5 profiles',
-        'View detailed profiles for up to 10 members',
-        'Chat with unlimited profiles',
-      ],
-      ctaLabel: 'Choose Plan',
-    ),
-    SubscriptionPlan(
-      title: 'Free Member',
-      price: '₹0.00',
-      duration: '30 days',
-      features: [
-        'Send interests to 5 profiles',
-        'View detailed profiles for up to 5 members',
-        'Chat with unlimited profiles',
-      ],
-      ctaLabel: 'Continue as Free Member',
-      isFree: true,
-    ),
-  ];
 
   @override
   State<SubscriptionPlanScreen> createState() => _SubscriptionPlanScreenState();
@@ -408,6 +377,9 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 0.86);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RegisterProvider>().getSubscriptionPlans();
+    });
   }
 
   @override
@@ -416,17 +388,46 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
     super.dispose();
   }
 
-  void _selectPlan(SubscriptionPlan plan) {
-    // TODO: hook up real payment / plan-selection API call here.
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const AllSetScreen()),
+  SubscriptionPlan _fromApiSubscription(sub_model.Subscription s) {
+    final rateValue = double.tryParse(s.rate ?? '') ?? 0;
+    final isFree = rateValue == 0;
+    final features = <String>[
+      if (s.interest != null) 'Send interests to ${s.interest} profiles',
+      if (s.profileView != null) 'View detailed profiles for up to ${s.profileView} members',
+      if (s.chat != null) 'Chat with ${s.chat} profiles',
+      if (s.contact != null) 'View contact details of ${s.contact} profiles',
+    ];
+    return SubscriptionPlan(
+      id: s.id ?? 0,
+      title: s.name ?? '',
+      price: '₹${rateValue.toStringAsFixed(2)}',
+      duration: s.validity != null ? '${s.validity} days' : '',
+      features: features.isNotEmpty
+          ? features
+          : (s.description != null && s.description!.isNotEmpty ? [s.description!] : []),
+      ctaLabel: isFree ? 'Continue as Free Member' : 'Choose Plan',
+      isFree: isFree,
     );
+  }
+
+  Future<void> _selectPlan(SubscriptionPlan plan) async {
+    final provider = context.read<RegisterProvider>();
+    final success = await provider.chooseSubscription(plan.id);
+    if (!mounted) return;
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AllSetScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.chooseSubscriptionError ?? 'Something went wrong. Please try again')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final plans = SubscriptionPlanScreen._plans;
     return Scaffold(
       backgroundColor: _Palette.subtleWhite,
       body: SafeArea(
@@ -456,37 +457,63 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
             ),
             SizedBox(height: 22.h),
             Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: plans.length,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                itemBuilder: (context, index) {
-                  final plan = plans[index];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                    child: Center(
-                      child: _PlanCard(plan: plan, onTap: () => _selectPlan(plan)),
-                    ),
+              child: Consumer<RegisterProvider>(
+                builder: (context, provider, _) {
+                  final subscriptions = provider.getSubscriptionModel?.subscriptions;
+                  final plans = (subscriptions ?? []).map(_fromApiSubscription).toList();
+
+                  if (provider.loaderState == LoaderState.loading && plans.isEmpty) {
+                    return const Center(child: CircularProgressIndicator(color: _Palette.coral));
+                  }
+
+                  if (plans.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No subscription plans available',
+                        style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: _Palette.hintText),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: plans.length,
+                          onPageChanged: (i) => setState(() => _currentPage = i),
+                          itemBuilder: (context, index) {
+                            final plan = plans[index];
+                            return Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                              child: Center(
+                                child: _PlanCard(plan: plan, onTap: () => _selectPlan(plan)),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (int i = 0; i < plans.length; i++)
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              margin: EdgeInsets.symmetric(horizontal: 4.w),
+                              width: _currentPage == i ? 20.w : 7.w,
+                              height: 7.h,
+                              decoration: BoxDecoration(
+                                color: _currentPage == i ? _Palette.coral : _Palette.fieldBg,
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   );
                 },
               ),
-            ),
-            SizedBox(height: 16.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (int i = 0; i < plans.length; i++)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: EdgeInsets.symmetric(horizontal: 4.w),
-                    width: _currentPage == i ? 20.w : 7.w,
-                    height: 7.h,
-                    decoration: BoxDecoration(
-                      color: _currentPage == i ? _Palette.coral : _Palette.fieldBg,
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                  ),
-              ],
             ),
             SizedBox(height: 24.h),
           ],

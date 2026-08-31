@@ -1,34 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/provider/home_provider.dart';
+import 'package:matrimony_app/provider/shortlist_provider.dart';
+import 'package:matrimony_app/view/matches_screen.dart';
 
-/// Small white pill overlaid on a profile photo, letting the user shortlist
-/// (bookmark) that profile. Purely local/visual until a shortlist API exists.
-class ShortlistBadge extends StatefulWidget {
-  final bool initialShortlisted;
-  final ValueChanged<bool>? onChanged;
+/// Small pill overlaid on a profile photo, letting the user shortlist
+/// (bookmark) that profile. For profiles with a real backend id, whether the
+/// heart shows filled is driven by HomeProvider.shortlistedByYouModel (the
+/// real GET matches/shortlisted-by-you list — so it's still correct after
+/// an app restart, when nothing has been tapped yet this session), with a
+/// [ShortlistProvider] override giving instant feedback for the tap that
+/// just happened while the toggle request and its list refetch are still in
+/// flight. Sample-data profiles with no real id fall back to the old
+/// local-only toggle.
+class ShortlistBadge extends StatelessWidget {
+  final MatchProfileItem profile;
 
-  const ShortlistBadge({
-    super.key,
-    this.initialShortlisted = false,
-    this.onChanged,
-  });
+  const ShortlistBadge({super.key, required this.profile});
 
-  @override
-  State<ShortlistBadge> createState() => _ShortlistBadgeState();
-}
-
-class _ShortlistBadgeState extends State<ShortlistBadge> {
-  late bool _shortlisted = widget.initialShortlisted;
+  bool _isShortlisted(BuildContext context) {
+    if (profile.profileId.isEmpty) {
+      return context.watch<ShortlistProvider>().isShortlisted(profile);
+    }
+    final override = context.watch<ShortlistProvider>().overrideFor(profile.profileId);
+    if (override != null) return override;
+    final matches = context.watch<HomeProvider>().shortlistedByYouModel?.matches;
+    return matches?.any((m) => m.id?.toString() == profile.profileId) ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final shortlisted = _isShortlisted(context);
     return InkWell(
       borderRadius: BorderRadius.circular(20.r),
       onTap: () {
-        setState(() => _shortlisted = !_shortlisted);
-        widget.onChanged?.call(_shortlisted);
+        final id = int.tryParse(profile.profileId);
+        if (id != null) {
+          context.read<ShortlistProvider>().setOverride(profile.profileId, !shortlisted);
+          context.read<HomeProvider>().shortlist(id);
+        } else {
+          context.read<ShortlistProvider>().toggle(profile);
+        }
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
@@ -47,7 +61,7 @@ class _ShortlistBadgeState extends State<ShortlistBadge> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              _shortlisted ? Icons.favorite : Icons.favorite_border,
+              shortlisted ? Icons.favorite : Icons.favorite_border,
               size: 14.sp,
               color: Colors.white,
             ),

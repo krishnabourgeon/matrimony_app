@@ -2,16 +2,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/contacts_viewed_by_me_model.dart' show ContactsViewedByMeModel;
+import 'package:matrimony_app/model/contacts_viewed_you_model.dart' show ContactsViewedYouModel;
+import 'package:matrimony_app/model/interest_recevied_model.dart' show InterestReceivedModel;
+import 'package:matrimony_app/model/interest_send_model.dart' show InterestSentModel;
+import 'package:matrimony_app/model/request_model.dart' show RequestModel;
+import 'package:matrimony_app/model/request_send_model.dart' show RequestSendModel;
+import 'package:matrimony_app/model/shortlisted_by_you_model.dart' show ShortlistedByYouModel;
+import 'package:matrimony_app/model/shortlisted_you_model.dart' show ShortlistedYouModel;
+import 'package:matrimony_app/provider/home_provider.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/custom_widgets/shortlist_badge.dart';
 import 'package:matrimony_app/view/match_profile_detail_screen.dart';
 import 'package:matrimony_app/view/matches_screen.dart';
 import 'package:matrimony_app/view/message_screen.dart';
 
+enum _RequestStatus { pending, accepted, declined }
+
 class _InboxEntry {
   final MatchProfileItem profile;
   final String date;
-  const _InboxEntry({required this.profile, required this.date});
+  final _RequestStatus status;
+  // The backend id used to respond (accept/decline) to this entry — an
+  // interest id for Interest rows, a request id for Request rows.
+  final int? entryId;
+  const _InboxEntry({
+    required this.profile,
+    required this.date,
+    this.status = _RequestStatus.pending,
+    this.entryId,
+  });
+
+  _InboxEntry copyWith({_RequestStatus? status}) => _InboxEntry(
+        profile: profile,
+        date: date,
+        status: status ?? this.status,
+        entryId: entryId,
+      );
 }
 
 class ManageRequestScreen extends StatefulWidget {
@@ -22,12 +50,135 @@ class ManageRequestScreen extends StatefulWidget {
 }
 
 class _ManageRequestScreenState extends State<ManageRequestScreen> {
-  int _activeTab = 1; // Accepted, to match the reference
-  int _activeSubTab = 0; // Accepted by Her
+  int _activeTab = 0; // 0=Interest, 1=Request, 2=Contacts, 3=Shortlistings
+  int _activeSubTab = 0; // Received/Send, Viewed/Viewed-you, or Shortlisted Me/By Me
+  int _interestStatusFilter = 0; // 0=Pending, 1=Accepted, 2=Declined
+  int _requestType = 0; // Photo / Number
 
-  static const _tabLabels = ['Received', 'Accepted', 'Contacts', 'Sent'];
+  static const _tabLabels = ['Interest', 'Request', 'Contacts', 'Shortlistings'];
+  static const _statusLabels = ['Pending', 'Accepted', 'Declined'];
+  static const _requestTypeLabels = ['Photo Requests', 'Number Requests'];
 
-  final List<_InboxEntry> _received = [
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<HomeProvider>();
+      provider.interestReceived(1); // Pending, the default filter
+      provider.interestSend(1);
+      provider.request('photo'); // Photo Requests, the default type filter
+      provider.requestSend('photo');
+      provider.getShortlistedYou(); // "Shortlisted Me"
+      provider.getShortlistedByYou(); // "Shortlisted By Me"
+      provider.contactsViewedByMe(); // "Contacts Viewed"
+      provider.contactsViewedByYou(); // "Viewed you"
+    });
+  }
+
+  // Converts an "Interest" or "Request" API row into the screen's display
+  // model — both share the same row shape. Status codes from the backend:
+  // 1=Pending, 2=Accepted, 3=Declined.
+  _InboxEntry _fromApiRow({
+    int? entryId,
+    // The profile owner's backend customer id — distinct from entryId
+    // (which is the interest/request transaction id) — used to persist
+    // the ShortlistBadge heart button via HomeProvider.shortlist.
+    int? profileId,
+    String? name,
+    int? age,
+    String? height,
+    String? occupation,
+    dynamic motherTongue,
+    String? community,
+    String? location,
+    String? imageUrl,
+    int? statusCode,
+  }) {
+    final status = switch (statusCode) {
+      2 => _RequestStatus.accepted,
+      3 => _RequestStatus.declined,
+      _ => _RequestStatus.pending,
+    };
+    final motherTongueStr = motherTongue?.toString() ?? '';
+    final line1 = [
+      if (age != null) '$age Yrs',
+      if (height != null && height.isNotEmpty) height,
+      if (occupation != null && occupation.isNotEmpty) occupation,
+    ].join(', ');
+    final line2Parts = <String>[
+      if (motherTongueStr.isNotEmpty) motherTongueStr,
+      if (community != null && community.isNotEmpty) community,
+    ];
+    final line2 = [
+      line2Parts.join(', '),
+      if (location != null && location.isNotEmpty) location,
+    ].where((s) => s.isNotEmpty).join(' · ');
+    return _InboxEntry(
+      profile: MatchProfileItem(
+        name: name ?? '',
+        line1: line1,
+        line2: line2,
+        image: imageUrl ?? '',
+        age: age ?? 0,
+        height: height ?? '',
+        motherTongue: motherTongueStr,
+        community: community ?? '',
+        location: location ?? '',
+        profileId: profileId?.toString() ?? '',
+      ),
+      date: '',
+      status: status,
+      entryId: entryId,
+    );
+  }
+
+  // Converts a "Contacts Viewed" / "Viewed you" API row into the screen's
+  // display model. Unlike interest/request rows, contact rows have no
+  // status concept — just a phone number ("Contacts Viewed" only; "Viewed
+  // you" doesn't return one since that contact hasn't been unlocked yet, so
+  // MatchProfileItem's masked placeholder default is left as-is).
+  _InboxEntry _fromApiContact({
+    int? id,
+    String? name,
+    int? age,
+    String? height,
+    String? occupation,
+    dynamic motherTongue,
+    dynamic community,
+    String? location,
+    String? imageUrl,
+    String? mobileNumber,
+  }) {
+    final motherTongueStr = motherTongue?.toString() ?? '';
+    final communityStr = community?.toString() ?? '';
+    final line1 = [
+      if (age != null) '$age Yrs',
+      if (height != null && height.isNotEmpty) height,
+      if (occupation != null && occupation.isNotEmpty) occupation,
+    ].join(', ');
+    final line2 = [
+      [motherTongueStr, communityStr].where((s) => s.isNotEmpty).join(', '),
+      if (location != null && location.isNotEmpty) location,
+    ].where((s) => s.isNotEmpty).join(' · ');
+    return _InboxEntry(
+      profile: MatchProfileItem(
+        name: name ?? '',
+        line1: line1,
+        line2: line2,
+        image: imageUrl ?? '',
+        age: age ?? 0,
+        height: height ?? '',
+        motherTongue: motherTongueStr,
+        community: communityStr,
+        location: location ?? '',
+        profileId: id?.toString() ?? '',
+        contactNo: mobileNumber ?? '+91 9876******',
+      ),
+      date: '',
+    );
+  }
+
+  final List<_InboxEntry> _interestsReceived = [
     const _InboxEntry(
       profile: MatchProfileItem(
         name: 'Nithya Das',
@@ -55,9 +206,6 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
       ),
       date: '04 Oct',
     ),
-  ];
-
-  final List<_InboxEntry> _acceptedByHer = [
     const _InboxEntry(
       profile: MatchProfileItem(
         name: 'Swathy Mohan',
@@ -70,8 +218,9 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
         height: "5'2\"",
       ),
       date: '05 Oct',
+      status: _RequestStatus.accepted,
     ),
-    _InboxEntry(
+    const _InboxEntry(
       profile: MatchProfileItem(
         name: 'Geethu',
         line1: "26 Yrs, 5'2\" · Finance Professional",
@@ -82,11 +231,30 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
         height: "5'2\"",
       ),
       date: '05 Oct',
+      status: _RequestStatus.accepted,
     ),
   ];
 
-  final List<_InboxEntry> _acceptedByMe = const [
-    _InboxEntry(
+  final List<_InboxEntry> _interestsSent = [
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Chandhini',
+        line1: "26 Yrs, 5'2\" · Architect",
+        line2: 'Malayalam, Nair · Ernakulam, Kerala',
+        image: 'assets/image/riys.png',
+      ),
+      date: '02 Oct',
+    ),
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Anushka',
+        line1: "23 Yrs, 5'4\" · Software Engineer",
+        line2: 'Malayalam, Nair · Thrissur, Kerala',
+        image: 'assets/image/archana.png',
+      ),
+      date: '30 Sep',
+    ),
+    const _InboxEntry(
       profile: MatchProfileItem(
         name: 'Meenakshi',
         line1: "28 Yrs, 5'2\" · Finance Professional",
@@ -94,6 +262,43 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
         image: 'assets/image/user2.png',
       ),
       date: '03 Oct',
+      status: _RequestStatus.accepted,
+    ),
+  ];
+
+  // "Photo Requests" is the only request type with sample data — the swipe
+  // deck lives here; "Number Requests" shows the empty-state text until
+  // there's a real backend for typed requests.
+  final List<_InboxEntry> _requestsReceived = [
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Devika',
+        line1: "25 Yrs, 5'3\" · Bank Officer",
+        line2: 'Malayalam, Vishwakarma · Kollam, Kerala',
+        image: 'assets/image/user2.png',
+      ),
+      date: '06 Oct',
+    ),
+    const _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Meera',
+        line1: "24 Yrs, 5'2\" · Software Engineer",
+        line2: 'Malayalam, Nair · Alappuzha, Kerala',
+        image: 'assets/image/archana.png',
+      ),
+      date: '05 Oct',
+    ),
+  ];
+
+  final List<_InboxEntry> _requestsSent = const [
+    _InboxEntry(
+      profile: MatchProfileItem(
+        name: 'Rithu',
+        line1: "23 Yrs, 5'2\" · Teacher",
+        line2: 'Malayalam, Vishwakarma · Kottayam, Kerala',
+        image: 'assets/image/user3.png',
+      ),
+      date: '06 Oct',
     ),
   ];
 
@@ -136,98 +341,39 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
     ),
   ];
 
-  final List<_InboxEntry> _viewedYou = const [
-    _InboxEntry(
-      profile: MatchProfileItem(
-        name: 'Aishwarya',
-        line1: "24 Yrs, 5'3\" · Doctor",
-        line2: 'Malayalam, Nair · Palakkad, Kerala',
-        image: 'assets/image/priya.png',
-        managedBy: 'Self',
-        contactNo: '+91 9847012345',
-        email: 'aishwarya@gmail.com',
-      ),
-      date: '04 Oct',
-    ),
-    _InboxEntry(
-      profile: MatchProfileItem(
-        name: 'Meera',
-        line1: "24 Yrs, 5'2\" · Software Engineer",
-        line2: 'Malayalam, Nair · Alappuzha, Kerala',
-        image: 'assets/image/archana.png',
-        managedBy: 'Parent',
-        contactNo: '+91 9847098765',
-        email: 'meera@gmail.com',
-      ),
-      date: '03 Oct',
-    ),
-    _InboxEntry(
-      profile: MatchProfileItem(
-        name: 'Dhanya',
-        line1: "25 Yrs, 5'2\" · Doctor",
-        line2: 'Malayalam, Nair · Kannur, Kerala',
-        image: 'assets/image/riys.png',
-        managedBy: 'Self',
-        contactNo: '+91 9847011223',
-        email: 'dhanya@gmail.com',
-      ),
-      date: '02 Oct',
-    ),
-  ];
+  // "Interests Received" swipe deck — persists the accept/decline choice to
+  // the backend. The deck already advances to the next card immediately
+  // (see _ReceivedSwipeDeck), so this call fires in the background.
+  void _respondToInterest(_InboxEntry entry, {required bool accept}) {
+    final interestId = entry.entryId;
+    if (interestId == null) return;
+    context.read<HomeProvider>().respondInterest(interestId, accept ? 'accept' : 'decline');
+  }
 
-  final List<_InboxEntry> _sent = const [
-    _InboxEntry(
-      profile: MatchProfileItem(
-        name: 'Chandhini',
-        line1: "26 Yrs, 5'2\" · Architect",
-        line2: 'Malayalam, Nair · Ernakulam, Kerala',
-        image: 'assets/image/riys.png',
-      ),
-      date: '02 Oct',
-    ),
-    _InboxEntry(
-      profile: MatchProfileItem(
-        name: 'Anushka',
-        line1: "23 Yrs, 5'4\" · Software Engineer",
-        line2: 'Malayalam, Nair · Thrissur, Kerala',
-        image: 'assets/image/archana.png',
-      ),
-      date: '30 Sep',
-    ),
-  ];
+  // "Requests Received" swipe deck — same fire-and-forget persistence as
+  // _respondToInterest, against the requests respond endpoint instead.
+  void _respondToRequest(_InboxEntry entry, {required bool accept}) {
+    final requestId = entry.entryId;
+    if (requestId == null) return;
+    context.read<HomeProvider>().respondRequest(requestId, accept ? 'accept' : 'decline');
+  }
 
   List<int> get _counts => [
-        _received.length,
-        _acceptedByHer.length + _acceptedByMe.length,
+        _interestsReceived.length + _interestsSent.length,
+        _requestsReceived.length + _requestsSent.length,
         _contactsViewed.length,
-        _sent.length,
+        0, // Shortlistings isn't backed by real data yet
       ];
 
-  void _declineReceived(_InboxEntry entry) => setState(() => _received.remove(entry));
-
-  void _acceptReceived(_InboxEntry entry) {
-    setState(() {
-      _received.remove(entry);
-      _acceptedByHer.add(entry);
-    });
-  }
-
-  List<_InboxEntry> get _currentList {
-    switch (_activeTab) {
-      case 1:
-        return _activeSubTab == 0 ? _acceptedByHer : _acceptedByMe;
-      case 2:
-        return _activeSubTab == 0 ? _contactsViewed : _viewedYou;
-      case 3:
-        return _sent;
-      default:
-        return _received;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final list = _currentList;
+    // Contacts tab counts — read once here since they're needed by both the
+    // sub-tab labels and the descriptive text below the chips.
+    final viewedByMeModel = context.select<HomeProvider, ContactsViewedByMeModel?>((p) => p.contactsViewedByMeModel);
+    final viewedYouModel = context.select<HomeProvider, ContactsViewedYouModel?>((p) => p.contactsViewedYouModel);
+    final viewedByMeCount = viewedByMeModel?.total ?? viewedByMeModel?.data?.length ?? 0;
+    final viewedYouCount = viewedYouModel?.total ?? viewedYouModel?.data?.length ?? 0;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -236,57 +382,44 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
             _buildHeader(),
             SizedBox(height: 10.h),
             _buildTabs(),
-            if (_activeTab == 1) ...[
-              SizedBox(height: 10.h),
+            SizedBox(height: 10.h),
+            if (_activeTab == 0) ...[
               _buildSubTabs(
-                leftLabel: 'Accepted by Her (${_acceptedByHer.length})',
-                rightLabel: 'Accepted by Me (${_acceptedByMe.length})',
+                leftLabel: 'Interests Received',
+                rightLabel: 'Interests Send',
               ),
-            ],
-            SizedBox(height: 10.h,),
-            Divider(),
-            if (_activeTab == 2) ...[
               SizedBox(height: 10.h),
+              _buildStatusChips(),
+            ] else if (_activeTab == 1) ...[
               _buildSubTabs(
-                leftLabel: 'Contacts Viewed (${_contactsViewed.length})',
-                rightLabel: 'Viewed you (10)',
+                leftLabel: 'Requests Received',
+                rightLabel: 'Requests Send',
+              ),
+              SizedBox(height: 10.h),
+              _buildRequestTypeChips(),
+            ] else if (_activeTab == 2) ...[
+              _buildSubTabs(
+                leftLabel: 'Contacts Viewed ($viewedByMeCount)',
+                rightLabel: 'Viewed you ($viewedYouCount)',
               ),
               SizedBox(height: 12.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Text(
                   _activeSubTab == 0
-                      ? 'Contacts you have viewed (${_contactsViewed.length} of 800)'
-                      : 'Contacts who viewed you (${_viewedYou.length} of 10)',
+                      ? 'Contacts you have viewed (${viewedByMeModel?.data?.length ?? 0} of $viewedByMeCount)'
+                      : 'Contacts who viewed you (${viewedYouModel?.data?.length ?? 0} of $viewedYouCount)',
                   style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black),
                 ),
               ),
+            ] else if (_activeTab == 3) ...[
+              _buildSubTabs(
+                leftLabel: 'Shortlisted Me',
+                rightLabel: 'Shortlisted By Me',
+              ),
             ],
             SizedBox(height: 8.h),
-            Expanded(
-              child: _activeTab == 0
-                  ? _ReceivedSwipeDeck(
-                      entries: _received,
-                      onAccept: _acceptReceived,
-                      onDecline: _declineReceived,
-                    )
-                  : list.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Nothing here yet',
-                            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
-                          ),
-                        )
-                      : ListView.separated(
-                          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-                          itemCount: list.length,
-                          separatorBuilder: (_, __) => SizedBox(height: 14.h),
-                          itemBuilder: (context, index) {
-                            if (_activeTab == 2) return _ContactCard(entry: list[index]);
-                            return _InboxCard(entry: list[index], isSent: _activeTab == 3);
-                          },
-                        ),
-            ),
+            Expanded(child: _buildContent()),
           ],
         ),
       ),
@@ -323,6 +456,8 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
             onTap: () => setState(() {
               _activeTab = index;
               _activeSubTab = 0;
+              _interestStatusFilter = 0;
+              _requestType = 0;
             }),
             borderRadius: BorderRadius.circular(18.r),
             child: Container(
@@ -364,7 +499,16 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
   Widget _subTab(String label, int index) {
     final selected = _activeSubTab == index;
     return InkWell(
-      onTap: () => setState(() => _activeSubTab = index),
+      onTap: () {
+        setState(() => _activeSubTab = index);
+        // "Interests Send" / "Requests Send" — fetch as soon as it's
+        // opened, using whichever status/type chip is currently selected.
+        if (_activeTab == 0 && index == 1) {
+          context.read<HomeProvider>().interestSend(_interestStatusFilter + 1);
+        } else if (_activeTab == 1 && index == 1) {
+          context.read<HomeProvider>().requestSend(_requestType == 0 ? 'photo' : 'number');
+        }
+      },
       child: Container(
         padding: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
@@ -381,6 +525,331 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusChips() {
+    return SizedBox(
+      height: 32.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: _statusLabels.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (context, i) {
+          final selected = _interestStatusFilter == i;
+          return InkWell(
+            onTap: () {
+              setState(() => _interestStatusFilter = i);
+              // Chip index 0/1/2 (Pending/Accepted/Declined) maps to
+              // backend status codes 1/2/3.
+              final provider = context.read<HomeProvider>();
+              if (_activeSubTab == 0) {
+                provider.interestReceived(i + 1);
+              } else {
+                provider.interestSend(i + 1);
+              }
+            },
+            borderRadius: BorderRadius.circular(16.r),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.coral : Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+              ),
+              child: Text(
+                _statusLabels[i],
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: selected ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildRequestTypeChips() {
+    return SizedBox(
+      height: 32.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: _requestTypeLabels.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (context, i) {
+          final selected = _requestType == i;
+          return InkWell(
+            onTap: () {
+              setState(() => _requestType = i);
+              final type = i == 0 ? 'photo' : 'number';
+              final provider = context.read<HomeProvider>();
+              if (_activeSubTab == 0) {
+                provider.request(type);
+              } else {
+                provider.requestSend(type);
+              }
+            },
+            borderRadius: BorderRadius.circular(16.r),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.coral : Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+              ),
+              child: Text(
+                _requestTypeLabels[i],
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: selected ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _emptyText(String message) {
+    return Center(
+      child: Text(message, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45)),
+    );
+  }
+
+  Widget _buildContent() {
+    if (_activeTab == 2) {
+      // "Contacts Viewed" — real API data (GET inbox/contacts). "Viewed
+      // you" — real API data (GET inbox/contacts/viewed-you).
+      final List<_InboxEntry> list;
+      if (_activeSubTab == 0) {
+        final data = context.select<HomeProvider, ContactsViewedByMeModel?>((p) => p.contactsViewedByMeModel)?.data;
+        list = (data ?? [])
+            .map((d) => _fromApiContact(
+                  id: d.id,
+                  name: d.name,
+                  age: d.age,
+                  height: d.height,
+                  occupation: d.occupation,
+                  motherTongue: d.motherTongue,
+                  community: d.community,
+                  location: d.location,
+                  imageUrl: d.imageUrl,
+                  mobileNumber: d.mobileNumber,
+                ))
+            .toList();
+      } else {
+        final data = context.select<HomeProvider, ContactsViewedYouModel?>((p) => p.contactsViewedYouModel)?.data;
+        list = (data ?? [])
+            .map((d) => _fromApiContact(
+                  id: d.id,
+                  name: d.name,
+                  age: d.age,
+                  height: d.height,
+                  occupation: d.occupation,
+                  motherTongue: d.motherTongue,
+                  community: d.community,
+                  location: d.location,
+                  imageUrl: d.imageUrl,
+                ))
+            .toList();
+      }
+      if (list.isEmpty) return _emptyText('Nothing here yet');
+      return ListView.separated(
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: 14.h),
+        itemBuilder: (context, index) => _ContactCard(entry: list[index]),
+      );
+    }
+
+    if (_activeTab == 3) {
+      // Same card-list design as Interests/Requests Received & Send.
+      // "Shortlisted Me" — people who shortlisted your profile (GET
+      // matches/shortlisted-you). "Shortlisted By Me" — profiles you've
+      // shortlisted (GET matches/shortlisted-by-you).
+      // shortlisted_you_model.dart and shortlisted_by_you_model.dart each
+      // declare their own nominal `Match` class with an identical shape —
+      // map each branch separately rather than merging into one variable,
+      // which would collapse the element type to Object.
+      final List<_InboxEntry> list;
+      if (_activeSubTab == 0) {
+        final matches = context.select<HomeProvider, ShortlistedYouModel?>((p) => p.shortlistedYouModel)?.matches;
+        list = (matches ?? [])
+            .map((m) => _fromApiRow(
+                  profileId: m.id,
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl?.toString(),
+                ))
+            .toList();
+      } else {
+        final matches = context.select<HomeProvider, ShortlistedByYouModel?>((p) => p.shortlistedByYouModel)?.matches;
+        list = (matches ?? [])
+            .map((m) => _fromApiRow(
+                  profileId: m.id,
+                  name: m.name,
+                  age: m.age,
+                  height: m.height,
+                  motherTongue: m.motherTongue,
+                  community: m.community,
+                  location: m.location,
+                  imageUrl: m.imageUrl?.toString(),
+                ))
+            .toList();
+      }
+      if (list.isEmpty) return _emptyText('Nothing here yet');
+      return ListView.separated(
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: 14.h),
+        itemBuilder: (context, index) => _InboxCard(entry: list[index]),
+      );
+    }
+
+    if (_activeTab == 1) {
+      // Requests Received — real API data (GET inbox/requests/received?type=),
+      // filtered by the Photo/Number chip. Same swipeable Accept/Decline
+      // deck as Interests Received, looping back to the first card once
+      // every profile has been swiped.
+      if (_activeSubTab == 0) {
+        final requestModel = context.select<HomeProvider, RequestModel?>((p) => p.requestModel);
+        final requestList = (requestModel?.data ?? [])
+            .map((d) => _fromApiRow(
+                  entryId: d.requestId,
+                  profileId: d.id,
+                  name: d.name,
+                  age: d.age,
+                  height: d.height,
+                  occupation: d.occupation,
+                  motherTongue: d.motherTongue,
+                  community: d.community,
+                  location: d.location,
+                  imageUrl: d.imageUrl,
+                  statusCode: d.requestStatus,
+                ))
+            .toList();
+        final pending = requestList.where((e) => e.status == _RequestStatus.pending).toList();
+        if (requestList.isEmpty) return _emptyText('Nothing here yet');
+        return _ReceivedSwipeDeck(
+          key: ValueKey('request-received-$_requestType'),
+          entries: pending,
+          loop: true,
+          onAccept: (entry) => _respondToRequest(entry, accept: true),
+          onDecline: (entry) => _respondToRequest(entry, accept: false),
+        );
+      }
+      // Requests Send — real API data (GET inbox/requests/sent?type=), same
+      // Photo/Number filtering as Requests Received.
+      final requestSendModel = context.select<HomeProvider, RequestSendModel?>((p) => p.requestSendModel);
+      final sentList = (requestSendModel?.data ?? [])
+          .map((d) => _fromApiRow(
+                entryId: d.requestId,
+                profileId: d.id,
+                name: d.name,
+                age: d.age,
+                height: d.height,
+                occupation: d.occupation,
+                motherTongue: d.motherTongue,
+                community: d.community,
+                location: d.location,
+                imageUrl: d.imageUrl,
+                statusCode: d.requestStatus,
+              ))
+          .toList();
+      if (sentList.isEmpty) return _emptyText('Nothing here yet');
+      return ListView.separated(
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+        itemCount: sentList.length,
+        separatorBuilder: (_, __) => SizedBox(height: 14.h),
+        itemBuilder: (context, index) => _InboxCard(entry: sentList[index], isSent: true),
+      );
+    }
+
+    // Interest tab, "Interests Received" — real API data, filtered by the
+    // Pending/Accepted/Declined chip. "Pending" shows the swipeable
+    // Accept/Decline deck, which loops back to the first card once every
+    // profile has been swiped so the deck is never left empty.
+    if (_activeSubTab == 0) {
+      // select (not watch) — only rebuilds this screen when the received
+      // list itself changes, not on every loading/loaded notifyListeners()
+      // fired by unrelated calls like respondInterest (accept/decline),
+      // which was causing dropped frames and a visible lag on tap.
+      final interestReceivedModel =
+          context.select<HomeProvider, InterestReceivedModel?>((p) => p.interestReceivedModel);
+      final apiList = (interestReceivedModel?.data ?? [])
+          .map((d) => _fromApiRow(
+                entryId: d.interestId,
+                profileId: d.id,
+                name: d.name,
+                age: d.age,
+                height: d.height,
+                occupation: d.occupation,
+                motherTongue: d.motherTongue,
+                community: d.community,
+                location: d.location,
+                imageUrl: d.imageUrl,
+                statusCode: d.interestStatus,
+              ))
+          .toList();
+
+      final showSwipeDeck = _interestStatusFilter == 0;
+      if (showSwipeDeck) {
+        final pending = apiList.where((e) => e.status == _RequestStatus.pending).toList();
+        if (apiList.isEmpty) return _emptyText('Nothing here yet');
+        return _ReceivedSwipeDeck(
+          key: const ValueKey('received-pending'),
+          entries: pending,
+          loop: true,
+          onAccept: (entry) => _respondToInterest(entry, accept: true),
+          onDecline: (entry) => _respondToInterest(entry, accept: false),
+        );
+      }
+      if (apiList.isEmpty) return _emptyText('Nothing here yet');
+      return ListView.separated(
+        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+        itemCount: apiList.length,
+        separatorBuilder: (_, __) => SizedBox(height: 14.h),
+        itemBuilder: (context, index) => _InboxCard(entry: apiList[index]),
+      );
+    }
+
+    // "Interests Send" — real API data (GET inbox/sent?status=), same
+    // Pending/Accepted/Declined filtering as Received.
+    final interestSendModel = context.select<HomeProvider, InterestSentModel?>((p) => p.interestSendModel);
+    final list = (interestSendModel?.data ?? [])
+        .map((d) => _fromApiRow(
+              entryId: d.interestId,
+              profileId: d.id,
+              name: d.name,
+              age: d.age,
+              height: d.height,
+              occupation: d.occupation,
+              motherTongue: d.motherTongue,
+              community: d.community,
+              location: d.location,
+              imageUrl: d.imageUrl,
+              statusCode: d.interestStatus,
+            ))
+        .toList();
+    if (list.isEmpty) return _emptyText('Nothing here yet');
+    return ListView.separated(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+      itemCount: list.length,
+      separatorBuilder: (_, __) => SizedBox(height: 14.h),
+      itemBuilder: (context, index) => _InboxCard(entry: list[index], isSent: true),
     );
   }
 }
@@ -440,17 +909,11 @@ class _InboxCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClipOval(
-                        child: Image.asset(
+                        child: matchProfileImage(
                           p.image,
                           width: 52.w,
                           height: 52.w,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 52.w,
-                            height: 52.w,
-                            color: AppColors.primaryLight,
-                            child: Icon(Icons.person, size: 22.sp, color: AppColors.primary),
-                          ),
+                          errorIconSize: 22.sp,
                         ),
                       ),
                       SizedBox(width: 10.w),
@@ -485,51 +948,57 @@ class _InboxCard extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 7.w),
-              color: const Color(0xFFFFE2E7),
-              child: Column(
-                children: [
-                  Text(
-                    'Take the next step',
-                    style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black87),
-                  ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      if (isSent)
+            if (entry.status == _RequestStatus.declined || (isSent && entry.status == _RequestStatus.pending))
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 7.w),
+                color: const Color(0xFFF0F0F0),
+                alignment: Alignment.center,
+                child: Text(
+                  entry.status == _RequestStatus.declined ? 'Declined' : 'Awaiting Response',
+                  style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black54),
+                ),
+              )
+            else
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 7.w),
+                color: const Color(0xFFFFE2E7),
+                child: Column(
+                  children: [
+                    Text(
+                      isSent ? 'Accepted' : 'Take the next step',
+                      style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (!isSent)
+                          _actionButton(
+                            asset: 'assets/image/whatsapp_container.png',
+                            label: 'Whatsapp',
+                            onTap: () {},
+                          ),
                         _actionButton(
-                          asset: "assets/image/remainder_container.png",
-                          label: 'Remind',
-                          onTap: () {},
-                        )
-                      else
+                          asset: 'assets/image/message_container.png',
+                          label: 'Chat',
+                          //bg: Colors.white,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => MessageScreen(name: p.name, image: p.image)),
+                          ),
+                        ),
                         _actionButton(
-                          asset: 'assets/image/whatsapp_container.png',
-                          label: 'Whatsapp',
+                          asset: 'assets/image/call_container.png',
+                          label: isSent ? 'Contact' : 'Call',
                           onTap: () {},
                         ),
-                      _actionButton(
-                        asset: 'assets/image/message_container.png',
-                        label: 'Chat',
-                        //bg: Colors.white,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => MessageScreen(name: p.name, image: p.image)),
-                        ),
-                      ),
-                      _actionButton(
-                        asset: 'assets/image/call_container.png',
-                        label: isSent ? 'Contact' : 'Call',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -593,17 +1062,11 @@ class _ContactCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipOval(
-                  child: Image.asset(
+                  child: matchProfileImage(
                     p.image,
                     width: 71.w,
                     height: 71.w,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      width: 71.w,
-                      height: 71.w,
-                      color: AppColors.primaryLight,
-                      child: Icon(Icons.person, size: 30.sp, color: AppColors.primary),
-                    ),
+                    errorIconSize: 30.sp,
                   ),
                 ),
                 SizedBox(width: 10.w),
@@ -710,14 +1173,7 @@ class _ReceivedRequestCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(
-                p.image,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: AppColors.primaryLight,
-                  child: Icon(Icons.person, size: 72.sp, color: AppColors.primary),
-                ),
-              ),
+              matchProfileImage(p.image, errorIconSize: 72.sp),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -731,7 +1187,7 @@ class _ReceivedRequestCard extends StatelessWidget {
               Positioned(
                 top: 16.h,
                 left: 16.w,
-                child: const ShortlistBadge(),
+                child: ShortlistBadge(profile: p),
               ),
               Positioned(
                 left: 16.w,
@@ -840,10 +1296,15 @@ class _ReceivedSwipeDeck extends StatefulWidget {
   final List<_InboxEntry> entries;
   final void Function(_InboxEntry) onAccept;
   final void Function(_InboxEntry) onDecline;
+  // When true, the deck cycles back to the first card once every entry has
+  // been swiped instead of ending on an empty state.
+  final bool loop;
   const _ReceivedSwipeDeck({
+    super.key,
     required this.entries,
     required this.onAccept,
     required this.onDecline,
+    this.loop = false,
   });
 
   @override
@@ -852,6 +1313,21 @@ class _ReceivedSwipeDeck extends StatefulWidget {
 
 class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
   Offset _drag = Offset.zero;
+  int _index = 0;
+
+  @override
+  void didUpdateWidget(covariant _ReceivedSwipeDeck oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.loop) return;
+    final sameEntries = oldWidget.entries.length == widget.entries.length &&
+        List.generate(oldWidget.entries.length, (i) => oldWidget.entries[i].entryId == widget.entries[i].entryId)
+            .every((same) => same);
+    if (!sameEntries) {
+      _index = 0;
+    } else if (widget.entries.isNotEmpty) {
+      _index %= widget.entries.length;
+    }
+  }
 
   void _onPanUpdate(DragUpdateDetails details) {
     setState(() => _drag += details.delta);
@@ -869,8 +1345,12 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
   }
 
   void _resolve({required bool accept}) {
-    final entry = widget.entries.first;
-    setState(() => _drag = Offset.zero);
+    final currentIndex = widget.loop ? _index % widget.entries.length : 0;
+    final entry = widget.entries[currentIndex];
+    setState(() {
+      _drag = Offset.zero;
+      if (widget.loop) _index = (currentIndex + 1) % widget.entries.length;
+    });
     accept ? widget.onAccept(entry) : widget.onDecline(entry);
   }
 
@@ -885,8 +1365,11 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
       );
     }
 
-    final top = widget.entries.first;
-    final next = widget.entries.length > 1 ? widget.entries[1] : null;
+    final topIndex = widget.loop ? _index % widget.entries.length : 0;
+    final top = widget.entries[topIndex];
+    final next = widget.entries.length > 1
+        ? widget.entries[widget.loop ? (topIndex + 1) % widget.entries.length : 1]
+        : null;
     final angle = (_drag.dx / 300).clamp(-0.4, 0.4);
 
     return Padding(

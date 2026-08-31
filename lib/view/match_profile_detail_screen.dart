@@ -274,7 +274,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
           Positioned(
              top: MediaQuery.of(context).padding.top + 60.h,
             left: 14.w,
-            child: const ShortlistBadge(),
+            child: ShortlistBadge(profile: item),
           ),
           Positioned(
             left: 16.w,

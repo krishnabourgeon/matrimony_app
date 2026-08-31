@@ -8,6 +8,11 @@ PhotosModel photosModelFromJson(String str) => PhotosModel.fromJson(json.decode(
 
 String photosModelToJson(PhotosModel data) => json.encode(data.toJson());
 
+// The backend has been inconsistent about sending numeric fields as JSON
+// numbers vs strings (e.g. is_main_image as "1"), so parse defensively
+// instead of trusting the declared type.
+int? _asInt(dynamic v) => v == null ? null : (v is int ? v : int.tryParse(v.toString()));
+
 class PhotosModel {
     String? message;
     Data? data;
@@ -70,12 +75,12 @@ class PhotoImage {
     });
 
     factory PhotoImage.fromJson(Map<String, dynamic> json) => PhotoImage(
-        id: json["id"],
-        customerId: json["customer_id"],
+        id: _asInt(json["id"]),
+        customerId: _asInt(json["customer_id"]),
         image: json["image"],
-        typeId: json["type_id"],
+        typeId: _asInt(json["type_id"]),
         isMainImage: json["is_main_image"],
-        status: json["status"],
+        status: _asInt(json["status"]),
         createdAt: json["created_at"] == null ? null : DateTime.tryParse(json["created_at"]),
         updatedAt: json["updated_at"] == null ? null : DateTime.tryParse(json["updated_at"]),
     );

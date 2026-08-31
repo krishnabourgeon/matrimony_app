@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/chat_model.dart';
+import 'package:matrimony_app/provider/home_provider.dart';
 import 'package:matrimony_app/view/chat_detail_screen.dart';
+import 'package:matrimony_app/view/matches_screen.dart' show matchProfileImage;
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 
 class ChatPreviewItem {
+  final int id;
   final String name;
   final String message;
   final String date;
@@ -12,6 +18,7 @@ class ChatPreviewItem {
   final bool isVerified;
 
   const ChatPreviewItem({
+    required this.id,
     required this.name,
     required this.message,
     required this.date,
@@ -33,93 +40,98 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   final List<String> tabs = const ['All chats', 'Unread', 'Calls'];
 
-  // Recently active people shown as circular avatars at the top.
-  final List<ChatPreviewItem> recentlyActive = const [
-    ChatPreviewItem(
-      name: 'Sandra Ra...',
-      message: '',
-      date: '',
-      image: 'assets/image/archana.png',
-    ),
-    ChatPreviewItem(
-      name: 'Geethu',
-      message: '',
-      date: '',
-      image: 'assets/image/priya.png',
-    ),
-    ChatPreviewItem(
-      name: 'Keerthi Pra...',
-      message: '',
-      date: '',
-      image: 'assets/image/riys.png',
-    ),
-    ChatPreviewItem(
-      name: 'Nikhitha',
-      message: '',
-      date: '',
-      image: 'assets/image/archana.png',
-    ),
-    ChatPreviewItem(
-      name: 'Sandr...',
-      message: '',
-      date: '',
-      image: 'assets/image/priya.png',
-    ),
-  ];
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+    final now = DateTime.now();
+    final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+    if (isToday) {
+      final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
+      final period = date.hour >= 12 ? 'PM' : 'AM';
+      return '$hour:${date.minute.toString().padLeft(2, '0')} $period';
+    }
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${date.day} ${months[date.month - 1]}';
+  }
 
-  final List<ChatPreviewItem> chats = const [
-    ChatPreviewItem(
-      name: 'Gauri nandha',
-      message: 'Hello, We liked your profile as well. It Wo...',
-      date: '12 Sep',
-      image: 'assets/image/archana.png',
-    ),
-    ChatPreviewItem(
-      name: 'Saranya',
-      message: 'Hello, We liked your profile as well. It Wo...',
-      date: '05 Oct',
-      image: 'assets/image/priya.png',
-      isVerified: true,
-    ),
-    ChatPreviewItem(
-      name: 'Gauri nandha',
-      message: 'Hello, We liked your profile as well. It Wo...',
-      date: '14 Aug',
-      image: 'assets/image/riys.png',
-    ),
-    ChatPreviewItem(
-      name: 'Nithya Das',
-      message: 'Hello, We liked your profile as well. It Wo...',
-      date: '22 Aug',
-      image: 'assets/image/archana.png',
-      isVerified: true,
-    ),
-  ];
+  List<ChatPreviewItem> _recentlyActive(ChatModel? model) {
+    final contacts = model?.recentContacts;
+    if (contacts == null) return const [];
+    return contacts
+        .map((c) => ChatPreviewItem(
+              id: c.id ?? 0,
+              name: c.name ?? '',
+              message: '',
+              date: '',
+              image: c.imageUrl ?? '',
+            ))
+        .toList();
+  }
+
+  List<ChatPreviewItem> _chats(ChatModel? model) {
+    final threads = model?.threads?.data;
+    if (threads == null) return const [];
+    return threads
+        .map((t) => ChatPreviewItem(
+              id: t.id ?? 0,
+              name: t.name ?? '',
+              message: t.lastMessage ?? '',
+              date: _formatDate(t.lastMessageAt),
+              image: t.imageUrl ?? '',
+              isVerified: t.verified ?? false,
+            ))
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeProvider>().getChat();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            SizedBox(height: 12.h),
-            _buildTabs(),
-            SizedBox(height: 14.h),
-            _buildRecentlyActiveRow(),
-            SizedBox(height: 4.h),
-            const Divider(height: 1, color: Color(0xFFF0F0F0)),
-            Expanded(
-              child: ListView.separated(
-                itemCount: chats.length,
-                separatorBuilder: (_, __) =>
-                    const Divider(height: 1, color: Color(0xFFF5F5F5)),
-                itemBuilder: (context, index) =>
-                    _ChatListTile(item: chats[index]),
-              ),
-            ),
-          ],
+        child: Consumer<HomeProvider>(
+          builder: (context, provider, _) {
+            final recentlyActive = _recentlyActive(provider.chatModel);
+            final chats = _chats(provider.chatModel);
+            return Column(
+              children: [
+                _buildHeader(),
+                SizedBox(height: 12.h),
+                _buildTabs(),
+                if (recentlyActive.isNotEmpty) ...[
+                  SizedBox(height: 14.h),
+                  _buildRecentlyActiveRow(recentlyActive),
+                ],
+                SizedBox(height: 4.h),
+                const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                Expanded(
+                  child: chats.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No conversations yet',
+                            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: chats.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1, color: Color(0xFFF5F5F5)),
+                          itemBuilder: (context, index) =>
+                              _ChatListTile(item: chats[index]),
+                        ),
+                ),
+              ],
+            );
+          },
         ),
       ),
       //bottomNavigationBar: _buildBottomNav(),
@@ -179,7 +191,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  Widget _buildRecentlyActiveRow() {
+  Widget _buildRecentlyActiveRow(List<ChatPreviewItem> recentlyActive) {
     return SizedBox(
       height: 76.h,
       child: ListView.separated(
@@ -194,11 +206,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
             child: Column(
               children: [
                 ClipOval(
-                  child: Image.asset(
+                  child: matchProfileImage(
                     p.image,
                     width: 52.w,
                     height: 52.w,
-                    fit: BoxFit.cover,
+                    errorIconSize: 22.sp,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -287,11 +299,11 @@ class _ChatListTile extends StatelessWidget {
         child: Row(
           children: [
             ClipOval(
-              child: Image.asset(
+              child: matchProfileImage(
                 item.image,
                 width: 48.w,
                 height: 48.w,
-                fit: BoxFit.cover,
+                errorIconSize: 20.sp,
               ),
             ),
             SizedBox(width: 12.w),

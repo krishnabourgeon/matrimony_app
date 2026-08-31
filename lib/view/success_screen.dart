@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-import 'package:matrimony_app/view/dashboard_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 
-/// Shown after the onboarding/registration flow completes successfully.
-/// Navigate here as the final step, then "View Matches" takes the user
-/// to the Dashboard.
+
 class AllSetScreen extends StatelessWidget {
   const AllSetScreen({super.key});
 

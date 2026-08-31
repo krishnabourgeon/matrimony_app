@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:matrimony_app/model/search_body.dart';
+import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 
 class SearchPreferencesScreen extends StatefulWidget {
@@ -32,6 +35,7 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
   String _diet = 'Open to All';
 
   bool _advancedExpanded = false;
+  bool _isSearching = false;
 
   static const _allDistricts = [
     'Palakkad', 'Thrissur', 'Ernakulam', 'Kozhikode', 'Kollam', 'Kannur',
@@ -43,6 +47,39 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
     final rem = (inches % 12).round();
     final cm = (inches * 2.54).round();
     return "$feet'$rem\" ($cm cm)";
+  }
+
+  // Builds the search request from whatever's currently selected on this
+  // screen. Most of the dropdowns here are still free-text (not backed by
+  // the real catalog IDs the way onboarding's dropdowns are), so those
+  // filters go through as 0/unset ("open to all") for now — only
+  // age/height/photo are wired to real values today.
+  Future<void> _searchNow() async {
+    setState(() => _isSearching = true);
+    // Only the fields the user actually set go on the request — the rest
+    // are left null so SearchBody.toJson() omits them entirely. The backend
+    // treats an explicitly-present filter (even 0/false) as active, so
+    // sending the full 0-filled shape was filtering out every real match.
+    final body = SearchBody(
+      ageFrom: _ageRange.start.round(),
+      ageTo: _ageRange.end.round(),
+      heightFrom: (_heightRange.start * 2.54).round(),
+      heightTo: (_heightRange.end * 2.54).round(),
+      withPhoto: _photoSettings == 'With Photo Only' ? true : null,
+    );
+
+    final provider = context.read<RegisterProvider>();
+    final success = await provider.searchProfiles(body);
+    if (!mounted) return;
+    setState(() => _isSearching = false);
+
+    if (success) {
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.searchError ?? 'Something went wrong. Please try again')),
+      );
+    }
   }
 
   @override
@@ -192,16 +229,22 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: InkWell(
-                        onTap: () => Navigator.pop(context),
+                        onTap: _isSearching ? null : _searchNow,
                         borderRadius: BorderRadius.circular(26.r),
                         child: Container(
                           height: 48.h,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(26.r)),
-                          child: Text(
-                            'Search Now',
-                            style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.white),
-                          ),
+                          child: _isSearching
+                              ? SizedBox(
+                                  width: 20.w,
+                                  height: 20.w,
+                                  child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                )
+                              : Text(
+                                  'Search Now',
+                                  style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                                ),
                         ),
                       ),
                     ),

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:matrimony_app/function.dart';
 import 'package:matrimony_app/model/basic_info_model.dart';
@@ -19,6 +18,10 @@ import 'package:matrimony_app/model/family_statuses.dart';
 import 'package:matrimony_app/model/family_type_model.dart';
 import 'package:matrimony_app/model/family_values_model.dart';
 import 'package:matrimony_app/model/gender_model.dart';
+import 'package:matrimony_app/model/get_subscriptionmodel.dart';
+import 'package:matrimony_app/model/choose_subscription_model.dart';
+import 'package:matrimony_app/model/search_body.dart';
+import 'package:matrimony_app/model/search_model.dart';
 import 'package:matrimony_app/model/gotar_model.dart';
 import 'package:matrimony_app/model/hobbies_model.dart';
 import 'package:matrimony_app/model/hobby_info_model.dart';
@@ -39,7 +42,6 @@ import 'package:matrimony_app/model/sign_in_model.dart';
 import 'package:matrimony_app/model/signup_model.dart';
 import 'package:matrimony_app/model/skin_type_model.dart';
 import 'package:matrimony_app/model/states_model.dart';
-import 'package:matrimony_app/model/dashboard_model.dart';
 import 'package:matrimony_app/model/stars_model.dart';
 import 'package:matrimony_app/model/subcaste_model.dart';
 import 'package:matrimony_app/model/value_slab_model.dart';
@@ -98,7 +100,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
   ImageTypesModel? imageTypesModel;
   PhotosModel? photosModel;
   String? photosError;
-  DashboardModel? dashboardModel;
+  GetSubscriptionModel? getSubscriptionModel;
 
   @override
   void updateLoadState(LoaderState state) {
@@ -1195,25 +1197,85 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
     }
   }
 
-  Future<void> getDashboard() async {
+
+  Future<void> getSubscriptionPlans() async {
     updateLoadState(LoaderState.loading);
     final network = await CommonFunctions.checkInternetConnection();
-    if (network) {
-      try {
-        var res = await serviceConfig.getDashboard();
-        if (res.isValue) {
-          dashboardModel = res.asValue!.value;
-          updateLoadState(LoaderState.loaded);
+    if (!network) {
+      updateLoadState(LoaderState.loaded);
+      return;
+    }
+    try {
+      var res = await serviceConfig.getSubscription();
+      if (res.isValue) {
+        getSubscriptionModel = res.asValue!.value;
+        updateLoadState(LoaderState.loaded);
 
-          notifyListeners();
-        } else {
-          updateLoadState(LoaderState.loaded);
-        }
-      } catch (e) {
-        debugPrint('exception in dashboard: $e');
+        notifyListeners();
+      } else {
         updateLoadState(LoaderState.loaded);
       }
+    } catch (e) {
+      debugPrint('exception in subscription plans: $e');
+      updateLoadState(LoaderState.loaded);
     }
   }
 
+  String? chooseSubscriptionError;
+
+  Future<bool> chooseSubscription(int subscriptionId) async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (!network) {
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+    try {
+      var res = await serviceConfig.chooseSubscription(subscriptionId);
+      final result = res.asValue?.value ?? res.asError?.error;
+      if (result is ChooseSubscriptionModel) {
+        chooseSubscriptionError = null;
+      } else if (result is ErrorResponseModel) {
+        chooseSubscriptionError = result.errorMessage ?? 'Something went wrong';
+      }
+      updateLoadState(LoaderState.loaded);
+      notifyListeners();
+      return res.isValue;
+    } catch (e) {
+      debugPrint('exception in chooseSubscription: $e');
+      chooseSubscriptionError = 'Something went wrong. Please try again';
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+  }
+
+  SearchModel? searchModel;
+  String? searchError;
+
+  Future<bool> searchProfiles(SearchBody body) async {
+    updateLoadState(LoaderState.loading);
+    final network = await CommonFunctions.checkInternetConnection();
+    if (!network) {
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+    try {
+      var res = await serviceConfig.search(body);
+      final result = res.asValue?.value ?? res.asError?.error;
+      if (result is SearchModel) {
+        searchModel = result;
+        searchError = null;
+      } else if (result is ErrorResponseModel) {
+        searchError = result.errorMessage ?? 'Something went wrong';
+      }
+      updateLoadState(LoaderState.loaded);
+      notifyListeners();
+      return res.isValue;
+    } catch (e) {
+      debugPrint('exception in searchProfiles: $e');
+      searchError = 'Something went wrong. Please try again';
+      updateLoadState(LoaderState.loaded);
+      return false;
+    }
+  }
 }

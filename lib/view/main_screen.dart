@@ -6,7 +6,6 @@ import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/dashboard_screen.dart';
 import 'package:matrimony_app/view/manage_request_screen.dart';
 import 'package:matrimony_app/view/matches_screen.dart';
-import 'package:matrimony_app/view/message_list_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});

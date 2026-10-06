@@ -8,16 +8,22 @@ String signupModelToJson(SignupModel data) =>
 
 class SignupModel {
   final String? message;
+  final int? createdForId;
+  final int? genderId;
   final SignupError? error;
 
   SignupModel({
     this.message,
+    this.createdForId,
+    this.genderId,
     this.error,
   });
 
   factory SignupModel.fromJson(Map<String, dynamic> json) {
     return SignupModel(
       message: json['message'],
+      createdForId: json["created_for_id"],
+      genderId: json["gender_id"],
       error: json['error'] != null
           ? SignupError.fromJson(json['error'])
           : null,
@@ -27,6 +33,8 @@ class SignupModel {
   Map<String, dynamic> toJson() {
     return {
       'message': message,
+      "created_for_id": createdForId,
+      "gender_id": genderId,
       'error': error?.toJson(),
     };
   }

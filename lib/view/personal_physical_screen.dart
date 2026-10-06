@@ -303,7 +303,6 @@ import 'package:matrimony_app/model/marital_statuses_model.dart';
 import 'package:matrimony_app/model/skin_type_model.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
-import 'package:matrimony_app/view/family_details_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 import 'package:matrimony_app/view/photos_about_screen.dart';
 
@@ -354,9 +353,57 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   bool _isSubmitting = false;
   bool _isSubmittingProfile = false;
 
+  static const _draftKey = 'personal_physical';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'marital': _marital,
+      'surgery': _surgery,
+      'pets': _pets,
+      'children': _children,
+      'description': _descriptionCtrl.text,
+      'disabilityDesc': _disabilityDescCtrl.text,
+      'surgeryDesc': _surgeryDescCtrl.text,
+      'height': _height,
+      'weight': _weight,
+      'skinColor': _skinColor,
+      'bodyType': _bodyType,
+      'bloodGroup': _bloodGroup,
+      'disability': _disability,
+      'diet': _diet,
+      'smoking': _smoking,
+      'drinking': _drinking,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    _marital = d['marital'] as MaritalStatus?;
+    _surgery = d['surgery'] as String? ?? 'No';
+    _pets = d['pets'] as String? ?? 'No';
+    _children = d['children'] as int? ?? 0;
+    _descriptionCtrl.text = d['description'] as String? ?? '';
+    _descCount = _descriptionCtrl.text.length;
+    _disabilityDescCtrl.text = d['disabilityDesc'] as String? ?? '';
+    _surgeryDescCtrl.text = d['surgeryDesc'] as String? ?? '';
+    _height = d['height'] as int?;
+    _weight = d['weight'] as int?;
+    _skinColor = d['skinColor'] as SkinType?;
+    _bodyType = d['bodyType'] as BodyType?;
+    _bloodGroup = d['bloodGroup'] as BloodGroup?;
+    _disability = d['disability'] as String? ?? 'No';
+    _diet = d['diet'] as Diet?;
+    _smoking = d['smoking'] as Choice?;
+    _drinking = d['drinking'] as Choice?;
+  }
+
   @override
   void initState() {
     super.initState();
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<RegisterProvider>();
       provider.getMaritalStatuses();
@@ -370,6 +417,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
 
   @override
   void dispose() {
+    _saveDraft();
     _descriptionCtrl.dispose();
     _disabilityDescCtrl.dispose();
     _surgeryDescCtrl.dispose();

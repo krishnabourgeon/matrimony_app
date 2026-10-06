@@ -325,7 +325,6 @@ import 'package:matrimony_app/model/value_slab_model.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/hobbies_screen.dart';
-import 'package:matrimony_app/view/photos_about_screen.dart';
 
 /// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
 class _Palette {
@@ -355,7 +354,9 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   bool _isSkipping = false;
 
 
-  bool _whatsapp  = false;
+  // Answer to "Is this a WhatsApp enabled number?" for the second contact
+  // number; null = not answered yet.
+  bool? _whatsapp;
   bool _telegram  = false;
 
   final _contactCtrl = TextEditingController();
@@ -370,9 +371,52 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
 
   bool _isSubmitting = false;
 
+  static const _draftKey = 'family_details';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'brothers': _brothers,
+      'brothersMarried': _brothersMarried,
+      'sisters': _sisters,
+      'sistersMarried': _sistersMarried,
+      'whatsapp': _whatsapp,
+      'telegram': _telegram,
+      'contact': _contactCtrl.text,
+      'familyClass': _familyClass,
+      'familyType': _familyType,
+      'familyValues': _familyValues,
+      'memberCount': _memberCount,
+      'fatherOccupation': _fatherOccupation,
+      'motherOccupation': _motherOccupation,
+      'familyIncome': _familyIncome,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    _brothers = d['brothers'] as int? ?? 0;
+    _brothersMarried = d['brothersMarried'] as int? ?? 0;
+    _sisters = d['sisters'] as int? ?? 0;
+    _sistersMarried = d['sistersMarried'] as int? ?? 0;
+    _whatsapp = d['whatsapp'] as bool?;
+    _telegram = d['telegram'] as bool? ?? false;
+    _contactCtrl.text = d['contact'] as String? ?? '';
+    _familyClass = d['familyClass'] as FamilyStatus?;
+    _familyType = d['familyType'] as FamilyType?;
+    _familyValues = d['familyValues'] as FamilyValue?;
+    _memberCount = d['memberCount'] as String?;
+    _fatherOccupation = d['fatherOccupation'] as Occupation?;
+    _motherOccupation = d['motherOccupation'] as Occupation?;
+    _familyIncome = d['familyIncome'] as ValueSlab?;
+  }
+
   @override
   void initState() {
     super.initState();
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<RegisterProvider>();
       provider.getFamilyStatuses();
@@ -385,6 +429,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
 
   @override
   void dispose() {
+    _saveDraft();
     _contactCtrl.dispose();
     super.dispose();
   }
@@ -406,11 +451,22 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       motherJobId: _motherOccupation?.id ?? 0,
       familyPropertyValueId: _familyIncome?.id ?? 0,
       mobile2: _contactCtrl.text.trim(),
+      mobile2whatsapp: _whatsapp == true ? 1 : 0
     );
   }
 
   void _handleContinue() {
     FocusScope.of(context).unfocus();
+
+    if (_contactCtrl.text.trim().isNotEmpty && _whatsapp == null) {
+      return _showSnack('Please select whether the second number is WhatsApp enabled.');
+    }
+    if (_brothersMarried > _brothers) {
+      return _showSnack('Brother Married count cannot exceed Brother count.');
+    }
+    if (_sistersMarried > _sisters) {
+      return _showSnack('Sister Married count cannot exceed Sister count.');
+    }
 
     setState(() => _isSubmitting = true);
     final provider = context.read<RegisterProvider>();
@@ -556,10 +612,21 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     _buildCounterRow(
                       label: 'Brother',
                       value: _brothers,
-                      onDecrement: () => setState(() {
-                        if (_brothers > 0) _brothers--;
-                      }),
-                      onIncrement: () => setState(() => _brothers++),
+                      onDecrement: () {
+                        if (_brothers == 0) return;
+                        if (_brothers - 1 < _brothersMarried) {
+                          return _showSnack(
+                              'Brother count cannot be less than Married Brother count.');
+                        }
+                        setState(() => _brothers--);
+                      },
+                      onIncrement: () {
+                        if (_memberCount == null) {
+                          return _showSnack(
+                              'Please select Total Family Members before adding Brother/Sister count');
+                        }
+                        setState(() => _brothers++);
+                      },
                     ),
                     SizedBox(height: 10.h),
                     _buildCounterRow(
@@ -568,16 +635,33 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                       onDecrement: () => setState(() {
                         if (_brothersMarried > 0) _brothersMarried--;
                       }),
-                      onIncrement: () => setState(() => _brothersMarried++),
+                      onIncrement: () {
+                        if (_brothersMarried >= _brothers) {
+                          return _showSnack(
+                              'Brother Married count cannot exceed Brother count.');
+                        }
+                        setState(() => _brothersMarried++);
+                      },
                     ),
                     SizedBox(height: 10.h),
                     _buildCounterRow(
                       label: 'Sister',
                       value: _sisters,
-                      onDecrement: () => setState(() {
-                        if (_sisters > 0) _sisters--;
-                      }),
-                      onIncrement: () => setState(() => _sisters++),
+                      onDecrement: () {
+                        if (_sisters == 0) return;
+                        if (_sisters - 1 < _sistersMarried) {
+                          return _showSnack(
+                              'Sister count cannot be less than Married Sister count.');
+                        }
+                        setState(() => _sisters--);
+                      },
+                      onIncrement: () {
+                        if (_memberCount == null) {
+                          return _showSnack(
+                              'Please select Total Family Members before adding Brother/Sister count');
+                        }
+                        setState(() => _sisters++);
+                      },
                     ),
                     SizedBox(height: 10.h),
                     _buildCounterRow(
@@ -586,7 +670,13 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                       onDecrement: () => setState(() {
                         if (_sistersMarried > 0) _sistersMarried--;
                       }),
-                      onIncrement: () => setState(() => _sistersMarried++),
+                      onIncrement: () {
+                        if (_sistersMarried >= _sisters) {
+                          return _showSnack(
+                              'Sister Married count cannot exceed Sister count.');
+                        }
+                        setState(() => _sistersMarried++);
+                      },
                     ),
 
                     SizedBox(height: 20.h),
@@ -650,6 +740,33 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     _FieldLabel('Second Contact Number'),
                     SizedBox(height: 8.h),
                     _buildMobileField(),
+                    if (_contactCtrl.text.trim().isNotEmpty) ...[
+                      SizedBox(height: 14.h),
+                      Text(
+                        'Is this a WhatsApp enabled number?',
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: _Palette.ink,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          _buildYesNoOption(
+                            label: 'Yes',
+                            selected: _whatsapp == true,
+                            onTap: () => setState(() => _whatsapp = true),
+                          ),
+                          SizedBox(width: 12.w),
+                          _buildYesNoOption(
+                            label: 'No',
+                            selected: _whatsapp == false,
+                            onTap: () => setState(() => _whatsapp = false),
+                          ),
+                        ],
+                      ),
+                    ],
 
                     SizedBox(height: 20.h),
                     // _FieldLabel('Active messengers on this number:'),
@@ -801,6 +918,11 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
           Expanded(
             child: TextFormField(
               controller: _contactCtrl,
+              // Rebuild so the WhatsApp question shows/hides with the number;
+              // clearing the number also clears the answer.
+              onChanged: (v) => setState(() {
+                if (v.trim().isEmpty) _whatsapp = null;
+              }),
               keyboardType: TextInputType.phone,
               maxLength: 10,
               inputFormatters: [
@@ -823,6 +945,48 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Yes / No option (radio-style pill)
+  // ---------------------------------------------------------------------
+  Widget _buildYesNoOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: selected ? _Palette.coral : _Palette.fieldBg,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              size: 16.sp,
+              color: selected ? _Palette.subtleWhite : _Palette.hintText,
+            ),
+            SizedBox(width: 6.w),
+            Text(
+              label,
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 12.sp,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? _Palette.subtleWhite : _Palette.ink,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

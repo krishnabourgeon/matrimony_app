@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/image_types_model.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/family_details_screen.dart';
-import 'package:matrimony_app/view/hobbies_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 
 /// Brand colors used on this screen — mirrors the other onboarding screens' palette.
@@ -36,7 +36,9 @@ class PhotosAboutScreen extends StatefulWidget {
 }
 
 class _PhotosAboutState extends State<PhotosAboutScreen> {
+  // Fallback labels (ids 1..8) used only if the image-types API fails.
   static const List<String> _slotLabels = [
+    'Medium',
     'Close-Up',
     'Full-Length',
     'Traditional',
@@ -46,9 +48,25 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     'Formal',
   ];
 
-  // Slot 0 is the primary profile photo (unlabeled); slots 1-7 map to
-  // _slotLabels (or to fetched ImageTypes when that list is available).
-  final List<File?> _photos = List<File?>.filled(8, null);
+  // One slot per image type from the API (fallback: _slotLabels). Slot 0 is
+  // also the main profile photo. Growable so it can match however many
+  // types the API returns.
+  List<File?> _photos = List<File?>.filled(_slotLabels.length, null);
+
+  int get _slotCount {
+    final types = context.read<RegisterProvider>().imageTypesModel?.imageTypes;
+    return (types != null && types.isNotEmpty) ? types.length : _slotLabels.length;
+  }
+
+  // Replaces the list with a longer copy (keeps picked photos), so it works
+  // whether or not the current list is growable.
+  void _ensureSlots(int count) {
+    if (_photos.length >= count) return;
+    _photos = [
+      ..._photos,
+      ...List<File?>.filled(count - _photos.length, null),
+    ];
+  }
   final _picker = ImagePicker();
 
   int _aboutCount = 0;
@@ -57,9 +75,33 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   bool _isSubmitting = false;
   bool _isSubmittingProfile = false;
 
+  static const _draftKey = 'photos_about';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'photos': List<File?>.of(_photos),
+      'about': _aboutCtrl.text,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    final photos = d['photos'] as List<File?>? ?? const [];
+    _ensureSlots(photos.length);
+    for (var i = 0; i < photos.length; i++) {
+      _photos[i] = photos[i];
+    }
+    _aboutCtrl.text = d['about'] as String? ?? '';
+    _aboutCount = _aboutCtrl.text.length;
+  }
+
   @override
   void initState() {
     super.initState();
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RegisterProvider>().getImageTypes();
     });
@@ -67,6 +109,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
 
   @override
   void dispose() {
+    _saveDraft();
     _aboutCtrl.dispose();
     super.dispose();
   }
@@ -93,8 +136,8 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   int _typeIdForSlot(int index) => _fetchedTypeForSlot(index)?.id ?? (index + 1);
 
   String? _labelForSlot(int index) {
-    if (index == 0) return null;
-    return _fetchedTypeForSlot(index)?.name ?? _slotLabels[index - 1];
+    return _fetchedTypeForSlot(index)?.name ??
+        (index < _slotLabels.length ? _slotLabels[index] : null);
   }
 
   // Photos and the about text are both optional — whatever's picked gets
@@ -104,7 +147,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     final Map<String, String> fields = {'about': _aboutCtrl.text.trim()};
     final Map<String, File> files = {};
     int uploadIndex = 0;
-    for (int i = 0; i < _photos.length; i++) {
+    for (int i = 0; i < _photos.length && i < _slotCount; i++) {
       final file = _photos[i];
       if (file == null) continue;
       fields['images[$uploadIndex][type_id]'] = '${_typeIdForSlot(i)}';
@@ -214,7 +257,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                     SizedBox(height: 8.h),
                     _buildTextAreaField(
                       controller: _aboutCtrl,
-                      hint: 'Describe yourself...',
+                      hint: 'I am a simple and family-oriented individual with a positive outlook on life.Enjoy music, travel, and spending time with close ones. Looking for a genuine and understanding life partner',
                       maxLength: 255,
                       count: _aboutCount,
                       onChanged: (v) => setState(() => _aboutCount = v.length),
@@ -270,14 +313,17 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Photo grid: slot 0 = primary photo, slots 1-7 = labeled categories.
+  // Photo grid: one labeled slot per image type; slot 0 is the main photo.
   // ---------------------------------------------------------------------
   Widget _buildPhotoGrid() {
     return Consumer<RegisterProvider>(
-      builder: (context, provider, _) => GridView.builder(
+      builder: (context, provider, _) {
+      final slotCount = _slotCount;
+      _ensureSlots(slotCount);
+      return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _photos.length,
+      itemCount: slotCount,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         mainAxisSpacing: 10.w,
@@ -293,7 +339,8 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
           onRemove: () => _removePhoto(index),
         );
       },
-      ),
+      );
+      },
     );
   }
 
@@ -307,29 +354,44 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     required int count,
     required ValueChanged<String> onChanged,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _Palette.fieldBg,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: TextFormField(
-        controller: controller,
-        maxLines: 4,
-        maxLength: maxLength,
-        onChanged: onChanged,
-        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
-          border: InputBorder.none,
-          errorBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
-          counterText: '$count/$maxLength',
-          counterStyle: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: _Palette.fieldBg,
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          child: TextFormField(
+            controller: controller,
+            maxLines: 4,
+            maxLength: maxLength,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            // Letters, spaces, line breaks, '.' and ',' only - no numbers or symbols.
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z .,\n]')),
+            ],
+            onChanged: onChanged,
+            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              border: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              // Counter is shown below the field instead.
+              counterText: '',
+            ),
+          ),
         ),
-      ),
+        SizedBox(height: 6.h),
+        Text(
+          '$count/$maxLength',
+          style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.hintText),
+        ),
+      ],
     );
   }
 

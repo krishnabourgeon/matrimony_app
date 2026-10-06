@@ -188,6 +188,7 @@
 // ════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -223,9 +224,29 @@ class _HobbiesState extends State<HobbiesScreen> {
 
   bool _isSubmitting = false;
 
+  static const _draftKey = 'hobbies';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'selected': Set.of(_selected),
+      'other': _otherCtrl.text,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    _selected.addAll(d['selected'] as Set<Hobby>? ?? {});
+    _otherCtrl.text = d['other'] as String? ?? '';
+    _otherCount = _otherCtrl.text.length;
+  }
+
   @override
   void initState() {
     super.initState();
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RegisterProvider>().getHobbies();
     });
@@ -233,6 +254,7 @@ class _HobbiesState extends State<HobbiesScreen> {
 
   @override
   void dispose() {
+    _saveDraft();
     _otherCtrl.dispose();
     super.dispose();
   }
@@ -265,7 +287,7 @@ class _HobbiesState extends State<HobbiesScreen> {
       if (success) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const HoroscopeScreen()),
+          MaterialPageRoute(builder: (_) => HoroscopeScreen(dob: _knownDob())),
         );
       } else {
         _showSnack(provider.hobbyError ?? 'Something went wrong. Please try again');
@@ -276,8 +298,16 @@ class _HobbiesState extends State<HobbiesScreen> {
   void _handleSkip() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const HoroscopeScreen()),
+      MaterialPageRoute(builder: (_) => HoroscopeScreen(dob: _knownDob())),
     );
+  }
+
+  // DOB for the horoscope screen: from the hobby-info response, or (when
+  // hobbies were skipped) the one entered on Basic Info.
+  DateTime? _knownDob() {
+    final provider = context.read<RegisterProvider>();
+    return provider.hobbySaveModel?.data?.dob ??
+        provider.registrationDrafts['basic_info']?['dob'] as DateTime?;
   }
 
   void _showSnack(String message) {
@@ -436,29 +466,44 @@ class _HobbiesState extends State<HobbiesScreen> {
     required int count,
     required ValueChanged<String> onChanged,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _Palette.fieldBg,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: TextFormField(
-        controller: controller,
-        maxLines: 4,
-        maxLength: maxLength,
-        onChanged: onChanged,
-        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
-          border: InputBorder.none,
-          errorBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
-          counterText: '$count/$maxLength',
-          counterStyle: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: _Palette.fieldBg,
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          child: TextFormField(
+            controller: controller,
+            maxLines: 4,
+            maxLength: maxLength,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            // Letters, spaces, line breaks, '.' and ',' only - no numbers or symbols.
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z .,\n]')),
+            ],
+            onChanged: onChanged,
+            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              border: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+              // Counter is shown below the field instead.
+              counterText: '',
+            ),
+          ),
         ),
-      ),
+        SizedBox(height: 6.h),
+        Text(
+          '$count/$maxLength',
+          style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.hintText),
+        ),
+      ],
     );
   }
 

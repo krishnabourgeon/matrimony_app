@@ -49,6 +49,15 @@ import 'package:matrimony_app/model/verify_otp_model.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
 
 class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
+  // Values entered on each registration screen, keyed by screen name.
+  // Screens save here in dispose() and restore in initState(), so going Back
+  // and then Continue again (which builds a fresh screen) keeps what was
+  // already entered. Cleared when signing up with a different mobile number.
+  final Map<String, Map<String, dynamic>> registrationDrafts = {};
+  String? _draftsMobile;
+
+  void clearRegistrationDrafts() => registrationDrafts.clear();
+
   CreatedForModel? createdForModel;
   MotherTongueModel? motherTongueModel;
   SignupModel? signupModel;
@@ -173,6 +182,10 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
       if (result is SignupModel) {
         signupModel = result;
         signupError = null;
+        if (_draftsMobile != mobilenumber) {
+          clearRegistrationDrafts();
+          _draftsMobile = mobilenumber;
+        }
       } else if (result is ErrorResponseModel) {
         signupError = result.errorMessage ?? 'Signup failed. Please try again';
       }
@@ -955,6 +968,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
     required int motherJobId,
     required int familyPropertyValueId,
     required String mobile2,
+    required int mobile2whatsapp
   }) async {
     updateLoadState(LoaderState.loading);
     final network = await CommonFunctions.checkInternetConnection();
@@ -976,6 +990,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
         motherJobId,
         familyPropertyValueId,
         mobile2,
+        mobile2whatsapp
       );
       final result = res.asValue?.value ?? res.asError?.error;
       if (result is FamilyModel) {
@@ -1072,7 +1087,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
     required String birthTime,
     required String birthTimePeriod,
     required String birthPlace,
-    required int starId,
+    required int? starId,
     required int isSudhaJathakam,
     required int isDoshaJathakam,
     required int show,
@@ -1127,7 +1142,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
       return false;
     }
     try {
-      var res = await serviceConfig.SignIn(mobile);
+      var res = await serviceConfig.signIn(mobile);
       final result = res.asValue?.value ?? res.asError?.error;
       if (result is SignInModel) {
         signInModel = result;

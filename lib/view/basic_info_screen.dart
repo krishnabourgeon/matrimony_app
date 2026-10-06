@@ -896,6 +896,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/model/gender_model.dart';
@@ -922,60 +923,114 @@ class _BasicInfoState extends State<BasicInfoScreen> {
 
   Gender? _gender;
   DateTime? _dob;
-  String? _maritalStatus;
-  String? _religion;
-  String? _motherTongue;
+  // String? _maritalStatus;
+  // String? _religion;
+  // String? _motherTongue;
 
-  String? _fullNameError;
+  // String? _fullNameError;
   String? _emailError;
   String? _passwordError;
   String? _confirmPasswordError;
 
   bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
   bool _isSubmitting = false;
 
-  final List<String> _maritalStatusOptions = const [
-    'Never Married',
-    'Divorced',
-    'Widowed',
-    'Separated',
-  ];
+  // final List<String> _maritalStatusOptions = const [
+  //   'Never Married',
+  //   'Divorced',
+  //   'Widowed',
+  //   'Separated',
+  // ];
 
-  final List<String> _religionOptions = const [
-    'Hindu',
-    'Muslim',
-    'Christian',
-    'Sikh',
-    'Jain',
-    'Buddhist',
-    'Other',
-  ];
+  // final List<String> _religionOptions = const [
+  //   'Hindu',
+  //   'Muslim',
+  //   'Christian',
+  //   'Sikh',
+  //   'Jain',
+  //   'Buddhist',
+  //   'Other',
+  // ];
 
-  final List<String> _motherTongueOptions = const [
-    'Malayalam',
-    'Tamil',
-    'Telugu',
-    'Kannada',
-    'Hindi',
-    'Marathi',
-    'Bengali',
-    'Gujarati',
-    'Punjabi',
-    'English',
-    'Other',
-  ];
+  // final List<String> _motherTongueOptions = const [
+  //   'Malayalam',
+  //   'Tamil',
+  //   'Telugu',
+  //   'Kannada',
+  //   'Hindi',
+  //   'Marathi',
+  //   'Bengali',
+  //   'Gujarati',
+  //   'Punjabi',
+  //   'English',
+  //   'Other',
+  // ];
+
+  static const _draftKey = 'basic_info';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'fullName': _fullNameController.text,
+      'dobText': _dobController.text,
+      'dob': _dob,
+      'email': _emailController.text,
+      'password': _passwordController.text,
+      'confirmPassword': _confirmPasswordController.text,
+      'gender': _gender,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    _fullNameController.text = d['fullName'] as String? ?? '';
+    _dobController.text = d['dobText'] as String? ?? '';
+    _dob = d['dob'] as DateTime?;
+    _emailController.text = d['email'] as String? ?? '';
+    _passwordController.text = d['password'] as String? ?? '';
+    _confirmPasswordController.text = d['confirmPassword'] as String? ?? '';
+    _gender = d['gender'] as Gender?;
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<RegisterProvider>().getGenders();
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      final provider = context.read<RegisterProvider>();
+      await provider.getGenders();
+      if (!mounted) return;
+      _preselectGenderFromSignup(provider);
     });
+  }
+
+  // Pre-selects gender from the signup response's gender_id:
+  // 0 = not set (leave unselected), 1 = Male, 3 (or 2) = Female.
+  // The genders API lists Male = 1, Female = 2, so match by name.
+  void _preselectGenderFromSignup(RegisterProvider provider) {
+    final genderId = provider.signupModel?.genderId;
+    debugPrint('Signup gender_id: $genderId, '
+        'options: ${provider.genderModel?.genders.map((g) => '${g.id}:${g.name}').toList()}');
+    if (_gender != null) return; // user already picked one
+    final String? target = switch (genderId) {
+      1 => 'male',
+      2 || 3 => 'female',
+      _ => null,
+    };
+    if (target == null) return;
+    for (final option in provider.genderModel?.genders ?? <Gender>[]) {
+      if (option.name.trim().toLowerCase() == target) {
+        setState(() => _gender = option);
+        return;
+      }
+    }
   }
 
   @override
   void dispose() {
+    _saveDraft();
     _fullNameController.dispose();
     _dobController.dispose();
     _emailController.dispose();
@@ -1199,12 +1254,9 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                         SizedBox(height: 8.h),
                         _buildPasswordField(
                           controller: _confirmPasswordController,
-                          obscure: _obscureConfirmPassword,
+                          obscure: true,
+                          allowCopyPaste: false,
                           errorText: _confirmPasswordError,
-                          onToggleObscure: () => setState(
-                            () => _obscureConfirmPassword =
-                                !_obscureConfirmPassword,
-                          ),
                           onChanged: (_) => setState(() {
                             if (_confirmPasswordError != null)
                               _confirmPasswordError = null;
@@ -1430,12 +1482,14 @@ class _BasicInfoState extends State<BasicInfoScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Password field (with show/hide toggle)
+  // Password field (show/hide toggle when onToggleObscure is given;
+  // allowCopyPaste: false blocks selection, the context menu and pastes)
   // ---------------------------------------------------------------------
   Widget _buildPasswordField({
     required TextEditingController controller,
     required bool obscure,
-    required VoidCallback onToggleObscure,
+    VoidCallback? onToggleObscure,
+    bool allowCopyPaste = true,
     String? errorText,
     ValueChanged<String>? onChanged,
   }) {
@@ -1456,6 +1510,25 @@ class _BasicInfoState extends State<BasicInfoScreen> {
             controller: controller,
             obscureText: obscure,
             onChanged: onChanged,
+            enableInteractiveSelection: allowCopyPaste,
+            contextMenuBuilder: allowCopyPaste
+                ? (context, editableTextState) =>
+                    AdaptiveTextSelectionToolbar.editableText(
+                      editableTextState: editableTextState,
+                    )
+                : null,
+            enableSuggestions: allowCopyPaste,
+            autocorrect: false,
+            inputFormatters: allowCopyPaste
+                ? null
+                : [
+                    // Reject multi-character insertions (keyboard clipboard
+                    // chips / paste shortcuts); typing adds one char at a time.
+                    TextInputFormatter.withFunction((oldValue, newValue) =>
+                        newValue.text.length - oldValue.text.length > 1
+                            ? oldValue
+                            : newValue),
+                  ],
             style: GoogleFonts.tasaOrbiter(
               fontSize: 13.sp,
               color: AppColors.ink,
@@ -1472,19 +1545,21 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                 horizontal: 18.w,
                 vertical: 10.h,
               ),
-              suffixIcon: GestureDetector(
-                onTap: onToggleObscure,
-                child: Padding(
-                  padding: EdgeInsets.only(right: 14.w),
-                  child: Icon(
-                    obscure
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: AppColors.hintText,
-                    size: 18.sp,
-                  ),
-                ),
-              ),
+              suffixIcon: onToggleObscure == null
+                  ? null
+                  : GestureDetector(
+                      onTap: onToggleObscure,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 14.w),
+                        child: Icon(
+                          obscure
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.hintText,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
               suffixIconConstraints: BoxConstraints(
                 minWidth: 40.w,
                 minHeight: 20.h,

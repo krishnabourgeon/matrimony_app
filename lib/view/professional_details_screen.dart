@@ -901,6 +901,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -957,10 +958,48 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
 
   bool _isSubmitting = false;
 
+  static const _draftKey = 'professional_details';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'employmentTypes': Set.of(_selectedEmploymentTypes),
+      'languages': Set.of(_selectedLanguages),
+      'educationDetail': _educationDetailCtrl.text,
+      'education': _education,
+      'occupation': _occupation,
+      'workingCountry': _workingCountry,
+      'workingState': _workingState,
+      'workingDistrict': _workingDistrict,
+      'residentialStatus': _residentialStatus,
+      'currency': _currency,
+      'incomeRange': _incomeRange,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    _selectedEmploymentTypes
+        .addAll(d['employmentTypes'] as Set<JobIndustry>? ?? {});
+    _selectedLanguages.addAll(d['languages'] as Set<Language>? ?? {});
+    _educationDetailCtrl.text = d['educationDetail'] as String? ?? '';
+    _education = d['education'] as Education?;
+    _occupation = d['occupation'] as Occupation?;
+    _workingCountry = d['workingCountry'] as Country?;
+    _workingState = d['workingState'] as states_model.State?;
+    _workingDistrict = d['workingDistrict'] as District?;
+    _residentialStatus = d['residentialStatus'] as ResidentialStatus?;
+    _currency = d['currency'] as Currency?;
+    _incomeRange = d['incomeRange'] as Income?;
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<RegisterProvider>();
       provider.getEducations();
       provider.getEmploymentTypes();
@@ -969,11 +1008,23 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       provider.getCurrencies();
       provider.getCountries();
       provider.motherTongue();
+      // Reload the dependent lists for restored selections (the provider only
+      // keeps the last fetched states / districts / incomes).
+      if (_workingCountry != null) {
+        await provider.getStates(_workingCountry!.id);
+        if (_workingState != null) await provider.getDistrict(_workingState!.id);
+      }
+      if (_currency != null && mounted) {
+        setState(() => _loadingIncomes = true);
+        await provider.getIncomes(_currency!.id);
+        if (mounted) setState(() => _loadingIncomes = false);
+      }
     });
   }
 
   @override
   void dispose() {
+    _saveDraft();
     _educationDetailCtrl.dispose();
     super.dispose();
   }
@@ -1117,9 +1168,16 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 20.h),
                     _FieldLabel('Education in Detail'),
                     SizedBox(height: 8.h),
-                    _buildTextField(
+                    _buildTextAreaField(
                       controller: _educationDetailCtrl,
                       hint: 'Write a brief description',
+                      maxLength: 255,
+                      count: _educationDetailCtrl.text.length,
+                      onChanged: (v) => setState(() => _educationDetailCtrl.text.length),
+                      // Letters, spaces, line breaks, '.' and ',' only (e.g. B.Tech) - no numbers.
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z .,\n]')),
+                      ],
                     ),
 
                     SizedBox(height: 20.h),
@@ -1307,7 +1365,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                         );
                       },
                     ),
-
+                    SizedBox(height: 20.h,),
+                    Center(child: Text("After Completing the registration you can edit the profile form your personal dashboard", style: GoogleFonts.tasaOrbiter(color: _Palette.ink,fontSize: 12.sp),textAlign: TextAlign.center,)),
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -1490,6 +1549,53 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
     );
   }
 
+
+    Widget _buildTextAreaField({
+    required TextEditingController controller,
+    required String hint,
+    required int maxLength,
+    required int count,
+    required ValueChanged<String> onChanged,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: _Palette.fieldBg,
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          child: TextFormField(
+            controller: controller,
+            inputFormatters: inputFormatters,
+            maxLines: 4,
+            maxLength: maxLength,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            onChanged: onChanged,
+            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              border: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              // Counter is shown below the field instead.
+              counterText: '',
+            ),
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Text(
+          '$count/$maxLength',
+          style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.hintText),
+        ),
+      ],
+    );
+  }
+
   Future<void> _openMultiSelectSheet<T>({
     required String title,
     required List<T> items,
@@ -1628,6 +1734,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
     required TextEditingController controller,
     required String hint,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     ValueChanged<String>? onChanged,
   }) {
     return Container(
@@ -1640,6 +1747,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         onChanged: onChanged,
         style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
         decoration: InputDecoration(

@@ -80,22 +80,32 @@ class ServiceConfig {
     try {
       final decoded = jsonDecode(rawBody ?? '{}');
       if (decoded is Map) {
-        final errors = decoded['errors'];
-        if (errors is Map && errors.isNotEmpty) {
-          final messages = <String>[];
-          errors.forEach((_, value) {
-            if (value is List) {
-              messages.addAll(value.map((e) => e.toString()));
-            } else if (value != null) {
-              messages.add(value.toString());
-            }
-          });
+        // Backend sends field errors as "error" or "errors", e.g.
+        // {"error":{"mobile_number":["The mobile number has already been taken."]}}
+        // and sometimes a plain string: {"error":"Invalid OTP"}.
+        for (final key in const ['errors', 'error']) {
+          final messages = _collectMessages(decoded[key]);
           if (messages.isNotEmpty) return messages.join('\n');
         }
-        if (decoded['message'] != null) return decoded['message'].toString();
+        final message = decoded['message'];
+        if (message is String && message.trim().isNotEmpty) return message;
       }
-    } catch (_) {}
+    } catch (_) {
+      // Not JSON: show plain-text bodies as-is (short ones only).
+      final text = rawBody?.trim() ?? '';
+      if (text.isNotEmpty && text.length <= 200) return text;
+    }
     return fallback;
+  }
+
+  // Flattens a Laravel-style error value (Map of field -> [messages], List or
+  // String) into a list of messages.
+  static List<String> _collectMessages(dynamic value) {
+    if (value == null) return [];
+    if (value is String) return value.trim().isEmpty ? [] : [value.trim()];
+    if (value is List) return value.expand(_collectMessages).toList();
+    if (value is Map) return value.values.expand(_collectMessages).toList();
+    return [value.toString()];
   }
 
   Future<Result> getCreatedFor() async {
@@ -863,6 +873,7 @@ class ServiceConfig {
     int motherjobid,
     int familypropertyvalueid,
     String mobile2,
+    int mobile2whatsapp, // 1 = WhatsApp enabled, 0 = not
   ) async {
     try {
       Result res = await BaseClient.post(
@@ -880,6 +891,7 @@ class ServiceConfig {
           "mother_job_id": motherjobid,
           "family_property_value_id": familypropertyvalueid,
           "mobile_2": mobile2,
+          "mobile_2_whatsapp": mobile2whatsapp
         },
       );
       if (res.isError) {
@@ -973,7 +985,7 @@ class ServiceConfig {
     String birthtime,
     String birthtimeperiod,
     String birthplace,
-    int starid,
+    int? starid,
     int issudhajathakam,
     int isdoshajathakam,
     int show,
@@ -989,7 +1001,8 @@ class ServiceConfig {
           "birth_time": birthtime,
           "birth_time_period": birthtimeperiod,
           "birth_place": birthplace,
-          "star_id": starid,
+          // Only send star_id when a star is chosen; 0 fails "exists" validation.
+          if (starid != null) "star_id": starid,
           "is_sudha_jathakam": issudhajathakam,
           "is_dosha_jathakam": isdoshajathakam,
           "show": show,
@@ -1022,7 +1035,7 @@ class ServiceConfig {
     }
   }
 
-  Future<Result> SignIn(String mobile) async {
+  Future<Result> signIn(String mobile) async {
     try {
       Result res = await BaseClient.post(
         'signin',
@@ -1064,6 +1077,7 @@ class ServiceConfig {
       return Result.error(errorResponseModel);
     } else {
       var response = res.asValue!.value;
+      debugPrint('photos type response $response');
       ImageTypesModel imageTypesModel = ImageTypesModel.fromJson(response);
       return (imageTypesModel.imageTypes.isNotEmpty)
           ? Result.value(imageTypesModel)

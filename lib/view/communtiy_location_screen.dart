@@ -331,6 +331,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -414,19 +415,194 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
 
   String? _homeAddressError;
 
+  // Addresses: letters, numbers, spaces and basic separators , . - / only.
+  static final List<TextInputFormatter> _addressFormatters = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ,.\-/]')),
+  ];
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _registerProvider = context.read<RegisterProvider>();
+    final restored = _restoreDraft();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<RegisterProvider>();
       provider.getReligion();
       provider.getGotar();
-      provider.getCountries();
+      if (restored) {
+        // Reload caste lists for the restored religion / caste (the provider
+        // keeps only the last fetched list). States/districts are restored
+        // from the draft's own lists.
+        if (_religion != null) {
+          setState(() => _loadingCastes = true);
+          await provider.getCaste(_religion!.id);
+          if (!mounted) return;
+          setState(() => _loadingCastes = false);
+        }
+        if (_caste != null) {
+          setState(() => _loadingSubCastes = true);
+          await provider.getSubCast(_caste!.id);
+          if (!mounted) return;
+          setState(() => _loadingSubCastes = false);
+        }
+        provider.getCountries();
+      } else {
+        _preselectIndiaKerala();
+      }
     });
+  }
+
+  static const _draftKey = 'community_location';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'homeAddress': _homeAddressCtrl.text,
+      'homePin': _homePinCtrl.text,
+      'nativeDescription': _nativeDescriptionCtrl.text,
+      'sameAsAbove': _sameAsAbove,
+      'currentAddress': _currentAddressCtrl.text,
+      'currentPin': _currentPinCtrl.text,
+      'religion': _religion,
+      'caste': _caste,
+      'otherCastes': _otherCastes,
+      'subCaste': _subCaste,
+      'gotra': _gotra,
+      'nativeCountry': _nativeCountry,
+      'nativeState': _nativeState,
+      'nativeDistrict': _nativeDistrict,
+      'permanentCountry': _permanentCountry,
+      'permanentState': _permanentState,
+      'permanentDistrict': _permanentDistrict,
+      'currentCountry': _currentCountry,
+      'currentState': _currentState,
+      'currentDistrict': _currentDistrict,
+      'nativeStates': _nativeStates,
+      'nativeDistricts': _nativeDistricts,
+      'permanentStates': _permanentStates,
+      'permanentDistricts': _permanentDistricts,
+      'currentStates': _currentStates,
+      'currentDistricts': _currentDistricts,
+    };
+  }
+
+  // Returns true if a saved draft was applied.
+  bool _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return false;
+    _homeAddressCtrl.text = d['homeAddress'] as String? ?? '';
+    _homePinCtrl.text = d['homePin'] as String? ?? '';
+    _nativeDescriptionCtrl.text = d['nativeDescription'] as String? ?? '';
+    _sameAsAbove = d['sameAsAbove'] as bool? ?? false;
+    _currentAddressCtrl.text = d['currentAddress'] as String? ?? '';
+    _currentPinCtrl.text = d['currentPin'] as String? ?? '';
+    _religion = d['religion'] as Religion?;
+    _caste = d['caste'] as Caste?;
+    _otherCastes = d['otherCastes'] as String?;
+    _subCaste = d['subCaste'] as SubCaste?;
+    _gotra = d['gotra'] as Gotra?;
+    _nativeCountry = d['nativeCountry'] as Country?;
+    _nativeState = d['nativeState'] as states_model.State?;
+    _nativeDistrict = d['nativeDistrict'] as District?;
+    _permanentCountry = d['permanentCountry'] as Country?;
+    _permanentState = d['permanentState'] as states_model.State?;
+    _permanentDistrict = d['permanentDistrict'] as District?;
+    _currentCountry = d['currentCountry'] as Country?;
+    _currentState = d['currentState'] as states_model.State?;
+    _currentDistrict = d['currentDistrict'] as District?;
+    _nativeStates = List.of(d['nativeStates'] as List<states_model.State>? ?? []);
+    _nativeDistricts = List.of(d['nativeDistricts'] as List<District>? ?? []);
+    _permanentStates =
+        List.of(d['permanentStates'] as List<states_model.State>? ?? []);
+    _permanentDistricts =
+        List.of(d['permanentDistricts'] as List<District>? ?? []);
+    _currentStates = List.of(d['currentStates'] as List<states_model.State>? ?? []);
+    _currentDistricts = List.of(d['currentDistricts'] as List<District>? ?? []);
+    return true;
+  }
+
+  /// Loads countries, then pre-selects India -> Kerala (and loads Kerala's
+  /// districts) for native, permanent and current locations. Users can still
+  /// change them; a section the user already changed is left alone.
+  Future<void> _preselectIndiaKerala() async {
+    final provider = context.read<RegisterProvider>();
+    await provider.getCountries();
+    if (!mounted) return;
+
+    final india = _findByName<Country>(
+        provider.countriesModel?.countries ?? [], (c) => c.name, 'india');
+    if (india == null) return;
+
+    setState(() {
+      _nativeCountry ??= india;
+      _permanentCountry ??= india;
+      _currentCountry ??= india;
+      _loadingNativeStates = true;
+      _loadingPermanentStates = true;
+      _loadingCurrentStates = true;
+    });
+
+    await provider.getStates(india.id);
+    if (!mounted) return;
+    final states = provider.statesModel?.states ?? [];
+    final kerala =
+        _findByName<states_model.State>(states, (s) => s.name, 'kerala');
+
+    setState(() {
+      _loadingNativeStates = false;
+      _loadingPermanentStates = false;
+      _loadingCurrentStates = false;
+      if (_nativeCountry == india && _nativeStates.isEmpty) {
+        _nativeStates = states;
+        _nativeState ??= kerala;
+      }
+      if (_permanentCountry == india && _permanentStates.isEmpty) {
+        _permanentStates = states;
+        _permanentState ??= kerala;
+      }
+      if (_currentCountry == india && _currentStates.isEmpty) {
+        _currentStates = states;
+        _currentState ??= kerala;
+      }
+    });
+    if (kerala == null) return;
+
+    final nativeNeeds = _nativeState == kerala && _nativeDistricts.isEmpty;
+    final permanentNeeds =
+        _permanentState == kerala && _permanentDistricts.isEmpty;
+    final currentNeeds = _currentState == kerala && _currentDistricts.isEmpty;
+    if (!nativeNeeds && !permanentNeeds && !currentNeeds) return;
+
+    setState(() {
+      if (nativeNeeds) _loadingNativeDistricts = true;
+      if (permanentNeeds) _loadingPermanentDistricts = true;
+      if (currentNeeds) _loadingCurrentDistricts = true;
+    });
+    await provider.getDistrict(kerala.id);
+    if (!mounted) return;
+    final districts = provider.districtModel?.districts ?? [];
+    setState(() {
+      _loadingNativeDistricts = false;
+      _loadingPermanentDistricts = false;
+      _loadingCurrentDistricts = false;
+      if (nativeNeeds && _nativeState == kerala) _nativeDistricts = districts;
+      if (permanentNeeds && _permanentState == kerala) {
+        _permanentDistricts = districts;
+      }
+      if (currentNeeds && _currentState == kerala) _currentDistricts = districts;
+    });
+  }
+
+  T? _findByName<T>(List<T> items, String Function(T) name, String target) {
+    for (final item in items) {
+      if (name(item).trim().toLowerCase() == target) return item;
+    }
+    return null;
   }
 
   @override
   void dispose() {
+    _saveDraft();
     _homeAddressCtrl.dispose();
     _homePinCtrl.dispose();
     _nativeDescriptionCtrl.dispose();
@@ -935,6 +1111,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     _buildTextField(
                       controller: _homeAddressCtrl,
                       hint: 'Enter home address',
+                      inputFormatters: _addressFormatters,
                       errorText: _homeAddressError,
                       onChanged: (_) {
                         setState(() {
@@ -1022,6 +1199,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                             _buildTextField(
                               controller: _currentAddressCtrl,
                               hint: 'Enter current address',
+                              inputFormatters: _addressFormatters,
                             ),
                           ],
                         ),
@@ -1095,6 +1273,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
     TextInputType? keyboardType,
     TextCapitalization textCapitalization = TextCapitalization.none,
     String? errorText,
+    List<TextInputFormatter>? inputFormatters,
     ValueChanged<String>? onChanged,
   }) {
     return Column(
@@ -1112,6 +1291,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
             controller: controller,
             keyboardType: keyboardType,
             textCapitalization: textCapitalization,
+            inputFormatters: inputFormatters,
             onChanged: onChanged,
             style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
             decoration: InputDecoration(

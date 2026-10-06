@@ -903,7 +903,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/provider/home_provider.dart';
-import 'package:matrimony_app/view/search_preferences_screen.dart';
 import 'package:matrimony_app/view/subscription_plan_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/dashboard_model.dart' as dashboard_model;

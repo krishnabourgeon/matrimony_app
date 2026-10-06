@@ -347,7 +347,10 @@ class _Palette {
 }
 
 class HoroscopeScreen extends StatefulWidget {
-  const HoroscopeScreen({super.key});
+  /// Date of birth to pre-fill (from the hobby-info response). The user can
+  /// still change it with the date picker.
+  final DateTime? dob;
+  const HoroscopeScreen({super.key, this.dob});
 
   @override
   State<HoroscopeScreen> createState() => _HoroscopeState();
@@ -378,9 +381,44 @@ class _HoroscopeState extends State<HoroscopeScreen> {
     'Not Necessary': 3,
   };
 
+  static const _draftKey = 'horoscope';
+  late final RegisterProvider _registerProvider;
+
+  void _saveDraft() {
+    _registerProvider.registrationDrafts[_draftKey] = {
+      'time': _timeCtrl.text,
+      'location': _locCtrl.text,
+      'amPm': _amPm,
+      'dobHoroscope': _dobHoroscope,
+      'birthStar': _birthStar,
+      'sudha': _sudha,
+      'dosha': _dosha,
+      'starOnly': _starOnly,
+      'horoMatch': _horoMatch,
+    };
+  }
+
+  void _restoreDraft() {
+    final d = _registerProvider.registrationDrafts[_draftKey];
+    if (d == null) return;
+    _timeCtrl.text = d['time'] as String? ?? '';
+    _locCtrl.text = d['location'] as String? ?? '';
+    _amPm = d['amPm'] as String? ?? 'AM';
+    _dobHoroscope = d['dobHoroscope'] as DateTime?;
+    _birthStar = d['birthStar'] as Star?;
+    _sudha = d['sudha'] as String?;
+    _dosha = d['dosha'] as String?;
+    _starOnly = d['starOnly'] as String?;
+    _horoMatch = d['horoMatch'] as String?;
+  }
+
   @override
   void initState() {
     super.initState();
+    _registerProvider = context.read<RegisterProvider>();
+    _restoreDraft();
+    // A date the user already picked here (draft) wins over the passed one.
+    _dobHoroscope ??= widget.dob;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RegisterProvider>().getStars();
     });
@@ -388,6 +426,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
 
   @override
   void dispose() {
+    _saveDraft();
     _timeCtrl.dispose();
     _locCtrl.dispose();
     super.dispose();
@@ -423,7 +462,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
       birthTime: _timeCtrl.text.trim(),
       birthTimePeriod: _amPm,
       birthPlace: _locCtrl.text.trim(),
-      starId: _birthStar?.id ?? 0,
+      starId: _birthStar?.id, // null = not selected (not sent)
       isSudhaJathakam: _sudha == 'Yes' ? 1 : 0,
       isDoshaJathakam: _dosha == 'Yes' ? 1 : 0,
       show: 1,
@@ -599,28 +638,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                             children: [
                               _FieldLabel('Time of birth'),
                               SizedBox(height: 8.h),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildTextField(
-                                      controller: _timeCtrl,
-                                      hint: '',
-                                    ),
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  SizedBox(
-                                    width: 78.w,
-                                    child: _buildDropdownField<String>(
-                                      hint: 'AM',
-                                      value: _amPm,
-                                      items: const ['AM', 'PM'],
-                                      labelBuilder: (s) => s,
-                                      onChanged: (v) =>
-                                          setState(() => _amPm = v ?? 'AM'),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              _buildTimeField(),
                             ],
                           ),
                         ),
@@ -771,6 +789,66 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   // ---------------------------------------------------------------------
   // Date of Birth (as per horoscope) — opens a calendar date picker
   // ---------------------------------------------------------------------
+  // Time of birth: opens a clock picker. _timeCtrl keeps "hh:mm" (12-hour)
+  // and _amPm keeps "AM"/"PM", which is what horoscope-info expects.
+  Future<void> _pickBirthTime() async {
+    TimeOfDay initial = const TimeOfDay(hour: 6, minute: 0);
+    final parts = _timeCtrl.text.split(':');
+    if (parts.length == 2) {
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      if (h != null && m != null && h >= 1 && h <= 12 && m >= 0 && m < 60) {
+        initial = TimeOfDay(hour: (h % 12) + (_amPm == 'PM' ? 12 : 0), minute: m);
+      }
+    }
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      initialEntryMode: TimePickerEntryMode.dial,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    setState(() {
+      _timeCtrl.text =
+          '${picked.hourOfPeriod == 0 ? 12 : picked.hourOfPeriod}'.padLeft(2, '0') +
+              ':${picked.minute.toString().padLeft(2, '0')}';
+      _amPm = picked.period == DayPeriod.am ? 'AM' : 'PM';
+    });
+  }
+
+  Widget _buildTimeField() {
+    final hasTime = _timeCtrl.text.isNotEmpty;
+    return GestureDetector(
+      onTap: _pickBirthTime,
+      child: Container(
+        height: 44.h,
+        padding: EdgeInsets.symmetric(horizontal: 18.w),
+        decoration: BoxDecoration(
+          color: _Palette.fieldBg,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                hasTime ? '${_timeCtrl.text} $_amPm' : 'HH:MM',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  fontWeight: hasTime ? FontWeight.w500 : FontWeight.w400,
+                  color: hasTime ? _Palette.ink : _Palette.hintText,
+                ),
+              ),
+            ),
+            Icon(Icons.access_time_rounded, color: _Palette.ink, size: 16.sp),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDobField() {
     final text = _dobHoroscope == null
         ? 'DD-MM-YYYY'

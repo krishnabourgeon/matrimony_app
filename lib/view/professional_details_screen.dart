@@ -2,8 +2,6 @@
 // // //  3c. PROFESSIONAL DETAILS
 // // // ═══════════════════════════════════════════════════════════════
 
-
-
 // // import 'package:flutter/material.dart';
 // // import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 // // import 'package:matrimony_app/view/custom_widgets/dropdown.dart';
@@ -16,7 +14,6 @@
 // // import 'package:matrimony_app/view/custom_widgets/section_header.dart';
 // // import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 // // import 'package:matrimony_app/view/personal_physical_screen.dart';
-
 
 // // class ProfessionalDetailsScreen extends StatefulWidget {
 // //   const ProfessionalDetailsScreen({super.key});
@@ -216,15 +213,9 @@
 // //   }
 // // }
 
-
-
-
-
 // // ═══════════════════════════════════════════════════════════════
 // //  3c. PROFESSIONAL DETAILS
 // // ═══════════════════════════════════════════════════════════════
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -245,9 +236,9 @@
 // import 'package:matrimony_app/view/personal_physical_screen.dart';
 
 // /// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
-// class _Palette {
-//   _Palette._();
-//   static const Color coral = Color(0xFFFF3356);
+// class AppColors {
+//   AppColors._();
+//   static const Color primary = Color(0xFFFF3356);
 //   static const Color ink = Color(0xFF1A1A1A);
 //   static const Color subtleWhite = Color(0xFFFFFFFF);
 
@@ -377,8 +368,8 @@
 //   void _showSnack(String message) {
 //     ScaffoldMessenger.of(context).showSnackBar(
 //       SnackBar(
-//         content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-//         backgroundColor: _Palette.ink,
+//         content: Text(message, style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite)),
+//         backgroundColor: AppColors.ink,
 //         behavior: SnackBarBehavior.floating,
 //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
 //       ),
@@ -388,7 +379,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: _Palette.subtleWhite,
+//       backgroundColor: AppColors.subtleWhite,
 //       body: SafeArea(
 //         child: Column(
 //           children: [
@@ -406,7 +397,7 @@
 //                       style: GoogleFonts.tasaOrbiter(
 //                         fontSize: 24.sp,
 //                         fontWeight: FontWeight.w800,
-//                         color: _Palette.ink,
+//                         color: AppColors.ink,
 //                         letterSpacing: -0.6,
 //                         height: 1.25,
 //                       ),
@@ -417,7 +408,7 @@
 //                       style: GoogleFonts.tasaOrbiter(
 //                         fontSize: 14.sp,
 //                         fontWeight: FontWeight.w400,
-//                         color: _Palette.hintText,
+//                         color: AppColors.hintText,
 //                       ),
 //                     ),
 //                     SizedBox(height: 20.h),
@@ -460,7 +451,7 @@
 //                           return SizedBox(
 //                             height: 30.h,
 //                             child: Center(
-//                               child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+//                               child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
 //                             ),
 //                           );
 //                         }
@@ -489,7 +480,7 @@
 //                           return SizedBox(
 //                             height: 30.h,
 //                             child: Center(
-//                               child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+//                               child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
 //                             ),
 //                           );
 //                         }
@@ -665,10 +656,10 @@
 //               width: 36.w,
 //               height: 36.w,
 //               decoration: const BoxDecoration(
-//                 color: _Palette.fieldBg,
+//                 color: AppColors.fieldBg,
 //                 shape: BoxShape.circle,
 //               ),
-//               child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+//               child: Icon(Icons.arrow_back_rounded, color: AppColors.ink, size: 18.sp),
 //             ),
 //           ),
 //           SizedBox(width: 14.w),
@@ -679,8 +670,8 @@
 //                 // ... Basic Info → Community & Location → Professional Details (5th)
 //                 value: 4 / 8,
 //                 minHeight: 6.h,
-//                 backgroundColor: _Palette.trackBg,
-//                 valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+//                 backgroundColor: AppColors.trackBg,
+//                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
 //               ),
 //             ),
 //           ),
@@ -709,10 +700,10 @@
 //             duration: const Duration(milliseconds: 150),
 //             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
 //             decoration: BoxDecoration(
-//               color: isSelected ? _Palette.coral.withOpacity(0.1) : _Palette.fieldBg,
+//               color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.fieldBg,
 //               borderRadius: BorderRadius.circular(20.r),
 //               border: Border.all(
-//                 color: isSelected ? _Palette.coral : Colors.transparent,
+//                 color: isSelected ? AppColors.primary : Colors.transparent,
 //                 width: 1.2,
 //               ),
 //             ),
@@ -721,7 +712,7 @@
 //               style: GoogleFonts.tasaOrbiter(
 //                 fontSize: 10.5.sp,
 //                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-//                 color: isSelected ? _Palette.coral : _Palette.ink,
+//                 color: isSelected ? AppColors.primary : AppColors.ink,
 //               ),
 //             ),
 //           ),
@@ -743,17 +734,17 @@
 //       height: 44.h,
 //       alignment: Alignment.centerLeft,
 //       decoration: BoxDecoration(
-//         color: _Palette.fieldBg,
+//         color: AppColors.fieldBg,
 //         borderRadius: BorderRadius.circular(14.r),
 //       ),
 //       child: TextFormField(
 //         controller: controller,
 //         keyboardType: keyboardType,
 //         onChanged: onChanged,
-//         style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+//         style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.ink, fontWeight: FontWeight.w500),
 //         decoration: InputDecoration(
 //           hintText: hint,
-//           hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+//           hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.hintText, fontWeight: FontWeight.w400),
 //           border: InputBorder.none,
 //           errorBorder: InputBorder.none,
 //           focusedBorder: InputBorder.none,
@@ -783,7 +774,7 @@
 //       padding: EdgeInsets.symmetric(horizontal: 18.w),
 //       alignment: Alignment.centerLeft,
 //       decoration: BoxDecoration(
-//         color: _Palette.fieldBg,
+//         color: AppColors.fieldBg,
 //         borderRadius: BorderRadius.circular(14.r),
 //       ),
 //       child: loading
@@ -792,13 +783,13 @@
 //                 SizedBox(
 //                   width: 14.w,
 //                   height: 14.w,
-//                   child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+//                   child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
 //                 ),
 //                 SizedBox(width: 10.w),
 //                 Text(
 //                   hint,
 //                   style: GoogleFonts.tasaOrbiter(
-//                       fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+//                       fontSize: 13.sp, color: AppColors.hintText, fontWeight: FontWeight.w400),
 //                 ),
 //               ],
 //             )
@@ -806,7 +797,7 @@
 //               child: DropdownButtonFormField<T>(
 //                 initialValue: items.contains(value) ? value : null,
 //                 isExpanded: true,
-//                 icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+//                 icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.ink, size: 22.sp),
 //                 decoration: InputDecoration(
 //                   border: InputBorder.none,
 //                   isDense: true,
@@ -815,10 +806,10 @@
 //                 hint: Text(
 //                   hint,
 //                   style: GoogleFonts.tasaOrbiter(
-//                       fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+//                       fontSize: 13.sp, color: AppColors.hintText, fontWeight: FontWeight.w400),
 //                 ),
-//                 style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-//                 dropdownColor: _Palette.subtleWhite,
+//                 style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: AppColors.ink, fontWeight: FontWeight.w500),
+//                 dropdownColor: AppColors.subtleWhite,
 //                 borderRadius: BorderRadius.circular(14.r),
 //                 items: items
 //                     .map((item) => DropdownMenuItem<T>(
@@ -833,7 +824,7 @@
 //   }
 
 //   // ---------------------------------------------------------------------
-//   // Bottom area: Continue button (coral once the form is valid, grey otherwise)
+//   // Bottom area: Continue button (primary once the form is valid, grey otherwise)
 //   // ---------------------------------------------------------------------
 //   Widget _buildBottomArea() {
 //     return Padding(
@@ -844,9 +835,9 @@
 //         child: ElevatedButton(
 //           onPressed: _isSubmitting ? null : _handleContinue,
 //           style: ElevatedButton.styleFrom(
-//             backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-//             disabledBackgroundColor: _Palette.coral,
-//             foregroundColor: _Palette.subtleWhite,
+//             backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
+//             disabledBackgroundColor: AppColors.primary,
+//             foregroundColor: AppColors.subtleWhite,
 //             elevation: 0,
 //             shape: RoundedRectangleBorder(
 //               borderRadius: BorderRadius.circular(28.r),
@@ -859,7 +850,7 @@
 //                   child: const CircularProgressIndicator(
 //                     strokeWidth: 2.4,
 //                     valueColor: AlwaysStoppedAnimation<Color>(
-//                       _Palette.subtleWhite,
+//                       AppColors.subtleWhite,
 //                     ),
 //                   ),
 //                 )
@@ -889,21 +880,17 @@
 //       style: GoogleFonts.tasaOrbiter(
 //         fontSize: 13.sp,
 //         fontWeight: FontWeight.w600,
-//         color: _Palette.ink,
+//         color: AppColors.ink,
 //       ),
 //     );
 //   }
 // }
 
-
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/countries_model.dart';
 import 'package:matrimony_app/model/curriencies_model.dart';
@@ -919,18 +906,6 @@ import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/personal_physical_screen.dart';
 
-/// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
-
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-  static const Color grey = Color(0xFFBDBDBD);
-}
 
 class ProfessionalDetailsScreen extends StatefulWidget {
   const ProfessionalDetailsScreen({super.key});
@@ -980,8 +955,9 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
   void _restoreDraft() {
     final d = _registerProvider.registrationDrafts[_draftKey];
     if (d == null) return;
-    _selectedEmploymentTypes
-        .addAll(d['employmentTypes'] as Set<JobIndustry>? ?? {});
+    _selectedEmploymentTypes.addAll(
+      d['employmentTypes'] as Set<JobIndustry>? ?? {},
+    );
     _selectedLanguages.addAll(d['languages'] as Set<Language>? ?? {});
     _educationDetailCtrl.text = d['educationDetail'] as String? ?? '';
     _education = d['education'] as Education?;
@@ -1012,7 +988,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       // keeps the last fetched states / districts / incomes).
       if (_workingCountry != null) {
         await provider.getStates(_workingCountry!.id);
-        if (_workingState != null) await provider.getDistrict(_workingState!.id);
+        if (_workingState != null)
+          await provider.getDistrict(_workingState!.id);
       }
       if (_currency != null && mounted) {
         setState(() => _loadingIncomes = true);
@@ -1063,7 +1040,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
 
   void _handleContinue() {
     FocusScope.of(context).unfocus();
-    if (_education == null) return _showSnack('Please select highest education');
+    if (_education == null)
+      return _showSnack('Please select highest education');
     if (_occupation == null) return _showSnack('Please select occupation');
 
     setState(() => _isSubmitting = true);
@@ -1071,41 +1049,49 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
     final provider = context.read<RegisterProvider>();
     provider
         .professionalDetails(
-      highestEducationId: _education!.id,
-      educationDesc: _educationDetailCtrl.text.trim(),
-      jobIndustryId: _selectedEmploymentTypes.isNotEmpty
-          ? _selectedEmploymentTypes.first.id
-          : 0,
-      occupationId: _occupation!.id,
-      workingCountryId: _workingCountry?.id ?? 0,
-      workingStateId: _workingState?.id ?? 0,
-      workingDistrictId: _workingDistrict?.id ?? 0,
-      residentialStatusId: _residentialStatus?.id ?? 0,
-      currencyId: _currency?.id ?? 0,
-      incomeSlabId: _incomeRange?.id ?? 0,
-      languages: _selectedLanguages.map((l) => l.id).toList(),
-    )
+          highestEducationId: _education!.id,
+          educationDesc: _educationDetailCtrl.text.trim(),
+          jobIndustryId: _selectedEmploymentTypes.isNotEmpty
+              ? _selectedEmploymentTypes.first.id
+              : 0,
+          occupationId: _occupation!.id,
+          workingCountryId: _workingCountry?.id ?? 0,
+          workingStateId: _workingState?.id ?? 0,
+          workingDistrictId: _workingDistrict?.id ?? 0,
+          residentialStatusId: _residentialStatus?.id ?? 0,
+          currencyId: _currency?.id ?? 0,
+          incomeSlabId: _incomeRange?.id ?? 0,
+          languages: _selectedLanguages.map((l) => l.id).toList(),
+        )
         .then((success) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      if (success) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PersonalPhysicalScreen()),
-        );
-      } else {
-        _showSnack(provider.professionalError ?? 'Something went wrong. Please try again');
-      }
-    });
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          if (success) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PersonalPhysicalScreen()),
+            );
+          } else {
+            _showSnack(
+              provider.professionalError ??
+                  'Something went wrong. Please try again',
+            );
+          }
+        });
   }
 
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -1113,7 +1099,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -1131,7 +1117,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -1142,7 +1128,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
-                        color: _Palette.hintText,
+                        color: AppColors.hintText,
                       ),
                     ),
                     SizedBox(height: 20.h),
@@ -1151,8 +1137,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final educations = provider.educationModel?.educations ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final educations =
+                            provider.educationModel?.educations ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.educationModel == null;
                         return _buildDropdownField<Education>(
                           hint: loading ? 'Loading...' : 'Select Education',
@@ -1173,10 +1161,13 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                       hint: 'Write a brief description',
                       maxLength: 255,
                       count: _educationDetailCtrl.text.length,
-                      onChanged: (v) => setState(() => _educationDetailCtrl.text.length),
+                      onChanged: (v) =>
+                          setState(() => _educationDetailCtrl.text.length),
                       // Letters, spaces, line breaks, '.' and ',' only (e.g. B.Tech) - no numbers.
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z .,\n]')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z .,\n]'),
+                        ),
                       ],
                     ),
 
@@ -1185,8 +1176,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final languages = provider.motherTongueModel?.languages ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final languages =
+                            provider.motherTongueModel?.languages ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.motherTongueModel == null;
                         return _buildMultiSelectDropdown<Language>(
                           hint: loading ? 'Loading...' : 'Select Languages',
@@ -1209,14 +1202,19 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 10.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final types = provider.jobIndustriesModel?.jobIndustries ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final types =
+                            provider.jobIndustriesModel?.jobIndustries ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.jobIndustriesModel == null;
                         if (loading) {
                           return SizedBox(
                             height: 30.h,
                             child: Center(
-                              child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primary,
+                              ),
                             ),
                           );
                         }
@@ -1244,8 +1242,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final occupations = provider.occupationsModel?.occupations ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final occupations =
+                            provider.occupationsModel?.occupations ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.occupationsModel == null;
                         return _buildDropdownField<Occupation>(
                           hint: loading ? 'Loading...' : 'Select Occupation',
@@ -1263,8 +1263,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final countries = provider.countriesModel?.countries ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final countries =
+                            provider.countriesModel?.countries ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.countriesModel == null;
                         return _buildDropdownField<Country>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -1284,7 +1286,9 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                       builder: (context, provider, _) {
                         final states = provider.statesModel?.states ?? [];
                         return _buildDropdownField<states_model.State>(
-                          hint: _workingCountry == null ? 'Select country first' : 'Select State',
+                          hint: _workingCountry == null
+                              ? 'Select country first'
+                              : 'Select State',
                           value: _workingState,
                           items: states,
                           labelBuilder: (s) => s.name,
@@ -1299,14 +1303,18 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final districts = provider.districtModel?.districts ?? [];
+                        final districts =
+                            provider.districtModel?.districts ?? [];
                         return _buildDropdownField<District>(
-                          hint: _workingState == null ? 'Select state first' : 'Select',
+                          hint: _workingState == null
+                              ? 'Select state first'
+                              : 'Select',
                           value: _workingDistrict,
                           items: districts,
                           labelBuilder: (d) => d.name,
                           enabled: _workingState != null,
-                          onChanged: (v) => setState(() => _workingDistrict = v),
+                          onChanged: (v) =>
+                              setState(() => _workingDistrict = v),
                         );
                       },
                     ),
@@ -1316,8 +1324,11 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final statuses = provider.residentialModel?.residentialStatuses ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final statuses =
+                            provider.residentialModel?.residentialStatuses ??
+                            [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.residentialModel == null;
                         return _buildDropdownField<ResidentialStatus>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -1325,7 +1336,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                           items: statuses,
                           labelBuilder: (r) => r.name,
                           loading: loading,
-                          onChanged: (v) => setState(() => _residentialStatus = v),
+                          onChanged: (v) =>
+                              setState(() => _residentialStatus = v),
                         );
                       },
                     ),
@@ -1335,8 +1347,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final currencies = provider.currenciesModel?.currencies ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final currencies =
+                            provider.currenciesModel?.currencies ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.currenciesModel == null;
                         return _buildDropdownField<Currency>(
                           hint: loading ? 'Loading...' : 'Currency',
@@ -1365,8 +1379,17 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                         );
                       },
                     ),
-                    SizedBox(height: 20.h,),
-                    Center(child: Text("After Completing the registration you can edit the profile form your personal dashboard", style: GoogleFonts.tasaOrbiter(color: _Palette.ink,fontSize: 12.sp),textAlign: TextAlign.center,)),
+                    SizedBox(height: 20.h),
+                    Center(
+                      child: Text(
+                        "After Completing the registration you can edit the profile form your personal dashboard",
+                        style: GoogleFonts.tasaOrbiter(
+                          color: AppColors.ink,
+                          fontSize: 12.sp,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -1393,10 +1416,14 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -1407,8 +1434,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                 // ... Basic Info → Community & Location → Professional Details (5th)
                 value: 4 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -1437,10 +1466,12 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
             duration: const Duration(milliseconds: 150),
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
             decoration: BoxDecoration(
-              color: isSelected ? _Palette.coral.withOpacity(0.1) : _Palette.fieldBg,
+              color: isSelected
+                  ? AppColors.primary.withOpacity(0.1)
+                  : AppColors.fieldBg,
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
-                color: isSelected ? _Palette.coral : Colors.transparent,
+                color: isSelected ? AppColors.primary : Colors.transparent,
                 width: 1.2,
               ),
             ),
@@ -1449,7 +1480,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
               style: GoogleFonts.tasaOrbiter(
                 fontSize: 10.5.sp,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? _Palette.coral : _Palette.ink,
+                color: isSelected ? AppColors.primary : AppColors.ink,
               ),
             ),
           ),
@@ -1479,18 +1510,18 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       onTap: (loading || !enabled)
           ? null
           : () => _openMultiSelectSheet<T>(
-                title: title,
-                items: items,
-                selected: selected,
-                labelBuilder: labelBuilder,
-                onChanged: onChanged,
-              ),
+              title: title,
+              items: items,
+              selected: selected,
+              labelBuilder: labelBuilder,
+              onChanged: onChanged,
+            ),
       child: Container(
         width: double.infinity,
         constraints: BoxConstraints(minHeight: 44.h),
         padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: _Palette.fieldBg,
+          color: AppColors.fieldBg,
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: loading
@@ -1499,13 +1530,19 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                   SizedBox(
                     width: 14.w,
                     height: 14.w,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
                   ),
                   SizedBox(width: 10.w),
                   Text(
                     hint,
                     style: GoogleFonts.tasaOrbiter(
-                        fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                      fontSize: 13.sp,
+                      color: AppColors.hintText,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ],
               )
@@ -1516,7 +1553,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                         ? Text(
                             hint,
                             style: GoogleFonts.tasaOrbiter(
-                                fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                              fontSize: 13.sp,
+                              color: AppColors.hintText,
+                              fontWeight: FontWeight.w400,
+                            ),
                           )
                         : Wrap(
                             spacing: 6.w,
@@ -1524,9 +1564,12 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                             children: selected
                                 .map(
                                   (item) => Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 5.h,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: _Palette.coral.withOpacity(0.1),
+                                      color: AppColors.primary.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(20.r),
                                     ),
                                     child: Text(
@@ -1534,7 +1577,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                                       style: GoogleFonts.tasaOrbiter(
                                         fontSize: 11.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: _Palette.coral,
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ),
@@ -1542,15 +1585,18 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                                 .toList(),
                           ),
                   ),
-                  Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.ink,
+                    size: 22.sp,
+                  ),
                 ],
               ),
       ),
     );
   }
 
-
-    Widget _buildTextAreaField({
+  Widget _buildTextAreaField({
     required TextEditingController controller,
     required String hint,
     required int maxLength,
@@ -1563,7 +1609,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: _Palette.fieldBg,
+            color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(14.r),
           ),
           child: TextFormField(
@@ -1573,15 +1619,26 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
             maxLength: maxLength,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             onChanged: onChanged,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.ink,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              hintStyle: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.hintText,
+                fontWeight: FontWeight.w400,
+              ),
               border: InputBorder.none,
               errorBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18.w,
+                vertical: 10.h,
+              ),
               // Counter is shown below the field instead.
               counterText: '',
             ),
@@ -1590,7 +1647,10 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
         SizedBox(height: 6.h),
         Text(
           '$count/$maxLength',
-          style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.hintText),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 11.sp,
+            color: AppColors.hintText,
+          ),
         ),
       ],
     );
@@ -1608,7 +1668,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
@@ -1633,7 +1693,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                         width: 40.w,
                         height: 4.h,
                         decoration: BoxDecoration(
-                          color: _Palette.trackBg,
+                          color: AppColors.trackBg,
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                       ),
@@ -1644,7 +1704,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 17.sp,
                         fontWeight: FontWeight.w700,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                       ),
                     ),
                     SizedBox(height: 12.h),
@@ -1652,13 +1712,16 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: items.length,
-                        separatorBuilder: (_, __) => Divider(height: 1.h, color: _Palette.trackBg),
+                        separatorBuilder: (_, __) =>
+                            Divider(height: 1.h, color: AppColors.trackBg),
                         itemBuilder: (context, index) {
                           final item = items[index];
                           final isChecked = tempSelected.contains(item);
                           return InkWell(
                             onTap: () => setSheetState(() {
-                              isChecked ? tempSelected.remove(item) : tempSelected.add(item);
+                              isChecked
+                                  ? tempSelected.remove(item)
+                                  : tempSelected.add(item);
                             }),
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -1670,18 +1733,20 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                                       style: GoogleFonts.tasaOrbiter(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w500,
-                                        color: _Palette.ink,
+                                        color: AppColors.ink,
                                       ),
                                     ),
                                   ),
                                   Checkbox(
                                     value: isChecked,
-                                    activeColor: _Palette.coral,
+                                    activeColor: AppColors.primary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(4.r),
                                     ),
                                     onChanged: (_) => setSheetState(() {
-                                      isChecked ? tempSelected.remove(item) : tempSelected.add(item);
+                                      isChecked
+                                          ? tempSelected.remove(item)
+                                          : tempSelected.add(item);
                                     }),
                                   ),
                                 ],
@@ -1701,8 +1766,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                           Navigator.of(sheetContext).pop();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _Palette.coral,
-                          foregroundColor: _Palette.subtleWhite,
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.subtleWhite,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28.r),
@@ -1741,7 +1806,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       height: 44.h,
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: TextFormField(
@@ -1749,17 +1814,28 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         onChanged: onChanged,
-        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          color: AppColors.ink,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+          hintStyle: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            color: AppColors.hintText,
+            fontWeight: FontWeight.w400,
+          ),
           border: InputBorder.none,
           errorBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,
           isDense: true,
           isCollapsed: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 18.w,
+            vertical: 10.h,
+          ),
         ),
       ),
     );
@@ -1782,7 +1858,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: loading
@@ -1791,13 +1867,19 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                 SizedBox(
                   width: 14.w,
                   height: 14.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             )
@@ -1805,7 +1887,11 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
               child: DropdownButtonFormField<T>(
                 initialValue: items.contains(value) ? value : null,
                 isExpanded: true,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.ink,
+                  size: 22.sp,
+                ),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
@@ -1814,16 +1900,28 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                 hint: Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-                dropdownColor: _Palette.subtleWhite,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: AppColors.ink,
+                  fontWeight: FontWeight.w500,
+                ),
+                dropdownColor: AppColors.subtleWhite,
                 borderRadius: BorderRadius.circular(14.r),
                 items: items
-                    .map((item) => DropdownMenuItem<T>(
-                          value: item,
-                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
-                        ))
+                    .map(
+                      (item) => DropdownMenuItem<T>(
+                        value: item,
+                        child: Text(
+                          labelBuilder(item),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: enabled ? onChanged : null,
               ),
@@ -1832,7 +1930,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Bottom area: Continue button (coral once the form is valid, grey otherwise)
+  // Bottom area: Continue button (primary once the form is valid, grey otherwise)
   // ---------------------------------------------------------------------
   Widget _buildBottomArea() {
     return Padding(
@@ -1843,9 +1941,9 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
         child: ElevatedButton(
           onPressed: _isSubmitting ? null : _handleContinue,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-            disabledBackgroundColor: _Palette.coral,
-            foregroundColor: _Palette.subtleWhite,
+            backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
+            disabledBackgroundColor: AppColors.primary,
+            foregroundColor: AppColors.subtleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(28.r),
@@ -1858,7 +1956,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                   child: const CircularProgressIndicator(
                     strokeWidth: 2.4,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _Palette.subtleWhite,
+                      AppColors.subtleWhite,
                     ),
                   ),
                 )
@@ -1890,7 +1988,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.tasaOrbiter(
           fontSize: 13.sp,
           fontWeight: FontWeight.w600,
-          color: _Palette.ink,
+          color: AppColors.ink,
         ),
         children: required
             ? [

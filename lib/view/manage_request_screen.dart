@@ -3,14 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:matrimony_app/model/contacts_viewed_by_me_model.dart' show ContactsViewedByMeModel;
-import 'package:matrimony_app/model/contacts_viewed_you_model.dart' show ContactsViewedYouModel;
-import 'package:matrimony_app/model/interest_recevied_model.dart' show InterestReceivedModel;
-import 'package:matrimony_app/model/interest_send_model.dart' show InterestSentModel;
+import 'package:matrimony_app/model/contacts_viewed_by_me_model.dart'
+    show ContactsViewedByMeModel;
+import 'package:matrimony_app/model/contacts_viewed_you_model.dart'
+    show ContactsViewedYouModel;
+import 'package:matrimony_app/model/interest_recevied_model.dart'
+    show InterestReceivedModel;
+import 'package:matrimony_app/model/interest_send_model.dart'
+    show InterestSentModel;
 import 'package:matrimony_app/model/request_model.dart' show RequestModel;
-import 'package:matrimony_app/model/request_send_model.dart' show RequestSendModel;
-import 'package:matrimony_app/model/shortlisted_by_you_model.dart' show ShortlistedByYouModel;
-import 'package:matrimony_app/model/shortlisted_you_model.dart' show ShortlistedYouModel;
+import 'package:matrimony_app/model/request_send_model.dart'
+    show RequestSendModel;
+import 'package:matrimony_app/model/shortlisted_by_you_model.dart'
+    show ShortlistedByYouModel;
+import 'package:matrimony_app/model/shortlisted_you_model.dart'
+    show ShortlistedYouModel;
 import 'package:matrimony_app/provider/home_provider.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/custom_widgets/shortlist_badge.dart';
@@ -35,11 +42,11 @@ class _InboxEntry {
   });
 
   _InboxEntry copyWith({_RequestStatus? status}) => _InboxEntry(
-        profile: profile,
-        date: date,
-        status: status ?? this.status,
-        entryId: entryId,
-      );
+    profile: profile,
+    date: date,
+    status: status ?? this.status,
+    entryId: entryId,
+  );
 }
 
 class ManageRequestScreen extends StatefulWidget {
@@ -51,11 +58,17 @@ class ManageRequestScreen extends StatefulWidget {
 
 class _ManageRequestScreenState extends State<ManageRequestScreen> {
   int _activeTab = 0; // 0=Interest, 1=Request, 2=Contacts, 3=Shortlistings
-  int _activeSubTab = 0; // Received/Send, Viewed/Viewed-you, or Shortlisted Me/By Me
+  int _activeSubTab =
+      0; // Received/Send, Viewed/Viewed-you, or Shortlisted Me/By Me
   int _interestStatusFilter = 0; // 0=Pending, 1=Accepted, 2=Declined
   int _requestType = 0; // Photo / Number
 
-  static const _tabLabels = ['Interest', 'Request', 'Contacts', 'Shortlistings'];
+  static const _tabLabels = [
+    'Interest',
+    'Request',
+    'Contacts',
+    'Shortlistings',
+  ];
   static const _statusLabels = ['Pending', 'Accepted', 'Declined'];
   static const _requestTypeLabels = ['Photo Requests', 'Number Requests'];
 
@@ -347,7 +360,10 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
   void _respondToInterest(_InboxEntry entry, {required bool accept}) {
     final interestId = entry.entryId;
     if (interestId == null) return;
-    context.read<HomeProvider>().respondInterest(interestId, accept ? 'accept' : 'decline');
+    context.read<HomeProvider>().respondInterest(
+      interestId,
+      accept ? 'accept' : 'decline',
+    );
   }
 
   // "Requests Received" swipe deck — same fire-and-forget persistence as
@@ -355,25 +371,35 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
   void _respondToRequest(_InboxEntry entry, {required bool accept}) {
     final requestId = entry.entryId;
     if (requestId == null) return;
-    context.read<HomeProvider>().respondRequest(requestId, accept ? 'accept' : 'decline');
+    context.read<HomeProvider>().respondRequest(
+      requestId,
+      accept ? 'accept' : 'decline',
+    );
   }
 
   List<int> get _counts => [
-        _interestsReceived.length + _interestsSent.length,
-        _requestsReceived.length + _requestsSent.length,
-        _contactsViewed.length,
-        0, // Shortlistings isn't backed by real data yet
-      ];
-
+    _interestsReceived.length + _interestsSent.length,
+    _requestsReceived.length + _requestsSent.length,
+    _contactsViewed.length,
+    0, // Shortlistings isn't backed by real data yet
+  ];
 
   @override
   Widget build(BuildContext context) {
     // Contacts tab counts — read once here since they're needed by both the
     // sub-tab labels and the descriptive text below the chips.
-    final viewedByMeModel = context.select<HomeProvider, ContactsViewedByMeModel?>((p) => p.contactsViewedByMeModel);
-    final viewedYouModel = context.select<HomeProvider, ContactsViewedYouModel?>((p) => p.contactsViewedYouModel);
-    final viewedByMeCount = viewedByMeModel?.total ?? viewedByMeModel?.data?.length ?? 0;
-    final viewedYouCount = viewedYouModel?.total ?? viewedYouModel?.data?.length ?? 0;
+    final viewedByMeModel = context
+        .select<HomeProvider, ContactsViewedByMeModel?>(
+          (p) => p.contactsViewedByMeModel,
+        );
+    final viewedYouModel = context
+        .select<HomeProvider, ContactsViewedYouModel?>(
+          (p) => p.contactsViewedYouModel,
+        );
+    final viewedByMeCount =
+        viewedByMeModel?.total ?? viewedByMeModel?.data?.length ?? 0;
+    final viewedYouCount =
+        viewedYouModel?.total ?? viewedYouModel?.data?.length ?? 0;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -409,7 +435,10 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
                   _activeSubTab == 0
                       ? 'Contacts you have viewed (${viewedByMeModel?.data?.length ?? 0} of $viewedByMeCount)'
                       : 'Contacts who viewed you (${viewedYouModel?.data?.length ?? 0} of $viewedYouCount)',
-                  style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black),
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 14.sp,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ] else if (_activeTab == 3) ...[
@@ -435,7 +464,11 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
           SizedBox(width: 10.w),
           Text(
             'Inbox',
-            style: GoogleFonts.tasaOrbiter(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
           ),
         ],
       ),
@@ -464,9 +497,11 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected ? AppColors.coral : Colors.white,
+                color: selected ? AppColors.primary : Colors.white,
                 borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+                border: Border.all(
+                  color: selected ? AppColors.primary : const Color(0xFFE0E0E0),
+                ),
               ),
               child: Text(
                 '${_tabLabels[index]} (${_counts[index]})',
@@ -483,7 +518,10 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
     );
   }
 
-  Widget _buildSubTabs({required String leftLabel, required String rightLabel}) {
+  Widget _buildSubTabs({
+    required String leftLabel,
+    required String rightLabel,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
@@ -506,14 +544,19 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
         if (_activeTab == 0 && index == 1) {
           context.read<HomeProvider>().interestSend(_interestStatusFilter + 1);
         } else if (_activeTab == 1 && index == 1) {
-          context.read<HomeProvider>().requestSend(_requestType == 0 ? 'photo' : 'number');
+          context.read<HomeProvider>().requestSend(
+            _requestType == 0 ? 'photo' : 'number',
+          );
         }
       },
       child: Container(
         padding: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: selected ? AppColors.coral : Colors.transparent, width: 2.5),
+            bottom: BorderSide(
+              color: selected ? AppColors.primary : Colors.transparent,
+              width: 2.5,
+            ),
           ),
         ),
         child: Text(
@@ -555,9 +598,11 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected ? AppColors.coral : Colors.white,
+                color: selected ? AppColors.primary : Colors.white,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+                border: Border.all(
+                  color: selected ? AppColors.primary : const Color(0xFFE0E0E0),
+                ),
               ),
               child: Text(
                 _statusLabels[i],
@@ -600,9 +645,11 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected ? AppColors.coral : Colors.white,
+                color: selected ? AppColors.primary : Colors.white,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+                border: Border.all(
+                  color: selected ? AppColors.primary : const Color(0xFFE0E0E0),
+                ),
               ),
               child: Text(
                 _requestTypeLabels[i],
@@ -621,7 +668,10 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
 
   Widget _emptyText(String message) {
     return Center(
-      child: Text(message, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45)),
+      child: Text(
+        message,
+        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+      ),
     );
   }
 
@@ -631,35 +681,47 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
       // you" — real API data (GET inbox/contacts/viewed-you).
       final List<_InboxEntry> list;
       if (_activeSubTab == 0) {
-        final data = context.select<HomeProvider, ContactsViewedByMeModel?>((p) => p.contactsViewedByMeModel)?.data;
+        final data = context
+            .select<HomeProvider, ContactsViewedByMeModel?>(
+              (p) => p.contactsViewedByMeModel,
+            )
+            ?.data;
         list = (data ?? [])
-            .map((d) => _fromApiContact(
-                  id: d.id,
-                  name: d.name,
-                  age: d.age,
-                  height: d.height,
-                  occupation: d.occupation,
-                  motherTongue: d.motherTongue,
-                  community: d.community,
-                  location: d.location,
-                  imageUrl: d.imageUrl,
-                  mobileNumber: d.mobileNumber,
-                ))
+            .map(
+              (d) => _fromApiContact(
+                id: d.id,
+                name: d.name,
+                age: d.age,
+                height: d.height,
+                occupation: d.occupation,
+                motherTongue: d.motherTongue,
+                community: d.community,
+                location: d.location,
+                imageUrl: d.imageUrl,
+                mobileNumber: d.mobileNumber,
+              ),
+            )
             .toList();
       } else {
-        final data = context.select<HomeProvider, ContactsViewedYouModel?>((p) => p.contactsViewedYouModel)?.data;
+        final data = context
+            .select<HomeProvider, ContactsViewedYouModel?>(
+              (p) => p.contactsViewedYouModel,
+            )
+            ?.data;
         list = (data ?? [])
-            .map((d) => _fromApiContact(
-                  id: d.id,
-                  name: d.name,
-                  age: d.age,
-                  height: d.height,
-                  occupation: d.occupation,
-                  motherTongue: d.motherTongue,
-                  community: d.community,
-                  location: d.location,
-                  imageUrl: d.imageUrl,
-                ))
+            .map(
+              (d) => _fromApiContact(
+                id: d.id,
+                name: d.name,
+                age: d.age,
+                height: d.height,
+                occupation: d.occupation,
+                motherTongue: d.motherTongue,
+                community: d.community,
+                location: d.location,
+                imageUrl: d.imageUrl,
+              ),
+            )
             .toList();
       }
       if (list.isEmpty) return _emptyText('Nothing here yet');
@@ -682,32 +744,44 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
       // which would collapse the element type to Object.
       final List<_InboxEntry> list;
       if (_activeSubTab == 0) {
-        final matches = context.select<HomeProvider, ShortlistedYouModel?>((p) => p.shortlistedYouModel)?.matches;
+        final matches = context
+            .select<HomeProvider, ShortlistedYouModel?>(
+              (p) => p.shortlistedYouModel,
+            )
+            ?.matches;
         list = (matches ?? [])
-            .map((m) => _fromApiRow(
-                  profileId: m.id,
-                  name: m.name,
-                  age: m.age,
-                  height: m.height,
-                  motherTongue: m.motherTongue,
-                  community: m.community,
-                  location: m.location,
-                  imageUrl: m.imageUrl?.toString(),
-                ))
+            .map(
+              (m) => _fromApiRow(
+                profileId: m.id,
+                name: m.name,
+                age: m.age,
+                height: m.height,
+                motherTongue: m.motherTongue,
+                community: m.community,
+                location: m.location,
+                imageUrl: m.imageUrl?.toString(),
+              ),
+            )
             .toList();
       } else {
-        final matches = context.select<HomeProvider, ShortlistedByYouModel?>((p) => p.shortlistedByYouModel)?.matches;
+        final matches = context
+            .select<HomeProvider, ShortlistedByYouModel?>(
+              (p) => p.shortlistedByYouModel,
+            )
+            ?.matches;
         list = (matches ?? [])
-            .map((m) => _fromApiRow(
-                  profileId: m.id,
-                  name: m.name,
-                  age: m.age,
-                  height: m.height,
-                  motherTongue: m.motherTongue,
-                  community: m.community,
-                  location: m.location,
-                  imageUrl: m.imageUrl?.toString(),
-                ))
+            .map(
+              (m) => _fromApiRow(
+                profileId: m.id,
+                name: m.name,
+                age: m.age,
+                height: m.height,
+                motherTongue: m.motherTongue,
+                community: m.community,
+                location: m.location,
+                imageUrl: m.imageUrl?.toString(),
+              ),
+            )
             .toList();
       }
       if (list.isEmpty) return _emptyText('Nothing here yet');
@@ -725,37 +799,12 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
       // deck as Interests Received, looping back to the first card once
       // every profile has been swiped.
       if (_activeSubTab == 0) {
-        final requestModel = context.select<HomeProvider, RequestModel?>((p) => p.requestModel);
-        final requestList = (requestModel?.data ?? [])
-            .map((d) => _fromApiRow(
-                  entryId: d.requestId,
-                  profileId: d.id,
-                  name: d.name,
-                  age: d.age,
-                  height: d.height,
-                  occupation: d.occupation,
-                  motherTongue: d.motherTongue,
-                  community: d.community,
-                  location: d.location,
-                  imageUrl: d.imageUrl,
-                  statusCode: d.requestStatus,
-                ))
-            .toList();
-        final pending = requestList.where((e) => e.status == _RequestStatus.pending).toList();
-        if (requestList.isEmpty) return _emptyText('Nothing here yet');
-        return _ReceivedSwipeDeck(
-          key: ValueKey('request-received-$_requestType'),
-          entries: pending,
-          loop: true,
-          onAccept: (entry) => _respondToRequest(entry, accept: true),
-          onDecline: (entry) => _respondToRequest(entry, accept: false),
+        final requestModel = context.select<HomeProvider, RequestModel?>(
+          (p) => p.requestModel,
         );
-      }
-      // Requests Send — real API data (GET inbox/requests/sent?type=), same
-      // Photo/Number filtering as Requests Received.
-      final requestSendModel = context.select<HomeProvider, RequestSendModel?>((p) => p.requestSendModel);
-      final sentList = (requestSendModel?.data ?? [])
-          .map((d) => _fromApiRow(
+        final requestList = (requestModel?.data ?? [])
+            .map(
+              (d) => _fromApiRow(
                 entryId: d.requestId,
                 profileId: d.id,
                 name: d.name,
@@ -767,14 +816,50 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
                 location: d.location,
                 imageUrl: d.imageUrl,
                 statusCode: d.requestStatus,
-              ))
+              ),
+            )
+            .toList();
+        final pending = requestList
+            .where((e) => e.status == _RequestStatus.pending)
+            .toList();
+        if (requestList.isEmpty) return _emptyText('Nothing here yet');
+        return _ReceivedSwipeDeck(
+          key: ValueKey('request-received-$_requestType'),
+          entries: pending,
+          loop: true,
+          onAccept: (entry) => _respondToRequest(entry, accept: true),
+          onDecline: (entry) => _respondToRequest(entry, accept: false),
+        );
+      }
+      // Requests Send — real API data (GET inbox/requests/sent?type=), same
+      // Photo/Number filtering as Requests Received.
+      final requestSendModel = context.select<HomeProvider, RequestSendModel?>(
+        (p) => p.requestSendModel,
+      );
+      final sentList = (requestSendModel?.data ?? [])
+          .map(
+            (d) => _fromApiRow(
+              entryId: d.requestId,
+              profileId: d.id,
+              name: d.name,
+              age: d.age,
+              height: d.height,
+              occupation: d.occupation,
+              motherTongue: d.motherTongue,
+              community: d.community,
+              location: d.location,
+              imageUrl: d.imageUrl,
+              statusCode: d.requestStatus,
+            ),
+          )
           .toList();
       if (sentList.isEmpty) return _emptyText('Nothing here yet');
       return ListView.separated(
         padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
         itemCount: sentList.length,
         separatorBuilder: (_, __) => SizedBox(height: 14.h),
-        itemBuilder: (context, index) => _InboxCard(entry: sentList[index], isSent: true),
+        itemBuilder: (context, index) =>
+            _InboxCard(entry: sentList[index], isSent: true),
       );
     }
 
@@ -787,27 +872,33 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
       // list itself changes, not on every loading/loaded notifyListeners()
       // fired by unrelated calls like respondInterest (accept/decline),
       // which was causing dropped frames and a visible lag on tap.
-      final interestReceivedModel =
-          context.select<HomeProvider, InterestReceivedModel?>((p) => p.interestReceivedModel);
+      final interestReceivedModel = context
+          .select<HomeProvider, InterestReceivedModel?>(
+            (p) => p.interestReceivedModel,
+          );
       final apiList = (interestReceivedModel?.data ?? [])
-          .map((d) => _fromApiRow(
-                entryId: d.interestId,
-                profileId: d.id,
-                name: d.name,
-                age: d.age,
-                height: d.height,
-                occupation: d.occupation,
-                motherTongue: d.motherTongue,
-                community: d.community,
-                location: d.location,
-                imageUrl: d.imageUrl,
-                statusCode: d.interestStatus,
-              ))
+          .map(
+            (d) => _fromApiRow(
+              entryId: d.interestId,
+              profileId: d.id,
+              name: d.name,
+              age: d.age,
+              height: d.height,
+              occupation: d.occupation,
+              motherTongue: d.motherTongue,
+              community: d.community,
+              location: d.location,
+              imageUrl: d.imageUrl,
+              statusCode: d.interestStatus,
+            ),
+          )
           .toList();
 
       final showSwipeDeck = _interestStatusFilter == 0;
       if (showSwipeDeck) {
-        final pending = apiList.where((e) => e.status == _RequestStatus.pending).toList();
+        final pending = apiList
+            .where((e) => e.status == _RequestStatus.pending)
+            .toList();
         if (apiList.isEmpty) return _emptyText('Nothing here yet');
         return _ReceivedSwipeDeck(
           key: const ValueKey('received-pending'),
@@ -828,28 +919,33 @@ class _ManageRequestScreenState extends State<ManageRequestScreen> {
 
     // "Interests Send" — real API data (GET inbox/sent?status=), same
     // Pending/Accepted/Declined filtering as Received.
-    final interestSendModel = context.select<HomeProvider, InterestSentModel?>((p) => p.interestSendModel);
+    final interestSendModel = context.select<HomeProvider, InterestSentModel?>(
+      (p) => p.interestSendModel,
+    );
     final list = (interestSendModel?.data ?? [])
-        .map((d) => _fromApiRow(
-              entryId: d.interestId,
-              profileId: d.id,
-              name: d.name,
-              age: d.age,
-              height: d.height,
-              occupation: d.occupation,
-              motherTongue: d.motherTongue,
-              community: d.community,
-              location: d.location,
-              imageUrl: d.imageUrl,
-              statusCode: d.interestStatus,
-            ))
+        .map(
+          (d) => _fromApiRow(
+            entryId: d.interestId,
+            profileId: d.id,
+            name: d.name,
+            age: d.age,
+            height: d.height,
+            occupation: d.occupation,
+            motherTongue: d.motherTongue,
+            community: d.community,
+            location: d.location,
+            imageUrl: d.imageUrl,
+            statusCode: d.interestStatus,
+          ),
+        )
         .toList();
     if (list.isEmpty) return _emptyText('Nothing here yet');
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
       itemCount: list.length,
       separatorBuilder: (_, __) => SizedBox(height: 14.h),
-      itemBuilder: (context, index) => _InboxCard(entry: list[index], isSent: true),
+      itemBuilder: (context, index) =>
+          _InboxCard(entry: list[index], isSent: true),
     );
   }
 }
@@ -885,26 +981,47 @@ class _InboxCard extends StatelessWidget {
                     left: 0,
                     child: Container(
                       width: 150.w,
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 5.h,
+                      ),
                       decoration: BoxDecoration(
                         image: const DecorationImage(
-                          image: AssetImage('assets/image/Vector 1265.png',),
+                          image: AssetImage('assets/image/Vector 1265.png'),
                           fit: BoxFit.fill,
                         ),
-                        borderRadius: BorderRadius.only(bottomRight: Radius.circular(12.r)),
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(12.r),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset('assets/image/crown.png', width: 12.w, height: 12.w),
+                          Image.asset(
+                            'assets/image/crown.png',
+                            width: 12.w,
+                            height: 12.w,
+                          ),
                           SizedBox(width: 4.w),
-                          Text('Premium', style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Color(0xFFD0B362))),
+                          Text(
+                            'Premium',
+                            style: GoogleFonts.tasaOrbiter(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFD0B362),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(14.w, p.isPremium ? 30.h : 14.h, 14.w, 14.h),
+                  padding: EdgeInsets.fromLTRB(
+                    14.w,
+                    p.isPremium ? 30.h : 14.h,
+                    14.w,
+                    14.h,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -926,37 +1043,70 @@ class _InboxCard extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     p.name,
-                                    style: GoogleFonts.tasaOrbiter(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                                    style: GoogleFonts.tasaOrbiter(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 SizedBox(width: 5.w),
-                                Image.asset('assets/image/verified.png', width: 14.w, height: 14.w),
+                                Image.asset(
+                                  'assets/image/verified.png',
+                                  width: 14.w,
+                                  height: 14.w,
+                                ),
                               ],
                             ),
                             SizedBox(height: 3.h),
-                            Text(p.line1, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black87)),
-                            Text(p.line2, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black87)),
+                            Text(
+                              p.line1,
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 12.sp,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Text(
+                              p.line2,
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 12.sp,
+                                color: Colors.black87,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       SizedBox(width: 6.w),
-                      Text(entry.date, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black38)),
+                      Text(
+                        entry.date,
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 12.sp,
+                          color: Colors.black38,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-            if (entry.status == _RequestStatus.declined || (isSent && entry.status == _RequestStatus.pending))
+            if (entry.status == _RequestStatus.declined ||
+                (isSent && entry.status == _RequestStatus.pending))
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 7.w),
                 color: const Color(0xFFF0F0F0),
                 alignment: Alignment.center,
                 child: Text(
-                  entry.status == _RequestStatus.declined ? 'Declined' : 'Awaiting Response',
-                  style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black54),
+                  entry.status == _RequestStatus.declined
+                      ? 'Declined'
+                      : 'Awaiting Response',
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54,
+                  ),
                 ),
               )
             else
@@ -968,7 +1118,11 @@ class _InboxCard extends StatelessWidget {
                   children: [
                     Text(
                       isSent ? 'Accepted' : 'Take the next step',
-                      style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
                     ),
                     SizedBox(height: 12.h),
                     Row(
@@ -986,7 +1140,10 @@ class _InboxCard extends StatelessWidget {
                           //bg: Colors.white,
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => MessageScreen(name: p.name, image: p.image)),
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  MessageScreen(name: p.name, image: p.image),
+                            ),
                           ),
                         ),
                         _actionButton(
@@ -1022,11 +1179,24 @@ class _InboxCard extends StatelessWidget {
                   width: 44.sp,
                   height: 44.sp,
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                  child: Icon(icon, size: 20.sp, color: iconColor ?? Colors.black54),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 20.sp,
+                    color: iconColor ?? Colors.black54,
+                  ),
                 ),
           SizedBox(height: 5.h),
-          Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: Colors.black54)),
+          Text(
+            label,
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 12.sp,
+              color: Colors.black54,
+            ),
+          ),
         ],
       ),
     );
@@ -1079,33 +1249,63 @@ class _ContactCard extends StatelessWidget {
                           Flexible(
                             child: Text(
                               p.name,
-                              style: GoogleFonts.tasaOrbiter(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           SizedBox(width: 5.w),
-                          Image.asset('assets/image/verified.png', width: 14.w, height: 14.w),
+                          Image.asset(
+                            'assets/image/verified.png',
+                            width: 14.w,
+                            height: 14.w,
+                          ),
                         ],
                       ),
                       SizedBox(height: 2.h),
                       Text(
                         'Profile created by ${p.managedBy}',
-                        style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: Colors.black45),
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 11.sp,
+                          color: Colors.black45,
+                        ),
                       ),
                       SizedBox(height: 12.h),
-                      _contactLinkRow(icon: Icons.call_outlined, text: p.contactNo),
+                      _contactLinkRow(
+                        icon: Icons.call_outlined,
+                        text: p.contactNo,
+                      ),
                       SizedBox(height: 8.h),
-                      _contactLinkRow(icon: Icons.email_outlined, text: p.email),
+                      _contactLinkRow(
+                        icon: Icons.email_outlined,
+                        text: p.email,
+                      ),
                       SizedBox(height: 8.h),
-                      _contactLinkRow(icon: Icons.sms_outlined, text: 'Send SMS'),
+                      _contactLinkRow(
+                        icon: Icons.sms_outlined,
+                        text: 'Send SMS',
+                      ),
                     ],
                   ),
                 ),
                 SizedBox(width: 6.w),
-                Text(entry.date, style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: Colors.black38)),
+                Text(
+                  entry.date,
+                  style: GoogleFonts.tasaOrbiter(
+                    fontSize: 11.sp,
+                    color: Colors.black38,
+                  ),
+                ),
                 SizedBox(width: 4.w),
-                Icon(Icons.more_vert_rounded, size: 18.sp, color: Colors.black45),
+                Icon(
+                  Icons.more_vert_rounded,
+                  size: 18.sp,
+                  color: Colors.black45,
+                ),
               ],
             ),
             // SizedBox(height: 12.h),
@@ -1129,7 +1329,11 @@ class _ContactCard extends StatelessWidget {
         Flexible(
           child: Text(
             text,
-            style: GoogleFonts.tasaOrbiter(fontSize: 12.5.sp, color: blue, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 12.5.sp,
+              color: blue,
+              fontWeight: FontWeight.w500,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1160,104 +1364,127 @@ class _ReceivedRequestCard extends StatelessWidget {
     return IgnorePointer(
       ignoring: !interactive,
       child: InkWell(
-      borderRadius: BorderRadius.circular(20.r),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => MatchProfileDetailScreen(item: p)),
-      ),
-      child: ClipRRect(
         borderRadius: BorderRadius.circular(20.r),
-        child: SizedBox(
-          height: 500.h,
-          width: double.infinity,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              matchProfileImage(p.image, errorIconSize: 72.sp),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
-                    stops: const [0.5, 1.0],
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MatchProfileDetailScreen(item: p)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.r),
+          child: SizedBox(
+            height: 500.h,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                matchProfileImage(p.image, errorIconSize: 72.sp),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                      stops: const [0.5, 1.0],
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 16.h,
-                left: 16.w,
-                child: ShortlistBadge(profile: p),
-              ),
-              Positioned(
-                left: 16.w,
-                right: 16.w,
-                bottom: 92.h,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            p.name,
-                            style: GoogleFonts.tasaOrbiter(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.white),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                Positioned(
+                  top: 16.h,
+                  left: 16.w,
+                  child: ShortlistBadge(profile: p),
+                ),
+                Positioned(
+                  left: 16.w,
+                  right: 16.w,
+                  bottom: 92.h,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              p.name,
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
+                          SizedBox(width: 6.w),
+                          Image.asset(
+                            'assets/image/verified.png',
+                            width: 17.w,
+                            height: 17.w,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        p.line1,
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 13.sp,
+                          color: Colors.white70,
                         ),
-                        SizedBox(width: 6.w),
-                        Image.asset('assets/image/verified.png', width: 17.w, height: 17.w),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(p.line1, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.white70)),
-                    Text(p.line2, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.white70)),
-                    SizedBox(height: 5.h,),
-                    Divider(color: Colors.white54,)
-                  ],
-                ),
-              ),
-              Positioned(
-                left: 16.w,
-                right: 16.w,
-                bottom: 20.h,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _pillButton(
-                      //  icon: Icons.close_rounded,
-                        image: 'assets/image/close.png',
-                        label: 'Decline',
-                        iconcolor: Colors.red,
-                        color:  Colors.black,
-                        onTap: onDecline,
                       ),
-                    ),
-                    SizedBox(width: 14.w),
-                    Expanded(
-                      child: _pillButton(
-                        //icon: Icons.check_rounded,
-                        image: "assets/image/check.png",
-                        label: 'Accept',
-                        iconcolor: Colors.green,
-                        color:  Colors.black,
-                        onTap: onAccept,
+                      Text(
+                        p.line2,
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 13.sp,
+                          color: Colors.white70,
+                        ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 5.h),
+                      Divider(color: Colors.white54),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  left: 16.w,
+                  right: 16.w,
+                  bottom: 20.h,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _pillButton(
+                          //  icon: Icons.close_rounded,
+                          image: 'assets/image/close.png',
+                          label: 'Decline',
+                          iconcolor: Colors.red,
+                          color: Colors.black,
+                          onTap: onDecline,
+                        ),
+                      ),
+                      SizedBox(width: 14.w),
+                      Expanded(
+                        child: _pillButton(
+                          //icon: Icons.check_rounded,
+                          image: "assets/image/check.png",
+                          label: 'Accept',
+                          iconcolor: Colors.green,
+                          color: Colors.black,
+                          onTap: onAccept,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
 
   Widget _pillButton({
-   // required IconData icon,
+    // required IconData icon,
     required String label,
     required Color color,
     required Color iconcolor,
@@ -1273,15 +1500,28 @@ class _ReceivedRequestCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(26.r),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Icon(icon, size: 24.sp, color: iconcolor),
-            Image.asset(image,width: 24.sp,height: 24.sp,color: iconcolor,),
+            Image.asset(image, width: 24.sp, height: 24.sp, color: iconcolor),
             SizedBox(width: 8.w),
-            Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: color)),
+            Text(
+              label,
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
           ],
         ),
       ),
@@ -1319,9 +1559,12 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
   void didUpdateWidget(covariant _ReceivedSwipeDeck oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!widget.loop) return;
-    final sameEntries = oldWidget.entries.length == widget.entries.length &&
-        List.generate(oldWidget.entries.length, (i) => oldWidget.entries[i].entryId == widget.entries[i].entryId)
-            .every((same) => same);
+    final sameEntries =
+        oldWidget.entries.length == widget.entries.length &&
+        List.generate(
+          oldWidget.entries.length,
+          (i) => oldWidget.entries[i].entryId == widget.entries[i].entryId,
+        ).every((same) => same);
     if (!sameEntries) {
       _index = 0;
     } else if (widget.entries.isNotEmpty) {
@@ -1360,7 +1603,10 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
       return Center(
         child: Text(
           'No new requests',
-          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            color: Colors.black45,
+          ),
         ),
       );
     }
@@ -1368,7 +1614,9 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
     final topIndex = widget.loop ? _index % widget.entries.length : 0;
     final top = widget.entries[topIndex];
     final next = widget.entries.length > 1
-        ? widget.entries[widget.loop ? (topIndex + 1) % widget.entries.length : 1]
+        ? widget.entries[widget.loop
+              ? (topIndex + 1) % widget.entries.length
+              : 1]
         : null;
     final angle = (_drag.dx / 300).clamp(-0.4, 0.4);
 
@@ -1394,7 +1642,9 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
             onPanUpdate: _onPanUpdate,
             onPanEnd: _onPanEnd,
             child: AnimatedContainer(
-              duration: _drag == Offset.zero ? const Duration(milliseconds: 220) : Duration.zero,
+              duration: _drag == Offset.zero
+                  ? const Duration(milliseconds: 220)
+                  : Duration.zero,
               curve: Curves.easeOut,
               transform: Matrix4.identity()
                 ..translate(_drag.dx, _drag.dy)
@@ -1431,7 +1681,12 @@ class _ReceivedSwipeDeckState extends State<_ReceivedSwipeDeck> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.tasaOrbiter(fontSize: 20.sp, fontWeight: FontWeight.w900, color: color, letterSpacing: 1.5),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w900,
+            color: color,
+            letterSpacing: 1.5,
+          ),
         ),
       ),
     );

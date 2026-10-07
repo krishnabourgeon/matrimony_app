@@ -589,7 +589,7 @@
 //                 value: 2 / 8,
 //                 minHeight: 6.h,
 //                 backgroundColor: AppColors.trackBg,
-//                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.coral),
+//                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
 //               ),
 //             ),
 //           ),
@@ -613,10 +613,10 @@
 //             duration: const Duration(milliseconds: 150),
 //             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
 //             decoration: BoxDecoration(
-//               color: selected ? AppColors.coral : AppColors.subtleWhite,
+//               color: selected ? AppColors.primary : AppColors.subtleWhite,
 //               borderRadius: BorderRadius.circular(24.r),
 //               border: Border.all(
-//                 color: AppColors.coral,
+//                 color: AppColors.primary,
 //                 width: 1.2,
 //               ),
 //             ),
@@ -625,7 +625,7 @@
 //               style: GoogleFonts.tasaOrbiter(
 //                 fontSize: 10.5.sp,
 //                 fontWeight: FontWeight.w600,
-//                 color: selected ? AppColors.subtleWhite : AppColors.coral,
+//                 color: selected ? AppColors.subtleWhite : AppColors.primary,
 //               ),
 //             ),
 //           ),
@@ -836,7 +836,7 @@
 //         child: ElevatedButton(
 //           onPressed: _handleContinue,
 //           style: ElevatedButton.styleFrom(
-//             backgroundColor: AppColors.coral,
+//             backgroundColor: AppColors.primary,
 //             foregroundColor: AppColors.subtleWhite,
 //             elevation: 0,
 //             shape: RoundedRectangleBorder(
@@ -1011,8 +1011,10 @@ class _BasicInfoState extends State<BasicInfoScreen> {
   // The genders API lists Male = 1, Female = 2, so match by name.
   void _preselectGenderFromSignup(RegisterProvider provider) {
     final genderId = provider.signupModel?.genderId;
-    debugPrint('Signup gender_id: $genderId, '
-        'options: ${provider.genderModel?.genders.map((g) => '${g.id}:${g.name}').toList()}');
+    debugPrint(
+      'Signup gender_id: $genderId, '
+      'options: ${provider.genderModel?.genders.map((g) => '${g.id}:${g.name}').toList()}',
+    );
     if (_gender != null) return; // user already picked one
     final String? target = switch (genderId) {
       1 => 'male',
@@ -1059,7 +1061,7 @@ class _BasicInfoState extends State<BasicInfoScreen> {
     return RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[\w\-]{2,4}$').hasMatch(value);
   }
 
-  // Drives the Continue button's coral/grey state. Only checks the fields
+  // Drives the Continue button's primary/grey state. Only checks the fields
   // currently active on screen (Marital Status is commented out above).
   bool get _isFormValid {
     if (_gender == null || _dob == null) return false;
@@ -1125,24 +1127,29 @@ class _BasicInfoState extends State<BasicInfoScreen> {
     final provider = context.read<RegisterProvider>();
     provider
         .basicInfo(
-      _emailController.text.trim(),
-      _passwordController.text,
-      _confirmPasswordController.text,
-      dobFormatted,
-      _gender!.id,
-    )
+          _emailController.text.trim(),
+          _passwordController.text,
+          _confirmPasswordController.text,
+          dobFormatted,
+          _gender!.id,
+        )
         .then((success) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      if (success) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const CommunityLocationScreen()),
-        );
-      } else {
-        _showSnack(provider.basicInfoError ?? 'Something went wrong. Please try again');
-      }
-    });
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          if (success) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CommunityLocationScreen(),
+              ),
+            );
+          } else {
+            _showSnack(
+              provider.basicInfoError ??
+                  'Something went wrong. Please try again',
+            );
+          }
+        });
   }
 
   void _showSnack(String message) {
@@ -1332,7 +1339,7 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                 minHeight: 6.h,
                 backgroundColor: AppColors.trackBg,
                 valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.coral,
+                  AppColors.primary,
                 ),
               ),
             ),
@@ -1347,18 +1354,17 @@ class _BasicInfoState extends State<BasicInfoScreen> {
   // ---------------------------------------------------------------------
   Widget _buildGenderSelector() {
     return Consumer<RegisterProvider>(
-      builder: (context,provider,child) {
-        if(provider.loaderState == LoaderState.loading
-        && provider.genderModel == null){
+      builder: (context, provider, child) {
+        if (provider.loaderState == LoaderState.loading &&
+            provider.genderModel == null) {
           return SizedBox(
             height: 40.h,
             child: Center(
-              child: CircularProgressIndicator(color: AppColors.coralDark),
+              child: CircularProgressIndicator(color: AppColors.primaryDark),
             ),
           );
         }
-         final List<Gender> options =
-            provider.genderModel?.genders ?? [];
+        final List<Gender> options = provider.genderModel?.genders ?? [];
 
         // Failed / empty state — let the user retry.
         if (options.isEmpty) {
@@ -1380,7 +1386,7 @@ class _BasicInfoState extends State<BasicInfoScreen> {
               ),
             ),
           );
-        }    
+        }
         return Wrap(
           spacing: 10.w,
           runSpacing: 10.h,
@@ -1392,23 +1398,23 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                 duration: const Duration(milliseconds: 150),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.coral : AppColors.subtleWhite,
+                  color: selected ? AppColors.primary : AppColors.subtleWhite,
                   borderRadius: BorderRadius.circular(24.r),
-                  border: Border.all(color: AppColors.coral, width: 1.2),
+                  border: Border.all(color: AppColors.primary, width: 1.2),
                 ),
                 child: Text(
                   option.name,
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 10.5.sp,
                     fontWeight: FontWeight.w600,
-                    color: selected ? AppColors.subtleWhite : AppColors.coral,
+                    color: selected ? AppColors.subtleWhite : AppColors.primary,
                   ),
                 ),
               ),
             );
           }).toList(),
         );
-      }
+      },
     );
   }
 
@@ -1513,9 +1519,9 @@ class _BasicInfoState extends State<BasicInfoScreen> {
             enableInteractiveSelection: allowCopyPaste,
             contextMenuBuilder: allowCopyPaste
                 ? (context, editableTextState) =>
-                    AdaptiveTextSelectionToolbar.editableText(
-                      editableTextState: editableTextState,
-                    )
+                      AdaptiveTextSelectionToolbar.editableText(
+                        editableTextState: editableTextState,
+                      )
                 : null,
             enableSuggestions: allowCopyPaste,
             autocorrect: false,
@@ -1524,10 +1530,12 @@ class _BasicInfoState extends State<BasicInfoScreen> {
                 : [
                     // Reject multi-character insertions (keyboard clipboard
                     // chips / paste shortcuts); typing adds one char at a time.
-                    TextInputFormatter.withFunction((oldValue, newValue) =>
-                        newValue.text.length - oldValue.text.length > 1
-                            ? oldValue
-                            : newValue),
+                    TextInputFormatter.withFunction(
+                      (oldValue, newValue) =>
+                          newValue.text.length - oldValue.text.length > 1
+                          ? oldValue
+                          : newValue,
+                    ),
                   ],
             style: GoogleFonts.tasaOrbiter(
               fontSize: 13.sp,
@@ -1694,8 +1702,8 @@ class _BasicInfoState extends State<BasicInfoScreen> {
         child: ElevatedButton(
           onPressed: _isSubmitting ? null : _handleContinue,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _isFormValid ? AppColors.coral : AppColors.grey,
-            disabledBackgroundColor: AppColors.coral,
+            backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
+            disabledBackgroundColor: AppColors.primary,
             foregroundColor: AppColors.subtleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(

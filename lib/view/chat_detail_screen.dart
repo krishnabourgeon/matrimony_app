@@ -290,7 +290,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
         constraints: BoxConstraints(maxWidth: 260.w),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: m.isMe ? AppColors.coral : Colors.white,
+          color: m.isMe ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14.r),
             topRight: Radius.circular(14.r),
@@ -398,7 +398,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
             child: Container(
               padding: EdgeInsets.all(11.w),
               decoration: BoxDecoration(
-                color: AppColors.coral,
+                color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.send, size: 16.sp, color: Colors.white),

@@ -18,6 +18,7 @@ import 'package:matrimony_app/model/family_statuses.dart';
 import 'package:matrimony_app/model/family_type_model.dart';
 import 'package:matrimony_app/model/family_values_model.dart';
 import 'package:matrimony_app/model/gender_model.dart';
+import 'package:matrimony_app/view/custom_widgets/gender_avatar.dart';
 import 'package:matrimony_app/model/get_subscriptionmodel.dart';
 import 'package:matrimony_app/model/choose_subscription_model.dart';
 import 'package:matrimony_app/model/search_body.dart';
@@ -181,6 +182,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
       final result = res.asValue?.value ?? res.asError?.error;
       if (result is SignupModel) {
         signupModel = result;
+        UserGender.set(result.genderId);
         signupError = null;
         if (_draftsMobile != mobilenumber) {
           clearRegistrationDrafts();
@@ -233,6 +235,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
       final result = res.asValue?.value ?? res.asError?.error;
       if (result is VerifyOtpModel) {
         verifyOtpModel = result;
+        UserGender.set(result.customer.gender);
         verifyOtpError = null;
       } else if (result is ErrorResponseModel) {
         verifyOtpError = result.errorMessage ?? 'Invalid OTP. Please try again';
@@ -272,6 +275,7 @@ class RegisterProvider extends ProviderHelperClass with ChangeNotifier {
       final result = res.asValue?.value ?? res.asError?.error;
       if (result is BasicInfoModel) {
         basicInfoModel = result;
+        UserGender.set(genderId);
         basicInfoError = null;
       } else if (result is ErrorResponseModel) {
         basicInfoError =

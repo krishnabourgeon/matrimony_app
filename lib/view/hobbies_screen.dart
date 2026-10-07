@@ -179,10 +179,6 @@
 //   }
 // }
 
-
-
-
-
 // ════════════════════════════════════════════════════════════════
 //  HOBBIES & INTERESTS
 // ════════════════════════════════════════════════════════════════
@@ -191,23 +187,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/hobbies_model.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/horoscope_details.dart';
 
-/// Brand colors used on this screen — mirrors the other onboarding screens' palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
 
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-}
+
 
 class HobbiesScreen extends StatefulWidget {
   const HobbiesScreen({super.key});
@@ -278,21 +266,25 @@ class _HobbiesState extends State<HobbiesScreen> {
     final provider = context.read<RegisterProvider>();
     provider
         .saveHobbies(
-      hobbies: _selected.map((h) => h.id).toList(),
-      otherHobbies: _otherCtrl.text.trim(),
-    )
+          hobbies: _selected.map((h) => h.id).toList(),
+          otherHobbies: _otherCtrl.text.trim(),
+        )
         .then((success) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      if (success) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => HoroscopeScreen(dob: _knownDob())),
-        );
-      } else {
-        _showSnack(provider.hobbyError ?? 'Something went wrong. Please try again');
-      }
-    });
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          if (success) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => HoroscopeScreen(dob: _knownDob()),
+              ),
+            );
+          } else {
+            _showSnack(
+              provider.hobbyError ?? 'Something went wrong. Please try again',
+            );
+          }
+        });
   }
 
   void _handleSkip() {
@@ -313,10 +305,15 @@ class _HobbiesState extends State<HobbiesScreen> {
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -324,7 +321,7 @@ class _HobbiesState extends State<HobbiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -342,7 +339,7 @@ class _HobbiesState extends State<HobbiesScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -354,7 +351,8 @@ class _HobbiesState extends State<HobbiesScreen> {
                     SizedBox(height: 20.h),
                     _buildTextAreaField(
                       controller: _otherCtrl,
-                      hint: 'Write about any other hobbies or interests not listed above',
+                      hint:
+                          'Write about any other hobbies or interests not listed above',
                       maxLength: 255,
                       count: _otherCount,
                       onChanged: (v) => setState(() => _otherCount = v.length),
@@ -386,10 +384,14 @@ class _HobbiesState extends State<HobbiesScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -399,8 +401,10 @@ class _HobbiesState extends State<HobbiesScreen> {
               child: LinearProgressIndicator(
                 value: 8 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -410,18 +414,23 @@ class _HobbiesState extends State<HobbiesScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Hobby pills — outlined coral when unselected, filled coral when selected.
+  // Hobby pills — outlined primary when unselected, filled primary when selected.
   // ---------------------------------------------------------------------
   Widget _buildHobbyChips() {
     return Consumer<RegisterProvider>(
       builder: (context, provider, _) {
         final hobbies = provider.hobbiesModel?.hobbies ?? [];
-        final loading = provider.loaderState == LoaderState.loading && provider.hobbiesModel == null;
+        final loading =
+            provider.loaderState == LoaderState.loading &&
+            provider.hobbiesModel == null;
         if (loading) {
           return SizedBox(
             height: 40.h,
             child: Center(
-              child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
             ),
           );
         }
@@ -436,16 +445,19 @@ class _HobbiesState extends State<HobbiesScreen> {
                 duration: const Duration(milliseconds: 150),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
                 decoration: BoxDecoration(
-                  color: selected ? _Palette.coral : _Palette.subtleWhite,
+                  color: selected ? AppColors.primary : AppColors.subtleWhite,
                   borderRadius: BorderRadius.circular(24.r),
-                  border: Border.all(color: selected ? _Palette.coral : _Palette.hintText, width: 1.2),
+                  border: Border.all(
+                    color: selected ? AppColors.primary : AppColors.hintText,
+                    width: 1.2,
+                  ),
                 ),
                 child: Text(
                   hobby.name,
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 12.5.sp,
                     fontWeight: FontWeight.w600,
-                    color: selected ? _Palette.subtleWhite : _Palette.hintText,
+                    color: selected ? AppColors.subtleWhite : AppColors.hintText,
                   ),
                 ),
               ),
@@ -471,7 +483,7 @@ class _HobbiesState extends State<HobbiesScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: _Palette.fieldBg,
+            color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(14.r),
           ),
           child: TextFormField(
@@ -484,15 +496,26 @@ class _HobbiesState extends State<HobbiesScreen> {
               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z .,\n]')),
             ],
             onChanged: onChanged,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.ink,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              hintStyle: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.hintText,
+                fontWeight: FontWeight.w400,
+              ),
               border: InputBorder.none,
               errorBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18.w,
+                vertical: 14.h,
+              ),
               // Counter is shown below the field instead.
               counterText: '',
             ),
@@ -501,7 +524,10 @@ class _HobbiesState extends State<HobbiesScreen> {
         SizedBox(height: 6.h),
         Text(
           '$count/$maxLength',
-          style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.hintText),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 11.sp,
+            color: AppColors.hintText,
+          ),
         ),
       ],
     );
@@ -524,9 +550,11 @@ class _HobbiesState extends State<HobbiesScreen> {
                   child: ElevatedButton(
                     onPressed: busy ? null : _handleContinue,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _Palette.coral,
-                      disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
-                      foregroundColor: _Palette.subtleWhite,
+                      backgroundColor: AppColors.primary,
+                      disabledBackgroundColor: AppColors.primary.withOpacity(
+                        0.6,
+                      ),
+                      foregroundColor: AppColors.subtleWhite,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28.r),
@@ -539,7 +567,7 @@ class _HobbiesState extends State<HobbiesScreen> {
                             child: const CircularProgressIndicator(
                               strokeWidth: 2.4,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                _Palette.subtleWhite,
+                                AppColors.subtleWhite,
                               ),
                             ),
                           )
@@ -561,9 +589,11 @@ class _HobbiesState extends State<HobbiesScreen> {
                   child: OutlinedButton(
                     onPressed: busy ? null : _handleSkip,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: _Palette.coral,
-                      disabledForegroundColor: _Palette.coral.withOpacity(0.6),
-                      side: BorderSide(color: _Palette.coral, width: 1.4),
+                      foregroundColor: AppColors.primary,
+                      disabledForegroundColor: AppColors.primary.withOpacity(
+                        0.6,
+                      ),
+                      side: BorderSide(color: AppColors.primary, width: 1.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28.r),
                       ),
@@ -587,7 +617,7 @@ class _HobbiesState extends State<HobbiesScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.tasaOrbiter(
               fontSize: 10.5.sp,
-              color: _Palette.hintText,
+              color: AppColors.hintText,
             ),
           ),
         ],

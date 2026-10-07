@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/custom_widgets/gender_avatar.dart';
 
 /// Cross-fades through [imageUrls] automatically (asset paths or network
 /// URLs both work). If there's only one image (or none), it just renders
@@ -14,6 +14,10 @@ class AutoChangingImage extends StatefulWidget {
   final double? height;
   final double errorIconSize;
 
+  /// Picks the boy/girl default avatar for missing images. Defaults to the
+  /// opposite of the logged-in user.
+  final String? gender;
+
   const AutoChangingImage({
     super.key,
     required this.imageUrls,
@@ -22,6 +26,7 @@ class AutoChangingImage extends StatefulWidget {
     this.width = double.infinity,
     this.height = double.infinity,
     this.errorIconSize = 44,
+    this.gender,
   });
 
   @override
@@ -54,12 +59,13 @@ class _AutoChangingImageState extends State<AutoChangingImage> {
   }
 
   Widget _image(String path, Key key) {
-    final errorFallback = Container(
+    final errorFallback = genderAvatarFallback(
       key: key,
+      gender: widget.gender ?? UserGender.matchGender,
       width: widget.width,
       height: widget.height,
-      color: AppColors.primaryLight,
-      child: Icon(Icons.person, size: widget.errorIconSize, color: AppColors.primary),
+      fit: widget.fit,
+      iconSize: widget.errorIconSize,
     );
     if (path.isEmpty) return errorFallback;
     if (path.startsWith('http')) {

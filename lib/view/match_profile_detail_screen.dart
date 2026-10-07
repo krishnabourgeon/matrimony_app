@@ -72,77 +72,76 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeroPhoto(context, item),
-            Transform.translate(
-              offset: Offset(0, -18.h),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(22.r),
-                    topRight: Radius.circular(22.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeroPhoto(context, item),
+                Transform.translate(
+                  offset: Offset(0, -18.h),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(22.r),
+                        topRight: Radius.circular(22.r),
+                      ),
+                    ),
+                    padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 24.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _sectionTitle('About ${item.name}'),
+                        SizedBox(height: 8.h),
+                        _buildAbout(item),
+                        SizedBox(height: 20.h),
+                        if (item.hobbies.isNotEmpty) ...[
+                          _sectionTitle('Hobbies & Interests'),
+                          SizedBox(height: 10.h),
+                          _buildHobbies(item),
+                          SizedBox(height: 20.h),
+                        ],
+                        _sectionTitle('Basic Details'),
+                        SizedBox(height: 10.h),
+                        _buildManagedByRow(item),
+                        SizedBox(height: 10.h),
+                        _buildAgeHeightRow(item),
+                        SizedBox(height: 14.h),
+                        _buildBasicDetailsRows(item),
+                        Divider(
+                          thickness: 4,
+                          color: Colors.black.withOpacity(0.05),
+                        ),
+                        SizedBox(height: 20.h),
+                        _sectionTitle('Contact Details'),
+                        _buildContactDetailsCard(item),
+                        SizedBox(height: 10.h),
+                        Divider(
+                          thickness: 4,
+                          color: Colors.black.withOpacity(0.05),
+                        ),
+                        SizedBox(height: 20.h),
+                        _buildFamilyDetailsSection(item),
+                        Divider(
+                          thickness: 4,
+                          color: Colors.black.withOpacity(0.05),
+                        ),
+                        SizedBox(height: 20.h),
+                        _buildCareerEducationSection(item),
+                        Divider(
+                          thickness: 4,
+                          color: Colors.black.withOpacity(0.05),
+                        ),
+                        SizedBox(height: 20.h),
+                        _buildYouAndHerSection(item),
+                        SizedBox(height: 20.h),
+                        _buildMatchPreferencesSection(item),
+                      ],
+                    ),
                   ),
                 ),
-                padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 24.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _sectionTitle('About ${item.name}'),
-                    SizedBox(height: 8.h),
-                    _buildAbout(item),
-                    SizedBox(height: 20.h),
-                    if (item.hobbies.isNotEmpty) ...[
-                      _sectionTitle('Hobbies & Interests'),
-                      SizedBox(height: 10.h),
-                      _buildHobbies(item),
-                      SizedBox(height: 20.h),
-                    ],
-                    _sectionTitle('Basic Details'),
-                    SizedBox(height: 10.h),
-                    _buildManagedByRow(item),
-                    SizedBox(height: 10.h),
-                    _buildAgeHeightRow(item),
-                    SizedBox(height: 14.h),
-                    _buildBasicDetailsRows(item),
-                    Divider(
-                      thickness: 4,
-                      color: Colors.black.withOpacity(0.05),
-                    ),
-                    SizedBox(height: 20.h),
-                    _sectionTitle('Contact Details'),
-                    _buildContactDetailsCard(item),
-                    SizedBox(height: 10.h),
-                    Divider(
-                      thickness: 4,
-                      color: Colors.black.withOpacity(0.05),
-                    ),
-                    SizedBox(height: 20.h),
-                    _buildFamilyDetailsSection(item),
-                    Divider(
-                      thickness: 4,
-                      color: Colors.black.withOpacity(0.05),
-                    ),
-                    SizedBox(height: 20.h),
-                    _buildCareerEducationSection(item),
-                    Divider(
-                      thickness: 4,
-                      color: Colors.black.withOpacity(0.05),
-                    ),
-                    SizedBox(height: 20.h),
-                    _buildYouAndHerSection(item),
-                    SizedBox(height: 20.h),
-                    _buildMatchPreferencesSection(item),
-
-                  ],
-                ),
-              ),
+              ],
             ),
-          ],
-        ),
           ),
           // Prev/next arrows — fixed on screen (outside the scroll view and
           // outside the hero's horizontal padding) so they stay put while
@@ -272,7 +271,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
             ),
           ),
           Positioned(
-             top: MediaQuery.of(context).padding.top + 60.h,
+            top: MediaQuery.of(context).padding.top + 60.h,
             left: 14.w,
             child: ShortlistBadge(profile: item),
           ),
@@ -404,7 +403,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.coral,
+                    color: AppColors.primary,
                   ),
                 ),
                 Icon(
@@ -412,7 +411,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
                   size: 16.sp,
-                  color: AppColors.coral,
+                  color: AppColors.primary,
                 ),
               ],
             ),
@@ -949,7 +948,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                     style: GoogleFonts.tasaOrbiter(
                       fontSize: 17.sp,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.coral,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -1083,13 +1082,22 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
   // "You Match X/Y her Preferences" checklist
   // =====================================================================
   Widget _buildMatchPreferencesSection(MatchProfileItem item) {
-    final religionCommunity = [item.religion, item.community].where((s) => s.isNotEmpty).join(': ');
+    final religionCommunity = [
+      item.religion,
+      item.community,
+    ].where((s) => s.isNotEmpty).join(': ');
     final items = <PreferenceMatchItem>[
       if (item.maritalStatus.isNotEmpty)
-        PreferenceMatchItem(label: 'Marital Status', values: [item.maritalStatus], matched: true),
+        PreferenceMatchItem(
+          label: 'Marital Status',
+          values: [item.maritalStatus],
+          matched: true,
+        ),
       const PreferenceMatchItem(
         label: 'Working With',
-        values: ['Private Company, Government / Public Sector, Defence / Civil Services, Business / Self Employed'],
+        values: [
+          'Private Company, Government / Public Sector, Defence / Civil Services, Business / Self Employed',
+        ],
         matched: true,
       ),
       if (religionCommunity.isNotEmpty)
@@ -1100,15 +1108,35 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
           expandable: true,
         ),
       if (item.motherTongue.isNotEmpty)
-        PreferenceMatchItem(label: 'Mother Tongue', values: [item.motherTongue], matched: true),
+        PreferenceMatchItem(
+          label: 'Mother Tongue',
+          values: [item.motherTongue],
+          matched: true,
+        ),
       if (item.location.isNotEmpty)
-        PreferenceMatchItem(label: 'City Living in', values: [item.location], matched: true),
+        PreferenceMatchItem(
+          label: 'City Living in',
+          values: [item.location],
+          matched: true,
+        ),
       if (item.annualIncomeSelf.isNotEmpty)
-        PreferenceMatchItem(label: 'Annual Income', values: [item.annualIncomeSelf], matched: true),
+        PreferenceMatchItem(
+          label: 'Annual Income',
+          values: [item.annualIncomeSelf],
+          matched: true,
+        ),
       if (item.height.isNotEmpty)
-        PreferenceMatchItem(label: 'Height', values: [item.height], matched: true),
+        PreferenceMatchItem(
+          label: 'Height',
+          values: [item.height],
+          matched: true,
+        ),
       if (item.education.isNotEmpty)
-        PreferenceMatchItem(label: 'Education', values: [item.education], matched: false),
+        PreferenceMatchItem(
+          label: 'Education',
+          values: [item.education],
+          matched: false,
+        ),
     ];
     final matchedCount = items.where((i) => i.matched).length;
 
@@ -1118,7 +1146,9 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
       items: items,
       onChat: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => MessageScreen(name: item.name, image: item.image)),
+        MaterialPageRoute(
+          builder: (_) => MessageScreen(name: item.name, image: item.image),
+        ),
       ),
       onViewContact: () => _onViewContactDetails(item),
       onConnectNow: () {},
@@ -1222,10 +1252,7 @@ class _MatchPreferencesSectionState extends State<MatchPreferencesSection> {
           ),
         ),
         SizedBox(height: 16.h),
-        Divider(
-          thickness: 10,
-          color: Colors.black.withOpacity(0.05),
-        ),
+        Divider(thickness: 10, color: Colors.black.withOpacity(0.05)),
         SizedBox(height: 20.h),
         _buildActionBar(),
       ],
@@ -1235,8 +1262,9 @@ class _MatchPreferencesSectionState extends State<MatchPreferencesSection> {
   Widget _buildPreferenceRow(int index, PreferenceMatchItem item) {
     final isExpanded = _expanded.contains(index);
     final showToggle = item.expandable && item.values.length > 1;
-    final visibleValues =
-        (showToggle && !isExpanded) ? [item.values.first] : item.values;
+    final visibleValues = (showToggle && !isExpanded)
+        ? [item.values.first]
+        : item.values;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1319,7 +1347,6 @@ class _MatchPreferencesSectionState extends State<MatchPreferencesSection> {
   }
 
   Widget _buildActionBar() {
-    
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -1329,15 +1356,15 @@ class _MatchPreferencesSectionState extends State<MatchPreferencesSection> {
           bgColor: const Color(0xFFEDEBFB),
           onTap: widget.onChat,
         ),
-        SizedBox(width: 10.h,),
+        SizedBox(width: 10.h),
         _buildRoundAction(
           asset: 'assets/image/Frame 2085664438.png',
           label: 'View contact',
-          bgColor:  Colors.grey,
+          bgColor: Colors.grey,
           //iconColor: const Color(0xFF3D6FE0),
           onTap: widget.onViewContact,
         ),
-        SizedBox(width: 10.h,),
+        SizedBox(width: 10.h),
         _buildConnectNowAction(),
       ],
     );
@@ -1379,7 +1406,11 @@ class _MatchPreferencesSectionState extends State<MatchPreferencesSection> {
       onTap: widget.onConnectNow,
       child: Column(
         children: [
-          Image.asset("assets/image/Frame 2085664438 (1).png",height: 44,width: 72,),
+          Image.asset(
+            "assets/image/Frame 2085664438 (1).png",
+            height: 44,
+            width: 72,
+          ),
           SizedBox(height: 8.h),
           Text(
             'Connect Now',

@@ -326,6 +326,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/stars_model.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
@@ -334,17 +335,7 @@ import 'package:matrimony_app/services/shared_preference_helper.dart';
 import 'package:matrimony_app/view/login_screen.dart';
 import 'package:matrimony_app/view/subscription_plan_screen.dart';
 
-/// Brand colors used on this screen — mirrors the other onboarding screens' palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
 
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-}
 
 class HoroscopeScreen extends StatefulWidget {
   /// Date of birth to pre-fill (from the hobby-info response). The user can
@@ -458,32 +449,37 @@ class _HoroscopeState extends State<HoroscopeScreen> {
 
     provider
         .horoscopeDetails(
-      dobHoroscope: dobFormatted,
-      birthTime: _timeCtrl.text.trim(),
-      birthTimePeriod: _amPm,
-      birthPlace: _locCtrl.text.trim(),
-      starId: _birthStar?.id, // null = not selected (not sent)
-      isSudhaJathakam: _sudha == 'Yes' ? 1 : 0,
-      isDoshaJathakam: _dosha == 'Yes' ? 1 : 0,
-      show: 1,
-      matchTypeId: _matchTypeIds[_horoMatch] ?? 0,
-      starMatch: _starOnly == 'Yes' ? 1 : 0,
-      doshaType: _dosha ?? '',
-    )
+          dobHoroscope: dobFormatted,
+          birthTime: _timeCtrl.text.trim(),
+          birthTimePeriod: _amPm,
+          birthPlace: _locCtrl.text.trim(),
+          starId: _birthStar?.id, // null = not selected (not sent)
+          isSudhaJathakam: _sudha == 'Yes' ? 1 : 0,
+          isDoshaJathakam: _dosha == 'Yes' ? 1 : 0,
+          show: 1,
+          matchTypeId: _matchTypeIds[_horoMatch] ?? 0,
+          starMatch: _starOnly == 'Yes' ? 1 : 0,
+          doshaType: _dosha ?? '',
+        )
         .then((success) async {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      if (success) {
-        await SharedPreferenceHelper.saveRegistrationComplete();
-        if (!mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SubscriptionPlanScreen()),
-        );
-      } else {
-        _showSnack(provider.horoscopeError ?? 'Something went wrong. Please try again');
-      }
-    });
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          if (success) {
+            await SharedPreferenceHelper.saveRegistrationComplete();
+            if (!mounted) return;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SubscriptionPlanScreen(),
+              ),
+            );
+          } else {
+            _showSnack(
+              provider.horoscopeError ??
+                  'Something went wrong. Please try again',
+            );
+          }
+        });
   }
 
   void _handleSkip() async {
@@ -498,10 +494,15 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -513,15 +514,15 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.r),
         ),
-        backgroundColor: _Palette.subtleWhite,
+        backgroundColor: AppColors.subtleWhite,
         title: Row(
           children: [
-            Icon(Icons.favorite_rounded, color: _Palette.coral),
+            Icon(Icons.favorite_rounded, color: AppColors.primary),
             SizedBox(width: 8.w),
             Text(
               'Profile Created!',
               style: GoogleFonts.tasaOrbiter(
-                color: _Palette.ink,
+                color: AppColors.ink,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -531,7 +532,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         content: Text(
           'Your registration is complete. Login to find your perfect match!',
           style: GoogleFonts.tasaOrbiter(
-            color: _Palette.hintText,
+            color: AppColors.hintText,
             fontSize: 13.sp,
           ),
         ),
@@ -548,7 +549,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
             child: Text(
               'Go to Login',
               style: GoogleFonts.tasaOrbiter(
-                color: _Palette.coral,
+                color: AppColors.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -561,7 +562,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -579,7 +580,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -608,11 +609,16 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                               SizedBox(height: 8.h),
                               Consumer<RegisterProvider>(
                                 builder: (context, provider, _) {
-                                  final stars = provider.starsModel?.stars ?? [];
-                                  final loading = provider.loaderState == LoaderState.loading &&
+                                  final stars =
+                                      provider.starsModel?.stars ?? [];
+                                  final loading =
+                                      provider.loaderState ==
+                                          LoaderState.loading &&
                                       provider.starsModel == null;
                                   return _buildDropdownField<Star>(
-                                    hint: loading ? 'Loading...' : 'Select Birth Star',
+                                    hint: loading
+                                        ? 'Loading...'
+                                        : 'Select Birth Star',
                                     value: _birthStar,
                                     items: stars,
                                     labelBuilder: (s) => s.name,
@@ -722,12 +728,12 @@ class _HoroscopeState extends State<HoroscopeScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.arrow_back_rounded,
-                color: _Palette.ink,
+                color: AppColors.ink,
                 size: 18.sp,
               ),
             ),
@@ -739,8 +745,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
               child: LinearProgressIndicator(
                 value: 8 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -761,14 +769,14 @@ class _HoroscopeState extends State<HoroscopeScreen> {
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: TextField(
         controller: controller,
         style: GoogleFonts.tasaOrbiter(
           fontSize: 13.sp,
-          color: _Palette.ink,
+          color: AppColors.ink,
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
@@ -777,7 +785,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
           hintText: hint,
           hintStyle: GoogleFonts.tasaOrbiter(
             fontSize: 13.sp,
-            color: _Palette.hintText,
+            color: AppColors.hintText,
             fontWeight: FontWeight.w400,
           ),
           border: InputBorder.none,
@@ -798,7 +806,10 @@ class _HoroscopeState extends State<HoroscopeScreen> {
       final h = int.tryParse(parts[0]);
       final m = int.tryParse(parts[1]);
       if (h != null && m != null && h >= 1 && h <= 12 && m >= 0 && m < 60) {
-        initial = TimeOfDay(hour: (h % 12) + (_amPm == 'PM' ? 12 : 0), minute: m);
+        initial = TimeOfDay(
+          hour: (h % 12) + (_amPm == 'PM' ? 12 : 0),
+          minute: m,
+        );
       }
     }
     final picked = await showTimePicker(
@@ -813,8 +824,11 @@ class _HoroscopeState extends State<HoroscopeScreen> {
     if (picked == null) return;
     setState(() {
       _timeCtrl.text =
-          '${picked.hourOfPeriod == 0 ? 12 : picked.hourOfPeriod}'.padLeft(2, '0') +
-              ':${picked.minute.toString().padLeft(2, '0')}';
+          '${picked.hourOfPeriod == 0 ? 12 : picked.hourOfPeriod}'.padLeft(
+            2,
+            '0',
+          ) +
+          ':${picked.minute.toString().padLeft(2, '0')}';
       _amPm = picked.period == DayPeriod.am ? 'AM' : 'PM';
     });
   }
@@ -827,7 +841,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         height: 44.h,
         padding: EdgeInsets.symmetric(horizontal: 18.w),
         decoration: BoxDecoration(
-          color: _Palette.fieldBg,
+          color: AppColors.fieldBg,
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
@@ -838,11 +852,11 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 13.sp,
                   fontWeight: hasTime ? FontWeight.w500 : FontWeight.w400,
-                  color: hasTime ? _Palette.ink : _Palette.hintText,
+                  color: hasTime ? AppColors.ink : AppColors.hintText,
                 ),
               ),
             ),
-            Icon(Icons.access_time_rounded, color: _Palette.ink, size: 16.sp),
+            Icon(Icons.access_time_rounded, color: AppColors.ink, size: 16.sp),
           ],
         ),
       ),
@@ -859,7 +873,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
         height: 44.h,
         padding: EdgeInsets.symmetric(horizontal: 18.w),
         decoration: BoxDecoration(
-          color: _Palette.fieldBg,
+          color: AppColors.fieldBg,
           borderRadius: BorderRadius.circular(14.r),
         ),
         child: Row(
@@ -869,12 +883,20 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 text,
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 13.sp,
-                  fontWeight: _dobHoroscope == null ? FontWeight.w400 : FontWeight.w500,
-                  color: _dobHoroscope == null ? _Palette.hintText : _Palette.ink,
+                  fontWeight: _dobHoroscope == null
+                      ? FontWeight.w400
+                      : FontWeight.w500,
+                  color: _dobHoroscope == null
+                      ? AppColors.hintText
+                      : AppColors.ink,
                 ),
               ),
             ),
-            Icon(Icons.calendar_today_rounded, color: _Palette.ink, size: 16.sp),
+            Icon(
+              Icons.calendar_today_rounded,
+              color: AppColors.ink,
+              size: 16.sp,
+            ),
           ],
         ),
       ),
@@ -898,7 +920,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: loading
@@ -907,13 +929,19 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 SizedBox(
                   width: 14.w,
                   height: 14.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             )
@@ -923,7 +951,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 isExpanded: true,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: _Palette.ink,
+                  color: AppColors.ink,
                   size: 22.sp,
                 ),
                 decoration: InputDecoration(
@@ -935,22 +963,25 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                   hint,
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 13.sp,
-                    color: _Palette.hintText,
+                    color: AppColors.hintText,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 13.sp,
-                  color: _Palette.ink,
+                  color: AppColors.ink,
                   fontWeight: FontWeight.w500,
                 ),
-                dropdownColor: _Palette.subtleWhite,
+                dropdownColor: AppColors.subtleWhite,
                 borderRadius: BorderRadius.circular(14.r),
                 items: items
                     .map(
                       (item) => DropdownMenuItem<T>(
                         value: item,
-                        child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
+                        child: Text(
+                          labelBuilder(item),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     )
                     .toList(),
@@ -999,7 +1030,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                         value: option,
                         groupValue: selected,
                         onChanged: onSelect,
-                        activeColor: _Palette.coral,
+                        activeColor: AppColors.primary,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                       ),
@@ -1012,7 +1043,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w400,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                       ),
                     ),
                   ],
@@ -1040,9 +1071,9 @@ class _HoroscopeState extends State<HoroscopeScreen> {
               child: ElevatedButton(
                 onPressed: busy ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _Palette.coral,
-                  disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
-                  foregroundColor: _Palette.subtleWhite,
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                  foregroundColor: AppColors.subtleWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),
@@ -1055,7 +1086,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                         child: const CircularProgressIndicator(
                           strokeWidth: 2.4,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.subtleWhite,
+                            AppColors.subtleWhite,
                           ),
                         ),
                       )
@@ -1077,9 +1108,9 @@ class _HoroscopeState extends State<HoroscopeScreen> {
               child: OutlinedButton(
                 onPressed: busy ? null : _handleSkip,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _Palette.coral,
-                  disabledForegroundColor: _Palette.coral.withOpacity(0.6),
-                  side: BorderSide(color: _Palette.coral, width: 1.4),
+                  foregroundColor: AppColors.primary,
+                  disabledForegroundColor: AppColors.primary.withOpacity(0.6),
+                  side: BorderSide(color: AppColors.primary, width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),
                   ),
@@ -1113,7 +1144,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.tasaOrbiter(
         fontSize: 13.sp,
         fontWeight: FontWeight.w700,
-        color: _Palette.ink,
+        color: AppColors.ink,
       ),
     );
   }

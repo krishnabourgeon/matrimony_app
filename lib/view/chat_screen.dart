@@ -42,15 +42,26 @@ class _ChatListScreenState extends State<ChatListScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     final now = DateTime.now();
-    final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+    final isToday =
+        date.year == now.year && date.month == now.month && date.day == now.day;
     if (isToday) {
       final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
       final period = date.hour >= 12 ? 'PM' : 'AM';
       return '$hour:${date.minute.toString().padLeft(2, '0')} $period';
     }
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]}';
   }
@@ -59,13 +70,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
     final contacts = model?.recentContacts;
     if (contacts == null) return const [];
     return contacts
-        .map((c) => ChatPreviewItem(
-              id: c.id ?? 0,
-              name: c.name ?? '',
-              message: '',
-              date: '',
-              image: c.imageUrl ?? '',
-            ))
+        .map(
+          (c) => ChatPreviewItem(
+            id: c.id ?? 0,
+            name: c.name ?? '',
+            message: '',
+            date: '',
+            image: c.imageUrl ?? '',
+          ),
+        )
         .toList();
   }
 
@@ -73,14 +86,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
     final threads = model?.threads?.data;
     if (threads == null) return const [];
     return threads
-        .map((t) => ChatPreviewItem(
-              id: t.id ?? 0,
-              name: t.name ?? '',
-              message: t.lastMessage ?? '',
-              date: _formatDate(t.lastMessageAt),
-              image: t.imageUrl ?? '',
-              isVerified: t.verified ?? false,
-            ))
+        .map(
+          (t) => ChatPreviewItem(
+            id: t.id ?? 0,
+            name: t.name ?? '',
+            message: t.lastMessage ?? '',
+            date: _formatDate(t.lastMessageAt),
+            image: t.imageUrl ?? '',
+            isVerified: t.verified ?? false,
+          ),
+        )
         .toList();
   }
 
@@ -117,13 +132,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       ? Center(
                           child: Text(
                             'No conversations yet',
-                            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black45),
+                            style: GoogleFonts.tasaOrbiter(
+                              fontSize: 13.sp,
+                              color: Colors.black45,
+                            ),
                           ),
                         )
                       : ListView.separated(
                           itemCount: chats.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 1, color: Color(0xFFF5F5F5)),
+                          separatorBuilder: (_, __) => const Divider(
+                            height: 1,
+                            color: Color(0xFFF5F5F5),
+                          ),
                           itemBuilder: (context, index) =>
                               _ChatListTile(item: chats[index]),
                         ),
@@ -171,7 +191,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.coral : const Color(0xFFF2F2F2),
+                  color: selected ? AppColors.primary : const Color(0xFFF2F2F2),
                   borderRadius: BorderRadius.circular(18.r),
                 ),
                 child: Text(
@@ -254,7 +274,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: items.asMap().entries.map((e) {
           final selected = _navIndex == e.key;
-          final color = selected ? AppColors.coral : Colors.black38;
+          final color = selected ? AppColors.primary : Colors.black38;
           return InkWell(
             onTap: () => setState(() => _navIndex = e.key),
             child: Column(

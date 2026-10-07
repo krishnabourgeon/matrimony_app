@@ -456,15 +456,6 @@
 // //   }
 // // }
 
-
-
-
-
-
-
-
-
-
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:google_fonts/google_fonts.dart';
@@ -563,7 +554,7 @@
 //                 onTap: () {
 //                   // TODO: navigate to the editable preferences form
 //                 },
-//                 child: Icon(Icons.edit_outlined, size: 18.sp, color: AppColors.coral),
+//                 child: Icon(Icons.edit_outlined, size: 18.sp, color: AppColors.primary),
 //               ),
 //             ],
 //           ),
@@ -619,7 +610,7 @@
 //                 // TODO: navigate to the add-preferences form
 //               },
 //               style: ElevatedButton.styleFrom(
-//                 backgroundColor: AppColors.coral,
+//                 backgroundColor: AppColors.primary,
 //                 elevation: 0,
 //                 shape: RoundedRectangleBorder(
 //                   borderRadius: BorderRadius.circular(26.r),
@@ -653,7 +644,7 @@
 //       child: Icon(
 //         Icons.favorite_border,
 //         size: 56.sp,
-//         color: AppColors.coral,
+//         color: AppColors.primary,
 //       ),
 //     );
 //   }
@@ -703,7 +694,7 @@
 //             style: GoogleFonts.tasaOrbiter(
 //               fontSize: 13.5.sp,
 //               fontWeight: FontWeight.w700,
-//               color: AppColors.coral,
+//               color: AppColors.primary,
 //             ),
 //           ),
 //           SizedBox(height: 8.h),
@@ -746,7 +737,7 @@
 //                 style: GoogleFonts.tasaOrbiter(
 //                   fontSize: 12.sp,
 //                   fontWeight: FontWeight.w600,
-//                   color: AppColors.coral,
+//                   color: AppColors.primary,
 //                 ),
 //               ),
 //             ),
@@ -797,7 +788,7 @@
 //             child: Container(
 //               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
 //               decoration: BoxDecoration(
-//                 color: AppColors.coral.withOpacity(0.1),
+//                 color: AppColors.primary.withOpacity(0.1),
 //                 borderRadius: BorderRadius.circular(20.r),
 //               ),
 //               child: Text(
@@ -805,7 +796,7 @@
 //                 style: GoogleFonts.tasaOrbiter(
 //                   fontSize: 12.sp,
 //                   fontWeight: FontWeight.w600,
-//                   color: AppColors.coral,
+//                   color: AppColors.primary,
 //                 ),
 //               ),
 //             ),
@@ -860,15 +851,10 @@
 // /// filled sections render normally, empty ones show the inline
 // /// "Not added yet" + "+ Add" prompt.
 
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
-
 
 /// ============================================================
 /// SCREEN
@@ -887,13 +873,24 @@ class _EditPartnerPreferenceScreenState
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
-  static const _tabs = ['Basic', 'Religious', 'Location', 'Education', 'Horoscope'];
+  static const _tabs = [
+    'Basic',
+    'Religious',
+    'Location',
+    'Education',
+    'Horoscope',
+  ];
 
   // ---------------- FIELD STATE ----------------
   // Basic
   String? ageFrom, ageTo, heightFrom, heightTo, weightFrom, weightTo;
   String? maritalStatus, disabilityStatus = 'No', familyStatus;
-  String? bodyType, bodySkinTone, familyType, foodType, drinkingHabits, smokingHabits;
+  String? bodyType,
+      bodySkinTone,
+      familyType,
+      foodType,
+      drinkingHabits,
+      smokingHabits;
   bool? preferSurgeryPersons;
 
   // Religious
@@ -903,10 +900,18 @@ class _EditPartnerPreferenceScreenState
   String? country, state, city;
 
   // Education
-  String? qualification, employmentType, occupation, salary, languagesKnown, familyProperty;
+  String? qualification,
+      employmentType,
+      occupation,
+      salary,
+      languagesKnown,
+      familyProperty;
 
   // Horoscope
-  bool? profileWithHoroscope, profileWithStar, profileWithSudhaJathakam, profileWithDoshaJathakam;
+  bool? profileWithHoroscope,
+      profileWithStar,
+      profileWithSudhaJathakam,
+      profileWithDoshaJathakam;
   String? preferredStar;
 
   @override
@@ -924,9 +929,9 @@ class _EditPartnerPreferenceScreenState
   void _onUpdate() {
     // TODO: collect all field values and call your PartnerPreferenceProvider
     // e.g. context.read<PartnerPreferenceProvider>().updatePreferences(...)
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Preferences updated')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Preferences updated')));
   }
 
   @override
@@ -975,9 +980,9 @@ class _EditPartnerPreferenceScreenState
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
-        labelColor: AppColors.coral,
+        labelColor: AppColors.primary,
         unselectedLabelColor: Colors.black45,
-        indicatorColor: AppColors.coral,
+        indicatorColor: AppColors.primary,
         indicatorWeight: 2.5,
         labelStyle: GoogleFonts.tasaOrbiter(
           fontSize: 13.sp,
@@ -1003,7 +1008,7 @@ class _EditPartnerPreferenceScreenState
         child: ElevatedButton(
           onPressed: _onUpdate,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.coral,
+            backgroundColor: AppColors.primary,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(26.r),
@@ -1040,7 +1045,14 @@ class _EditPartnerPreferenceScreenState
           fromValue: heightFrom,
           toValue: heightTo,
           options: const [
-            "4'6\"", "4'9\"", "5'0\"", "5'3\"", "5'6\"", "5'9\"", "6'0\"", "6'3\""
+            "4'6\"",
+            "4'9\"",
+            "5'0\"",
+            "5'3\"",
+            "5'6\"",
+            "5'9\"",
+            "6'0\"",
+            "6'3\"",
           ],
           onFromChanged: (v) => setState(() => heightFrom = v),
           onToChanged: (v) => setState(() => heightTo = v),
@@ -1056,7 +1068,13 @@ class _EditPartnerPreferenceScreenState
         _SelectFieldRow(
           label: 'Marital Status',
           value: maritalStatus,
-          options: const ['Never Married', 'Divorced', 'Widowed', 'Separated', 'Any'],
+          options: const [
+            'Never Married',
+            'Divorced',
+            'Widowed',
+            'Separated',
+            'Any',
+          ],
           onChanged: (v) => setState(() => maritalStatus = v),
         ),
         _SelectFieldRow(
@@ -1066,14 +1084,21 @@ class _EditPartnerPreferenceScreenState
           onChanged: (v) => setState(() => disabilityStatus = v),
         ),
         _YesNoFieldRow(
-          label: 'Prefer persons who have undergone major\nsurgery or Organ transplantation',
+          label:
+              'Prefer persons who have undergone major\nsurgery or Organ transplantation',
           value: preferSurgeryPersons,
           onChanged: (v) => setState(() => preferSurgeryPersons = v),
         ),
         _SelectFieldRow(
           label: 'Family Status',
           value: familyStatus,
-          options: const ['Middle Class', 'Upper Middle Class', 'Rich', 'Affluent', 'Any'],
+          options: const [
+            'Middle Class',
+            'Upper Middle Class',
+            'Rich',
+            'Affluent',
+            'Any',
+          ],
           onChanged: (v) => setState(() => familyStatus = v),
         ),
         _SelectFieldRow(
@@ -1125,7 +1150,14 @@ class _EditPartnerPreferenceScreenState
         _SelectFieldRow(
           label: 'Religion',
           value: religion,
-          options: const ['Hindu', 'Christian', 'Muslim', 'Sikh', 'Jain', 'Any'],
+          options: const [
+            'Hindu',
+            'Christian',
+            'Muslim',
+            'Sikh',
+            'Jain',
+            'Any',
+          ],
           onChanged: (v) => setState(() => religion = v),
         ),
         _SelectFieldRow(
@@ -1181,25 +1213,54 @@ class _EditPartnerPreferenceScreenState
         _SelectFieldRow(
           label: 'Qualification',
           value: qualification,
-          options: const ['B.Tech', 'B.Arch', 'BE', 'B.Plan', 'B.S.', 'M.Tech', 'MBA', 'Any'],
+          options: const [
+            'B.Tech',
+            'B.Arch',
+            'BE',
+            'B.Plan',
+            'B.S.',
+            'M.Tech',
+            'MBA',
+            'Any',
+          ],
           onChanged: (v) => setState(() => qualification = v),
         ),
         _SelectFieldRow(
           label: 'Employment Type',
           value: employmentType,
-          options: const ['Private', 'Government', 'Business', 'Self-Employed', 'Not Working', 'Any'],
+          options: const [
+            'Private',
+            'Government',
+            'Business',
+            'Self-Employed',
+            'Not Working',
+            'Any',
+          ],
           onChanged: (v) => setState(() => employmentType = v),
         ),
         _SelectFieldRow(
           label: 'Occupation',
           value: occupation,
-          options: const ['Software Engineer', 'Doctor', 'Teacher', 'Business Owner', 'Any'],
+          options: const [
+            'Software Engineer',
+            'Doctor',
+            'Teacher',
+            'Business Owner',
+            'Any',
+          ],
           onChanged: (v) => setState(() => occupation = v),
         ),
         _SelectFieldRow(
           label: 'Salary',
           value: salary,
-          options: const ['< 3 LPA', '3 - 6 LPA', '6 - 10 LPA', '10 - 15 LPA', '15+ LPA', 'Any'],
+          options: const [
+            '< 3 LPA',
+            '3 - 6 LPA',
+            '6 - 10 LPA',
+            '10 - 15 LPA',
+            '15+ LPA',
+            'Any',
+          ],
           onChanged: (v) => setState(() => salary = v),
         ),
         _SelectFieldRow(
@@ -1248,8 +1309,16 @@ class _EditPartnerPreferenceScreenState
           label: 'Preferred Star',
           value: preferredStar,
           options: const [
-            'Ashwathi', 'Bharani', 'Karthika', 'Rohini', 'Makayiram',
-            'Thiruvathira', 'Punartham', 'Pooyam', 'Ayilyam', 'Any'
+            'Ashwathi',
+            'Bharani',
+            'Karthika',
+            'Rohini',
+            'Makayiram',
+            'Thiruvathira',
+            'Punartham',
+            'Pooyam',
+            'Ayilyam',
+            'Any',
           ],
           onChanged: (v) => setState(() => preferredStar = v),
           isLast: true,
@@ -1361,8 +1430,11 @@ class _SelectFieldRow extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 4.w),
-                  Icon(Icons.keyboard_arrow_down_rounded,
-                      size: 18.sp, color: Colors.black45),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 18.sp,
+                    color: Colors.black45,
+                  ),
                 ],
               ),
             ),
@@ -1394,7 +1466,12 @@ class _RangeFieldRow extends StatelessWidget {
     required this.onToChanged,
   });
 
-  void _openPicker(BuildContext context, String title, String? selected, ValueChanged<String> onSelect) {
+  void _openPicker(
+    BuildContext context,
+    String title,
+    String? selected,
+    ValueChanged<String> onSelect,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -1429,7 +1506,11 @@ class _RangeFieldRow extends StatelessWidget {
                 color: value == null ? Colors.black38 : Colors.black87,
               ),
             ),
-            Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: Colors.black45),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 16.sp,
+              color: Colors.black45,
+            ),
           ],
         ),
       ),
@@ -1456,15 +1537,27 @@ class _RangeFieldRow extends StatelessWidget {
               ),
             ),
           ),
-          _miniSelect(context, fromValue,
-              () => _openPicker(context, '$label — From', fromValue, onFromChanged)),
+          _miniSelect(
+            context,
+            fromValue,
+            () =>
+                _openPicker(context, '$label — From', fromValue, onFromChanged),
+          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 6.w),
-            child: Text('to',
-                style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: Colors.black38)),
+            child: Text(
+              'to',
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 11.sp,
+                color: Colors.black38,
+              ),
+            ),
           ),
-          _miniSelect(context, toValue,
-              () => _openPicker(context, '$label — To', toValue, onToChanged)),
+          _miniSelect(
+            context,
+            toValue,
+            () => _openPicker(context, '$label — To', toValue, onToChanged),
+          ),
         ],
       ),
     );
@@ -1525,7 +1618,7 @@ class _YesNoFieldRow extends StatelessWidget {
           Icon(
             selected ? Icons.radio_button_checked : Icons.radio_button_off,
             size: 17.sp,
-            color: selected ? AppColors.coral : Colors.black26,
+            color: selected ? AppColors.primary : Colors.black26,
           ),
           SizedBox(width: 4.w),
           Text(
@@ -1597,12 +1690,18 @@ class _OptionPickerSheet extends StatelessWidget {
                       opt,
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 14.sp,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                        color: isSelected ? AppColors.coral : Colors.black87,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w400,
+                        color: isSelected ? AppColors.primary : Colors.black87,
                       ),
                     ),
                     trailing: isSelected
-                        ? Icon(Icons.check_rounded, color: AppColors.coral, size: 18.sp)
+                        ? Icon(
+                            Icons.check_rounded,
+                            color: AppColors.primary,
+                            size: 18.sp,
+                          )
                         : null,
                     onTap: () {
                       onSelect(opt);

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 
-
 class AllSetScreen extends StatelessWidget {
   const AllSetScreen({super.key});
 
@@ -96,7 +95,7 @@ class AllSetScreen extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.coral,
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(

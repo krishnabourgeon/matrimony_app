@@ -315,9 +315,6 @@
 //   }
 // }
 
-
-
-
 // ═══════════════════════════════════════════════════════════════
 //  SUBSCRIPTION PLAN SCREEN — shown right after login
 //  3 gradient plan cards in a swipeable carousel + sticky page dots
@@ -331,17 +328,6 @@ import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/success_screen.dart';
-
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color coralDark = Color(0xFFE01F42);
-  static const Color coralLight = Color(0xFFFFEEF1);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-}
 
 class SubscriptionPlan {
   final int id;
@@ -393,7 +379,8 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
     final isFree = rateValue == 0;
     final features = <String>[
       if (s.interest != null) 'Send interests to ${s.interest} profiles',
-      if (s.profileView != null) 'View detailed profiles for up to ${s.profileView} members',
+      if (s.profileView != null)
+        'View detailed profiles for up to ${s.profileView} members',
       if (s.chat != null) 'Chat with ${s.chat} profiles',
       if (s.contact != null) 'View contact details of ${s.contact} profiles',
     ];
@@ -404,7 +391,9 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
       duration: s.validity != null ? '${s.validity} days' : '',
       features: features.isNotEmpty
           ? features
-          : (s.description != null && s.description!.isNotEmpty ? [s.description!] : []),
+          : (s.description != null && s.description!.isNotEmpty
+                ? [s.description!]
+                : []),
       ctaLabel: isFree ? 'Continue as Free Member' : 'Choose Plan',
       isFree: isFree,
     );
@@ -421,7 +410,12 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.chooseSubscriptionError ?? 'Something went wrong. Please try again')),
+        SnackBar(
+          content: Text(
+            provider.chooseSubscriptionError ??
+                'Something went wrong. Please try again',
+          ),
+        ),
       );
     }
   }
@@ -429,7 +423,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -441,7 +435,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
                 decoration: BoxDecoration(
-                  color: _Palette.fieldBg,
+                  color: AppColors.fieldBg,
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 child: Text(
@@ -450,7 +444,7 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: _Palette.ink,
+                    color: AppColors.ink,
                   ),
                 ),
               ),
@@ -459,18 +453,27 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
             Expanded(
               child: Consumer<RegisterProvider>(
                 builder: (context, provider, _) {
-                  final subscriptions = provider.getSubscriptionModel?.subscriptions;
-                  final plans = (subscriptions ?? []).map(_fromApiSubscription).toList();
+                  final subscriptions =
+                      provider.getSubscriptionModel?.subscriptions;
+                  final plans = (subscriptions ?? [])
+                      .map(_fromApiSubscription)
+                      .toList();
 
-                  if (provider.loaderState == LoaderState.loading && plans.isEmpty) {
-                    return const Center(child: CircularProgressIndicator(color: _Palette.coral));
+                  if (provider.loaderState == LoaderState.loading &&
+                      plans.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppColors.primary),
+                    );
                   }
 
                   if (plans.isEmpty) {
                     return Center(
                       child: Text(
                         'No subscription plans available',
-                        style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: _Palette.hintText),
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 14.sp,
+                          color: AppColors.hintText,
+                        ),
                       ),
                     );
                   }
@@ -481,13 +484,20 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: plans.length,
-                          onPageChanged: (i) => setState(() => _currentPage = i),
+                          onPageChanged: (i) =>
+                              setState(() => _currentPage = i),
                           itemBuilder: (context, index) {
                             final plan = plans[index];
                             return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 6.h,
+                              ),
                               child: Center(
-                                child: _PlanCard(plan: plan, onTap: () => _selectPlan(plan)),
+                                child: _PlanCard(
+                                  plan: plan,
+                                  onTap: () => _selectPlan(plan),
+                                ),
                               ),
                             );
                           },
@@ -504,7 +514,9 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
                               width: _currentPage == i ? 20.w : 7.w,
                               height: 7.h,
                               decoration: BoxDecoration(
-                                color: _currentPage == i ? _Palette.coral : _Palette.fieldBg,
+                                color: _currentPage == i
+                                    ? AppColors.primary
+                                    : AppColors.fieldBg,
                                 borderRadius: BorderRadius.circular(4.r),
                               ),
                             ),
@@ -533,10 +545,14 @@ class _SubscriptionPlanScreenState extends State<SubscriptionPlanScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
         ],
@@ -559,13 +575,13 @@ class _PlanCard extends StatelessWidget {
         // gradient: const LinearGradient(
         //   begin: Alignment.topLeft,
         //   end: Alignment.bottomRight,
-        //   colors: [_Palette.coral, _Palette.coralLight],
+        //   colors: [AppColors.primary, AppColors.primaryLight],
         // ),
-        color: AppColors.coral,
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
-            color: _Palette.coral.withOpacity(0.25),
+            color: AppColors.primary.withOpacity(0.25),
             blurRadius: 14,
             offset: const Offset(0, 8),
           ),
@@ -580,7 +596,7 @@ class _PlanCard extends StatelessWidget {
             style: GoogleFonts.tasaOrbiter(
               fontSize: 20.sp,
               fontWeight: FontWeight.w800,
-              color: _Palette.subtleWhite,
+              color: AppColors.subtleWhite,
             ),
           ),
           SizedBox(height: 12.h),
@@ -588,7 +604,7 @@ class _PlanCard extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 15.h),
             decoration: BoxDecoration(
-              color: _Palette.subtleWhite,
+              color: AppColors.subtleWhite,
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Row(
@@ -600,7 +616,7 @@ class _PlanCard extends StatelessWidget {
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w800,
-                    color: _Palette.ink,
+                    color: AppColors.ink,
                   ),
                 ),
                 SizedBox(width: 6.w),
@@ -609,7 +625,7 @@ class _PlanCard extends StatelessWidget {
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w600,
-                    color: _Palette.coral,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -624,7 +640,10 @@ class _PlanCard extends StatelessWidget {
                 children: [
                   Text(
                     '✦',
-                    style: TextStyle(fontSize: 15.sp, color: _Palette.subtleWhite),
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: AppColors.subtleWhite,
+                    ),
                   ),
                   SizedBox(width: 8.w),
                   Expanded(
@@ -633,7 +652,7 @@ class _PlanCard extends StatelessWidget {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 17.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: _Palette.subtleWhite,
+                        color: AppColors.subtleWhite,
                         height: 1.3,
                       ),
                     ),
@@ -650,7 +669,7 @@ class _PlanCard extends StatelessWidget {
               height: 50.h,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: _Palette.coralLight,
+                color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Text(
@@ -658,7 +677,7 @@ class _PlanCard extends StatelessWidget {
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 19.5.sp,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.ink,
+                  color: AppColors.ink,
                 ),
               ),
             ),

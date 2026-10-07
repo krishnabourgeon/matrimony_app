@@ -307,15 +307,11 @@
 //   }
 // }
 
-
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/family_statuses.dart';
 import 'package:matrimony_app/model/family_type_model.dart';
@@ -327,17 +323,6 @@ import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/hobbies_screen.dart';
 
 /// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
-
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-  static const Color grey = Color(0xFFBDBDBD);
-}
 
 class FamilyDetailsScreen extends StatefulWidget {
   const FamilyDetailsScreen({super.key});
@@ -347,17 +332,16 @@ class FamilyDetailsScreen extends StatefulWidget {
 }
 
 class _FamilyDetailsState extends State<FamilyDetailsScreen> {
-  int _brothers        = 0;
+  int _brothers = 0;
   int _brothersMarried = 0;
-  int _sisters         = 0;
-  int _sistersMarried  = 0;
+  int _sisters = 0;
+  int _sistersMarried = 0;
   bool _isSkipping = false;
-
 
   // Answer to "Is this a WhatsApp enabled number?" for the second contact
   // number; null = not answered yet.
   bool? _whatsapp;
-  bool _telegram  = false;
+  bool _telegram = false;
 
   final _contactCtrl = TextEditingController();
 
@@ -451,7 +435,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       motherJobId: _motherOccupation?.id ?? 0,
       familyPropertyValueId: _familyIncome?.id ?? 0,
       mobile2: _contactCtrl.text.trim(),
-      mobile2whatsapp: _whatsapp == true ? 1 : 0
+      mobile2whatsapp: _whatsapp == true ? 1 : 0,
     );
   }
 
@@ -459,7 +443,9 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
     FocusScope.of(context).unfocus();
 
     if (_contactCtrl.text.trim().isNotEmpty && _whatsapp == null) {
-      return _showSnack('Please select whether the second number is WhatsApp enabled.');
+      return _showSnack(
+        'Please select whether the second number is WhatsApp enabled.',
+      );
     }
     if (_brothersMarried > _brothers) {
       return _showSnack('Brother Married count cannot exceed Brother count.');
@@ -479,7 +465,9 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
           MaterialPageRoute(builder: (_) => const HobbiesScreen()),
         );
       } else {
-        _showSnack(provider.familyError ?? 'Something went wrong. Please try again');
+        _showSnack(
+          provider.familyError ?? 'Something went wrong. Please try again',
+        );
       }
     });
   }
@@ -494,10 +482,15 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -505,7 +498,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -523,7 +516,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -534,7 +527,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     //   style: GoogleFonts.tasaOrbiter(
                     //     fontSize: 14.sp,
                     //     fontWeight: FontWeight.w400,
-                    //     color: _Palette.hintText,
+                    //     color: AppColors.hintText,
                     //   ),
                     // ),
                     SizedBox(height: 20.h),
@@ -543,8 +536,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.familyStatusesModel?.familyStatuses ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.familyStatusesModel?.familyStatuses ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.familyStatusesModel == null;
                         return _buildDropdownField<FamilyStatus>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -562,8 +557,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.familyTypeModel?.familyTypes ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.familyTypeModel?.familyTypes ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.familyTypeModel == null;
                         return _buildDropdownField<FamilyType>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -581,8 +578,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.familyValuesModel?.familyValues ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.familyValuesModel?.familyValues ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.familyValuesModel == null;
                         return _buildDropdownField<FamilyValue>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -616,14 +615,16 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                         if (_brothers == 0) return;
                         if (_brothers - 1 < _brothersMarried) {
                           return _showSnack(
-                              'Brother count cannot be less than Married Brother count.');
+                            'Brother count cannot be less than Married Brother count.',
+                          );
                         }
                         setState(() => _brothers--);
                       },
                       onIncrement: () {
                         if (_memberCount == null) {
                           return _showSnack(
-                              'Please select Total Family Members before adding Brother/Sister count');
+                            'Please select Total Family Members before adding Brother/Sister count',
+                          );
                         }
                         setState(() => _brothers++);
                       },
@@ -638,7 +639,8 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                       onIncrement: () {
                         if (_brothersMarried >= _brothers) {
                           return _showSnack(
-                              'Brother Married count cannot exceed Brother count.');
+                            'Brother Married count cannot exceed Brother count.',
+                          );
                         }
                         setState(() => _brothersMarried++);
                       },
@@ -651,14 +653,16 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                         if (_sisters == 0) return;
                         if (_sisters - 1 < _sistersMarried) {
                           return _showSnack(
-                              'Sister count cannot be less than Married Sister count.');
+                            'Sister count cannot be less than Married Sister count.',
+                          );
                         }
                         setState(() => _sisters--);
                       },
                       onIncrement: () {
                         if (_memberCount == null) {
                           return _showSnack(
-                              'Please select Total Family Members before adding Brother/Sister count');
+                            'Please select Total Family Members before adding Brother/Sister count',
+                          );
                         }
                         setState(() => _sisters++);
                       },
@@ -673,7 +677,8 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                       onIncrement: () {
                         if (_sistersMarried >= _sisters) {
                           return _showSnack(
-                              'Sister Married count cannot exceed Sister count.');
+                            'Sister Married count cannot exceed Sister count.',
+                          );
                         }
                         setState(() => _sistersMarried++);
                       },
@@ -684,8 +689,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.occupationsModel?.occupations ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.occupationsModel?.occupations ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.occupationsModel == null;
                         return _buildDropdownField<Occupation>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -693,7 +700,8 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                           items: options,
                           labelBuilder: (o) => o.name,
                           loading: loading,
-                          onChanged: (v) => setState(() => _fatherOccupation = v),
+                          onChanged: (v) =>
+                              setState(() => _fatherOccupation = v),
                         );
                       },
                     ),
@@ -703,8 +711,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.occupationsModel?.occupations ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.occupationsModel?.occupations ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.occupationsModel == null;
                         return _buildDropdownField<Occupation>(
                           hint: loading ? 'Loading...' : 'Select',
@@ -712,7 +722,8 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                           items: options,
                           labelBuilder: (o) => o.name,
                           loading: loading,
-                          onChanged: (v) => setState(() => _motherOccupation = v),
+                          onChanged: (v) =>
+                              setState(() => _motherOccupation = v),
                         );
                       },
                     ),
@@ -722,8 +733,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.valueSlabModel?.valueSlabs ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.valueSlabModel?.valueSlabs ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.valueSlabModel == null;
                         return _buildDropdownField<ValueSlab>(
                           hint: loading ? 'Loading...' : 'Select range',
@@ -747,7 +760,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                         style: GoogleFonts.tasaOrbiter(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
-                          color: _Palette.ink,
+                          color: AppColors.ink,
                         ),
                       ),
                       SizedBox(height: 8.h),
@@ -796,7 +809,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                       child: Text(
                         'In next two stages you can enter your hobbies, interests & horoscope details.',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 10.sp,
+                          color: AppColors.hintText,
+                        ),
                       ),
                     ),
                     SizedBox(height: 32.h),
@@ -825,10 +841,14 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -839,8 +859,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                 // ... Professional Details → Personal & Physical → Family Details (7th)
                 value: 6 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -866,10 +888,10 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
           height: 34.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _Palette.fieldBg,
+            color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(10.r),
           ),
-          child: Icon(icon, color: _Palette.ink, size: 16.sp),
+          child: Icon(icon, color: AppColors.ink, size: 16.sp),
         ),
       );
     }
@@ -878,14 +900,21 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, color: _Palette.hintText),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 12.sp,
+            color: AppColors.hintText,
+          ),
         ),
         const Spacer(),
         counterBtn(Icons.remove_rounded, onDecrement),
         SizedBox(width: 10.w),
         Text(
           '$value',
-          style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _Palette.ink),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.ink,
+          ),
         ),
         SizedBox(width: 10.w),
         counterBtn(Icons.add_rounded, onIncrement),
@@ -900,7 +929,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
     return Container(
       height: 52.h,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(
@@ -910,11 +939,15 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
             padding: EdgeInsets.only(left: 18.w),
             child: Text(
               '+91',
-              style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _Palette.ink),
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
+              ),
             ),
           ),
           SizedBox(width: 10.w),
-          Container(width: 1, height: 22.h, color: _Palette.trackBg),
+          Container(width: 1, height: 22.h, color: AppColors.trackBg),
           Expanded(
             child: TextFormField(
               controller: _contactCtrl,
@@ -929,18 +962,29 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(10),
               ],
-              style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.ink,
+                fontWeight: FontWeight.w500,
+              ),
               decoration: InputDecoration(
                 counterText: '',
                 hintText: 'Enter contact number',
-                hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                hintStyle: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: AppColors.hintText,
+                  fontWeight: FontWeight.w400,
+                ),
                 border: InputBorder.none,
                 errorBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 isDense: true,
                 isCollapsed: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 14.h,
+                ),
               ),
             ),
           ),
@@ -963,7 +1007,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: selected ? _Palette.coral : _Palette.fieldBg,
+          color: selected ? AppColors.primary : AppColors.fieldBg,
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Row(
@@ -974,7 +1018,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_unchecked_rounded,
               size: 16.sp,
-              color: selected ? _Palette.subtleWhite : _Palette.hintText,
+              color: selected ? AppColors.subtleWhite : AppColors.hintText,
             ),
             SizedBox(width: 6.w),
             Text(
@@ -982,7 +1026,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
               style: GoogleFonts.tasaOrbiter(
                 fontSize: 12.sp,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? _Palette.subtleWhite : _Palette.ink,
+                color: selected ? AppColors.subtleWhite : AppColors.ink,
               ),
             ),
           ],
@@ -1007,21 +1051,24 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: value ? color.withOpacity(0.1) : _Palette.fieldBg,
+          color: value ? color.withOpacity(0.1) : AppColors.fieldBg,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: value ? color : Colors.transparent, width: 1.2),
+          border: Border.all(
+            color: value ? color : Colors.transparent,
+            width: 1.2,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: value ? color : _Palette.hintText, size: 16.sp),
+            Icon(icon, color: value ? color : AppColors.hintText, size: 16.sp),
             SizedBox(width: 6.w),
             Text(
               label,
               style: GoogleFonts.tasaOrbiter(
                 fontSize: 12.sp,
                 fontWeight: value ? FontWeight.w700 : FontWeight.w500,
-                color: value ? color : _Palette.ink,
+                color: value ? color : AppColors.ink,
               ),
             ),
           ],
@@ -1047,7 +1094,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: loading
@@ -1056,13 +1103,19 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                 SizedBox(
                   width: 14.w,
                   height: 14.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             )
@@ -1070,7 +1123,11 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
               child: DropdownButtonFormField<T>(
                 initialValue: items.contains(value) ? value : null,
                 isExpanded: true,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.ink,
+                  size: 22.sp,
+                ),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
@@ -1079,16 +1136,28 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
                 hint: Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-                dropdownColor: _Palette.subtleWhite,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: AppColors.ink,
+                  fontWeight: FontWeight.w500,
+                ),
+                dropdownColor: AppColors.subtleWhite,
                 borderRadius: BorderRadius.circular(14.r),
                 items: items
-                    .map((item) => DropdownMenuItem<T>(
-                          value: item,
-                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
-                        ))
+                    .map(
+                      (item) => DropdownMenuItem<T>(
+                        value: item,
+                        child: Text(
+                          labelBuilder(item),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: enabled ? onChanged : null,
               ),
@@ -1097,7 +1166,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Bottom area: Skip (outlined) + Continue (coral once valid, grey otherwise)
+  // Bottom area: Skip (outlined) + Continue (primary once valid, grey otherwise)
   // ---------------------------------------------------------------------
   Widget _buildBottomArea() {
     return Padding(
@@ -1110,8 +1179,8 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       //         child: OutlinedButton(
       //           onPressed: _handleSkip,
       //           style: OutlinedButton.styleFrom(
-      //             foregroundColor: _Palette.ink,
-      //             side: const BorderSide(color: _Palette.trackBg, width: 1.4),
+      //             foregroundColor: AppColors.ink,
+      //             side: const BorderSide(color: AppColors.trackBg, width: 1.4),
       //             shape: RoundedRectangleBorder(
       //               borderRadius: BorderRadius.circular(28.r),
       //             ),
@@ -1130,9 +1199,9 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       //         child: ElevatedButton(
       //           onPressed: _isSubmitting ? null : _handleContinue,
       //           style: ElevatedButton.styleFrom(
-      //             backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-      //             disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
-      //             foregroundColor: _Palette.subtleWhite,
+      //             backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
+      //             disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+      //             foregroundColor: AppColors.subtleWhite,
       //             elevation: 0,
       //             shape: RoundedRectangleBorder(
       //               borderRadius: BorderRadius.circular(28.r),
@@ -1145,7 +1214,7 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       //                   child: const CircularProgressIndicator(
       //                     strokeWidth: 2.4,
       //                     valueColor: AlwaysStoppedAnimation<Color>(
-      //                       _Palette.subtleWhite,
+      //                       AppColors.subtleWhite,
       //                     ),
       //                   ),
       //                 )
@@ -1164,80 +1233,80 @@ class _FamilyDetailsState extends State<FamilyDetailsScreen> {
       // ),
       child: Row(
         children: [
-              Expanded(
-                child: SizedBox(
-                  height: 40.h,
-                  child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _handleContinue,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _Palette.coral,
-                      disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
-                      foregroundColor: _Palette.subtleWhite,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28.r),
-                      ),
-                    ),
-                    child: _isSubmitting
-                        ? SizedBox(
-                            width: 22.w,
-                            height: 22.w,
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2.4,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                _Palette.subtleWhite,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'Continue',
-                            style: GoogleFonts.tasaOrbiter(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.1,
-                            ),
-                          ),
+          Expanded(
+            child: SizedBox(
+              height: 40.h,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _handleContinue,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                  foregroundColor: AppColors.subtleWhite,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.r),
                   ),
                 ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: SizedBox(
-                  height: 40.h,
-                  child: OutlinedButton(
-                    onPressed: _handleSkip,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _Palette.coral,
-                      disabledForegroundColor: _Palette.coral.withOpacity(0.6),
-                      side: BorderSide(color: _Palette.coral, width: 1.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28.r),
-                      ),
-                    ),
-                    child: _isSkipping
-                        ? SizedBox(
-                            width: 22.w,
-                            height: 22.w,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.4,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                _Palette.coral,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'Skip',
-                            style: GoogleFonts.tasaOrbiter(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.1,
-                            ),
+                child: _isSubmitting
+                    ? SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.subtleWhite,
                           ),
-                  ),
-                ),
+                        ),
+                      )
+                    : Text(
+                        'Continue',
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
               ),
-            ],
+            ),
           ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: SizedBox(
+              height: 40.h,
+              child: OutlinedButton(
+                onPressed: _handleSkip,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  disabledForegroundColor: AppColors.primary.withOpacity(0.6),
+                  side: BorderSide(color: AppColors.primary, width: 1.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.r),
+                  ),
+                ),
+                child: _isSkipping
+                    ? SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primary,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        'Skip',
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1254,7 +1323,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.tasaOrbiter(
         fontSize: 13.sp,
         fontWeight: FontWeight.w600,
-        color: _Palette.ink,
+        color: AppColors.ink,
       ),
     );
   }

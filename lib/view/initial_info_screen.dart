@@ -466,19 +466,6 @@ import 'package:matrimony_app/view/login_screen.dart';
 import 'package:matrimony_app/view/otp_verify_screen.dart';
 import 'package:provider/provider.dart';
 
-// /// Brand colors used on this screen.
-// class _Palette {
-//   _Palette._();
-//   static const Color coral = Color(0xFFFF3356);
-//   static const Color coralDark = Color(0xFFE01F42);
-//   static const Color ink = Color(0xFF1A1A1A);
-//   static const Color subtleWhite = Color(0xFFFFFFFF);
-
-//   static const Color fieldBg = Color(0xFFF5F5F7);
-//   static const Color hintText = Color(0xFF8A8A8E);
-//   static const Color trackBg = Color(0xFFECECEE);
-//   static const Color error = Color(0xFFE53935);
-// }
 
 class InitialInfoScreen extends StatefulWidget {
   const InitialInfoScreen({super.key});
@@ -497,8 +484,6 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
   CreatedFor? _profileFor;
   Language? _motherTongue;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -515,7 +500,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
     super.dispose();
   }
 
-  // Drives the Send OTP button's coral/grey state.
+  // Drives the Send OTP button's primary/grey state.
   bool get _isFormValid {
     if (_fullNameController.text.trim().isEmpty) return false;
     if (_profileFor == null) return false;
@@ -555,24 +540,29 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
     final provider = context.read<RegisterProvider>();
     provider
         .signup(
-      _profileFor!.id,
-      _fullNameController.text.trim(),
-      _motherTongue!.id,
-      _mobileController.text.trim(),
-    )
+          _profileFor!.id,
+          _fullNameController.text.trim(),
+          _motherTongue!.id,
+          _mobileController.text.trim(),
+        )
         .then((success) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      if (success) {
-        _showSnack(provider.signupModel?.message ?? 'Signup successful');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => OtpVerifyScreen(mobile: _mobileController.text)),
-        );
-      } else {
-        _showSnack(provider.signupError ?? 'Signup failed. Please try again');
-      }
-    });
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          if (success) {
+            _showSnack(provider.signupModel?.message ?? 'Signup successful');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    OtpVerifyScreen(mobile: _mobileController.text),
+              ),
+            );
+          } else {
+            _showSnack(
+              provider.signupError ?? 'Signup failed. Please try again',
+            );
+          }
+        });
   }
 
   void _showSnack(String message) {
@@ -625,12 +615,12 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                     ),
                     SizedBox(height: 20.h),
 
-                    _FieldLabel('Create Profile For',required: true,),
+                    _FieldLabel('Create Profile For', required: true),
                     SizedBox(height: 10.h),
                     _buildProfileForSelector(),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel("Bride's/Groom's Name ",required: true),
+                    _FieldLabel("Bride's/Groom's Name ", required: true),
                     SizedBox(height: 8.h),
                     _buildTextField(
                       controller: _fullNameController,
@@ -644,12 +634,12 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                     ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Mother Tongue',required: true),
+                    _FieldLabel('Mother Tongue', required: true),
                     SizedBox(height: 8.h),
                     _buildMotherTongueDropdown(),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Mobile Number',required: true),
+                    _FieldLabel('Mobile Number', required: true),
                     SizedBox(height: 8.h),
                     _buildMobileField(errorText: _mobileError),
 
@@ -677,7 +667,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
           value: 0.33,
           minHeight: 6.h,
           backgroundColor: AppColors.trackBg,
-          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.coral),
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
         ),
       ),
     );
@@ -694,7 +684,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
           return SizedBox(
             height: 40.h,
             child: Center(
-              child: CircularProgressIndicator(color: AppColors.coralDark),
+              child: CircularProgressIndicator(color: AppColors.primaryDark),
             ),
           );
         }
@@ -734,10 +724,10 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                 duration: const Duration(milliseconds: 150),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.coral : AppColors.fieldBg,
+                  color: selected ? AppColors.primary : AppColors.fieldBg,
                   borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(
-                    color: selected ? AppColors.coral : Colors.transparent,
+                    color: selected ? AppColors.primary : Colors.transparent,
                     width: 1.2,
                   ),
                 ),
@@ -925,7 +915,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
           return SizedBox(
             height: 44.h,
             child: Center(
-              child: CircularProgressIndicator(color: AppColors.coralDark),
+              child: CircularProgressIndicator(color: AppColors.primaryDark),
             ),
           );
         }
@@ -1024,9 +1014,9 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
               onPressed: _isSubmitting ? null : _handleSendOtp,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isFormValid
-                    ? AppColors.coral
+                    ? AppColors.primary
                     : AppColors.grey,
-                disabledBackgroundColor: AppColors.coral,
+                disabledBackgroundColor: AppColors.primary,
                 foregroundColor: AppColors.subtleWhite,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -1077,7 +1067,7 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
                   'Login',
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 13.5.sp,
-                    color: AppColors.coralDark,
+                    color: AppColors.primaryDark,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -1107,9 +1097,6 @@ class _InitialInfoScreenState extends State<InitialInfoScreen> {
 //     );
 //   }
 // }
-
-
-
 
 /// Small reusable field label used above every input on this screen.
 /// Pass [required] to append a red asterisk, matching the reference design.

@@ -9,24 +9,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/image_types_model.dart';
 import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/family_details_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
-
-/// Brand colors used on this screen — mirrors the other onboarding screens' palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
-
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-  static const Color grey = Color(0xFFBDBDBD);
-}
 
 class PhotosAboutScreen extends StatefulWidget {
   const PhotosAboutScreen({super.key});
@@ -55,18 +43,18 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
 
   int get _slotCount {
     final types = context.read<RegisterProvider>().imageTypesModel?.imageTypes;
-    return (types != null && types.isNotEmpty) ? types.length : _slotLabels.length;
+    return (types != null && types.isNotEmpty)
+        ? types.length
+        : _slotLabels.length;
   }
 
   // Replaces the list with a longer copy (keeps picked photos), so it works
   // whether or not the current list is growable.
   void _ensureSlots(int count) {
     if (_photos.length >= count) return;
-    _photos = [
-      ..._photos,
-      ...List<File?>.filled(count - _photos.length, null),
-    ];
+    _photos = [..._photos, ...List<File?>.filled(count - _photos.length, null)];
   }
+
   final _picker = ImagePicker();
 
   int _aboutCount = 0;
@@ -133,7 +121,8 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
     return null;
   }
 
-  int _typeIdForSlot(int index) => _fetchedTypeForSlot(index)?.id ?? (index + 1);
+  int _typeIdForSlot(int index) =>
+      _fetchedTypeForSlot(index)?.id ?? (index + 1);
 
   String? _labelForSlot(int index) {
     return _fetchedTypeForSlot(index)?.name ??
@@ -172,7 +161,9 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
           MaterialPageRoute(builder: (_) => FamilyDetailsScreen()),
         );
       } else {
-        _showSnack(provider.photosError ?? 'Something went wrong. Please try again');
+        _showSnack(
+          provider.photosError ?? 'Something went wrong. Please try again',
+        );
       }
     });
   }
@@ -194,7 +185,9 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
           (route) => false,
         );
       } else {
-        _showSnack(provider.photosError ?? 'Something went wrong. Please try again');
+        _showSnack(
+          provider.photosError ?? 'Something went wrong. Please try again',
+        );
       }
     });
   }
@@ -202,10 +195,15 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -213,7 +211,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -231,7 +229,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -245,7 +243,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w500,
-                        color: _Palette.coral,
+                        color: AppColors.primary,
                       ),
                     ),
                     SizedBox(height: 14.h),
@@ -257,7 +255,8 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                     SizedBox(height: 8.h),
                     _buildTextAreaField(
                       controller: _aboutCtrl,
-                      hint: 'I am a simple and family-oriented individual with a positive outlook on life.Enjoy music, travel, and spending time with close ones. Looking for a genuine and understanding life partner',
+                      hint:
+                          'I am a simple and family-oriented individual with a positive outlook on life.Enjoy music, travel, and spending time with close ones. Looking for a genuine and understanding life partner',
                       maxLength: 255,
                       count: _aboutCount,
                       onChanged: (v) => setState(() => _aboutCount = v.length),
@@ -289,10 +288,14 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -302,8 +305,10 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
               child: LinearProgressIndicator(
                 value: 7 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -318,28 +323,28 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
   Widget _buildPhotoGrid() {
     return Consumer<RegisterProvider>(
       builder: (context, provider, _) {
-      final slotCount = _slotCount;
-      _ensureSlots(slotCount);
-      return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: slotCount,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 10.w,
-        crossAxisSpacing: 10.w,
-        childAspectRatio: 0.85,
-      ),
-      itemBuilder: (context, index) {
-        final label = _labelForSlot(index);
-        return _PhotoSlot(
-          file: _photos[index],
-          label: label,
-          onTap: () => _pickPhoto(index),
-          onRemove: () => _removePhoto(index),
+        final slotCount = _slotCount;
+        _ensureSlots(slotCount);
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: slotCount,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 10.w,
+            crossAxisSpacing: 10.w,
+            childAspectRatio: 0.85,
+          ),
+          itemBuilder: (context, index) {
+            final label = _labelForSlot(index);
+            return _PhotoSlot(
+              file: _photos[index],
+              label: label,
+              onTap: () => _pickPhoto(index),
+              onRemove: () => _removePhoto(index),
+            );
+          },
         );
-      },
-      );
       },
     );
   }
@@ -359,7 +364,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: _Palette.fieldBg,
+            color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(14.r),
           ),
           child: TextFormField(
@@ -372,15 +377,26 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z .,\n]')),
             ],
             onChanged: onChanged,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.ink,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              hintStyle: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.hintText,
+                fontWeight: FontWeight.w400,
+              ),
               border: InputBorder.none,
               errorBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18.w,
+                vertical: 10.h,
+              ),
               // Counter is shown below the field instead.
               counterText: '',
             ),
@@ -389,7 +405,10 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
         SizedBox(height: 6.h),
         Text(
           '$count/$maxLength',
-          style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.hintText),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 11.sp,
+            color: AppColors.hintText,
+          ),
         ),
       ],
     );
@@ -410,13 +429,13 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
               child: ElevatedButton(
                 onPressed: busy ? null : _handleContinue,
                 style: ElevatedButton.styleFrom(
-                  // backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
+                  // backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
                   // disabledBackgroundColor:
-                  //     (_isFormValid ? _Palette.coral : _Palette.grey).withOpacity(0.6),
-                  // foregroundColor: _Palette.subtleWhite,
-                  backgroundColor: _Palette.coral,
-                  disabledBackgroundColor: _Palette.coral.withOpacity(0.6),
-                  foregroundColor: _Palette.subtleWhite,
+                  //     (_isFormValid ? AppColors.primary : AppColors.grey).withOpacity(0.6),
+                  // foregroundColor: AppColors.subtleWhite,
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                  foregroundColor: AppColors.subtleWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),
@@ -429,7 +448,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                         child: const CircularProgressIndicator(
                           strokeWidth: 2.4,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.subtleWhite,
+                            AppColors.subtleWhite,
                           ),
                         ),
                       )
@@ -451,9 +470,9 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
               child: OutlinedButton(
                 onPressed: busy ? null : _handleSubmit,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _Palette.coral,
-                  disabledForegroundColor: _Palette.coral.withOpacity(0.6),
-                  side: BorderSide(color: _Palette.coral, width: 1.4),
+                  foregroundColor: AppColors.primary,
+                  disabledForegroundColor: AppColors.primary.withOpacity(0.6),
+                  side: BorderSide(color: AppColors.primary, width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),
                   ),
@@ -465,7 +484,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.coral,
+                            AppColors.primary,
                           ),
                         ),
                       )
@@ -498,14 +517,14 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.tasaOrbiter(
         fontSize: 15.sp,
         fontWeight: FontWeight.w700,
-        color: _Palette.ink,
+        color: AppColors.ink,
       ),
     );
   }
 }
 
 /// A single photo tile: dashed border + "+" and an optional label when
-/// empty, or the picked image with a coral highlight border once filled.
+/// empty, or the picked image with a primary highlight border once filled.
 class _PhotoSlot extends StatelessWidget {
   const _PhotoSlot({
     required this.file,
@@ -531,10 +550,10 @@ class _PhotoSlot extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
-              color: _Palette.subtleWhite,
+              color: AppColors.subtleWhite,
               borderRadius: BorderRadius.circular(10.r),
               border: Border.all(
-                color: filled ? _Palette.coral : _Palette.trackBg,
+                color: filled ? AppColors.primary : AppColors.trackBg,
                 width: filled ? 1.6 : 1,
               ),
               image: filled
@@ -547,7 +566,7 @@ class _PhotoSlot extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.add, color: _Palette.hintText, size: 18.sp),
+                        Icon(Icons.add, color: AppColors.hintText, size: 18.sp),
                         if (label != null) ...[
                           SizedBox(height: 4.h),
                           Padding(
@@ -558,7 +577,7 @@ class _PhotoSlot extends StatelessWidget {
                               style: GoogleFonts.tasaOrbiter(
                                 fontSize: 9.5.sp,
                                 fontWeight: FontWeight.w600,
-                                color: _Palette.hintText,
+                                color: AppColors.hintText,
                               ),
                             ),
                           ),
@@ -576,10 +595,14 @@ class _PhotoSlot extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.all(2.r),
                   decoration: const BoxDecoration(
-                    color: _Palette.ink,
+                    color: AppColors.ink,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.close, size: 12.sp, color: _Palette.subtleWhite),
+                  child: Icon(
+                    Icons.close,
+                    size: 12.sp,
+                    color: AppColors.subtleWhite,
+                  ),
                 ),
               ),
             ),

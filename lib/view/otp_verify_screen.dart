@@ -7,7 +7,6 @@
 // import 'package:matrimony_app/view/custom_widgets/scaffold_helpers.dart';
 // import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 
-
 // class OtpVerifyScreen extends StatefulWidget {
 //   final String mobile;
 //   final Widget? nextScreen;
@@ -199,10 +198,6 @@
 //   }
 // }
 
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -222,8 +217,10 @@ class OtpVerifyScreen extends StatefulWidget {
 }
 
 class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
-  final List<TextEditingController> _ctrl =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _ctrl = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focus = List.generate(4, (_) => FocusNode());
   int _seconds = 90;
   bool _isSubmitting = false;
@@ -244,14 +241,17 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     setState(() => _isSubmitting = true);
     String otpString = _ctrl.map((e) => e.text).join();
     int otp = int.parse(otpString);
-    context.read<RegisterProvider>().verifyOtp(widget.mobile, otp).then((success) {
+    context.read<RegisterProvider>().verifyOtp(widget.mobile, otp).then((
+      success,
+    ) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
       if (success) {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => widget.nextScreen ?? const BasicInfoScreen()),
+            builder: (_) => widget.nextScreen ?? const BasicInfoScreen(),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -311,7 +311,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
               const SizedBox(height: 28),
 
               // Headline
-               Text(
+              Text(
                 "Let's Verify Your Number",
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 28,
@@ -323,7 +323,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
               const SizedBox(height: 20),
               Text(
                 "We'll sent a 4 digit code to verify\n+91 ${widget.mobile.isEmpty ? "XXXXXXXXXX" : widget.mobile}",
-                style:  GoogleFonts.tasaOrbiter(
+                style: GoogleFonts.tasaOrbiter(
                   fontSize: 14,
                   color: AppColors.ink.withOpacity(0.55),
                   height: 1.4,
@@ -364,32 +364,33 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
               Center(
                 child: _seconds > 0
                     ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
                             "Didn't receive a code?",
-                            style:  GoogleFonts.tasaOrbiter(
+                            style: GoogleFonts.tasaOrbiter(
                               fontSize: 13,
                               color: AppColors.ink.withOpacity(0.45),
                             ),
                           ),
                           Text(
                             " Resend OTP in ${_seconds}s",
-                            style:  GoogleFonts.tasaOrbiter(
+                            style: GoogleFonts.tasaOrbiter(
                               fontSize: 13,
-                              color: Colors.blue),
+                              color: Colors.blue,
                             ),
-                      ],
-                    )
+                          ),
+                        ],
+                      )
                     : GestureDetector(
                         onTap: () {
                           setState(() => _seconds = 30);
                           _startTimer();
                         },
-                        child:  Text(
+                        child: Text(
                           'Resend OTP',
-                          style:  GoogleFonts.tasaOrbiter(
-                            color: AppColors.coral,
+                          style: GoogleFonts.tasaOrbiter(
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -411,7 +412,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     );
   }
 
-   Widget _buildBottomArea() {
+  Widget _buildBottomArea() {
     return Padding(
       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 20.h),
       child: SizedBox(
@@ -420,8 +421,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
         child: ElevatedButton(
           onPressed: _isSubmitting ? null : _handleContinue,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _isFormValid ? AppColors.coral : AppColors.grey,
-            disabledBackgroundColor: AppColors.coral,
+            backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
+            disabledBackgroundColor: AppColors.primary,
             foregroundColor: AppColors.subtleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -451,10 +452,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       ),
     );
   }
-
 }
-
-
 
 // ── Shared local widgets ─────────────────────────────────────────
 
@@ -473,8 +471,11 @@ class _BackButton extends StatelessWidget {
           color: const Color(0xFFF3F3F5),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.arrow_back_rounded,
-            color: AppColors.ink, size: 20),
+        child: const Icon(
+          Icons.arrow_back_rounded,
+          color: AppColors.ink,
+          size: 20,
+        ),
       ),
     );
   }
@@ -504,7 +505,7 @@ class _ProgressBar extends StatelessWidget {
                 width: constraints.maxWidth * fraction,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.coral, AppColors.coralDark],
+                    colors: [AppColors.primary, AppColors.primaryDark],
                   ),
                 ),
               ),
@@ -538,7 +539,7 @@ class _OtpBox extends StatelessWidget {
         keyboardType: TextInputType.number,
         maxLength: 1,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        style:  GoogleFonts.tasaOrbiter(
+        style: GoogleFonts.tasaOrbiter(
           fontSize: 22,
           fontWeight: FontWeight.bold,
           color: AppColors.ink,
@@ -557,7 +558,7 @@ class _OtpBox extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: AppColors.coral, width: 2),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
           ),
         ),
         onChanged: onChanged,
@@ -587,12 +588,12 @@ class _CTAButton extends StatelessWidget {
         height: 56,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isEnabled ? AppColors.coral : AppColors.grey,         
+          color: isEnabled ? AppColors.primary : AppColors.grey,
           borderRadius: BorderRadius.circular(28),
           boxShadow: isEnabled
               ? [
                   BoxShadow(
-                    color: AppColors.coral.withOpacity(0.35),
+                    color: AppColors.primary.withOpacity(0.35),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),

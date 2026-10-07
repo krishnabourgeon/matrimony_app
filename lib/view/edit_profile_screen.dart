@@ -463,9 +463,6 @@
 //   );
 // }
 
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -588,7 +585,7 @@ class EditProfileScreen extends StatelessWidget {
             const AutoChangingImage(
               imageUrls: [
                 'assets/image/person.png',
-                'assets/image/person2.png'
+                'assets/image/person2.png',
               ],
             ),
             Container(
@@ -625,12 +622,12 @@ class EditProfileScreen extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
-                            SizedBox(width: 5.w,),
+                            SizedBox(width: 5.w),
                             Image.asset(
-                          'assets/image/verified.png',
-                          height: 20.h,
-                          width: 20.w,
-                        )
+                              'assets/image/verified.png',
+                              height: 20.h,
+                              width: 20.w,
+                            ),
                           ],
                         ),
                         SizedBox(height: 2.h),
@@ -649,7 +646,7 @@ class EditProfileScreen extends StatelessWidget {
                   //   icon: Icons.verified,
                   //   label: 'Verified',
                   //   bgColor: Colors.white,
-                  //   fgColor: AppColors.coral,
+                  //   fgColor: AppColors.primary,
                   // ),
                 ],
               ),
@@ -660,7 +657,10 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _circleIconButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _circleIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -755,11 +755,7 @@ class EditProfileScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(17.r),
             ),
             child: Center(
-              child: Image.asset(
-                image,
-                height: 24.h,
-                width: 24.w,
-              ),
+              child: Image.asset(image, height: 24.h, width: 24.w),
             ),
           ),
           SizedBox(width: 8.w),
@@ -810,7 +806,7 @@ class EditProfileScreen extends StatelessWidget {
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.coral,
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -822,7 +818,9 @@ class EditProfileScreen extends StatelessWidget {
               value: completion,
               minHeight: 6.h,
               backgroundColor: Colors.white,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.coral),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.primary,
+              ),
             ),
           ),
         ],
@@ -860,21 +858,23 @@ class EditProfileScreen extends StatelessWidget {
       onEdit: () {
         // TODO: navigate to edit basic details screen
       },
-      child: _DetailRows(rows: const [
-        _Row('Full Name', 'Aravind Krishnan'),
-        _Row('Gender', 'Male'),
-        _Row('Date of Birth', '14 Jun 1997'),
-        _Row('Age', '28 yrs'),
-        _Row('Height', "5'9\" (175 cm)"),
-        _Row('Marital Status', 'Never Married'),
-        _Row('Mother Tongue', 'Malayalam'),
-        _Row('Religion', 'Hindu'),
-        _Row('Community', 'Nair'),
-        _Row('Sub Caste', 'Vishwakarma'),
-        _Row('Country', 'India'),
-        _Row('State', 'Kerala'),
-        _Row('City', 'Kochi'),
-      ]),
+      child: _DetailRows(
+        rows: const [
+          _Row('Full Name', 'Aravind Krishnan'),
+          _Row('Gender', 'Male'),
+          _Row('Date of Birth', '14 Jun 1997'),
+          _Row('Age', '28 yrs'),
+          _Row('Height', "5'9\" (175 cm)"),
+          _Row('Marital Status', 'Never Married'),
+          _Row('Mother Tongue', 'Malayalam'),
+          _Row('Religion', 'Hindu'),
+          _Row('Community', 'Nair'),
+          _Row('Sub Caste', 'Vishwakarma'),
+          _Row('Country', 'India'),
+          _Row('State', 'Kerala'),
+          _Row('City', 'Kochi'),
+        ],
+      ),
     );
   }
 
@@ -886,18 +886,20 @@ class EditProfileScreen extends StatelessWidget {
       onEdit: () {
         // TODO: navigate to edit physical attributes screen
       },
-      child: _DetailRows(rows: const [
-        _Row('Height', "5'9\" (175 cm)"),
-        _Row('Weight', '72 kg'),
-        _Row('Body Type', 'Athletic'),
-        _Row('Complexion', 'Wheatish'),
-        _Row('Blood Group', 'O+'),
-        _Row('Physical Status', 'Normal'),
-        _Row('Eating Habits', 'Non-Vegetarian'),
-        _Row('Drinking Habits', 'Occasionally'),
-        _Row('Smoking Habits', 'Non-Smoker'),
-        _Row('Hobbies & Interests', 'Travel, Photography, Cricket'),
-      ]),
+      child: _DetailRows(
+        rows: const [
+          _Row('Height', "5'9\" (175 cm)"),
+          _Row('Weight', '72 kg'),
+          _Row('Body Type', 'Athletic'),
+          _Row('Complexion', 'Wheatish'),
+          _Row('Blood Group', 'O+'),
+          _Row('Physical Status', 'Normal'),
+          _Row('Eating Habits', 'Non-Vegetarian'),
+          _Row('Drinking Habits', 'Occasionally'),
+          _Row('Smoking Habits', 'Non-Smoker'),
+          _Row('Hobbies & Interests', 'Travel, Photography, Cricket'),
+        ],
+      ),
     );
   }
 
@@ -909,14 +911,16 @@ class EditProfileScreen extends StatelessWidget {
       onEdit: () {
         // TODO: navigate to edit education & career screen
       },
-      child: _DetailRows(rows: const [
-        _Row('Highest Education', 'M.Tech Computer Science'),
-        _Row('Employed In', 'Private Company'),
-        _Row('Occupation', 'Software Engineer'),
-        _Row('Annual Income', '₹12,00,000 - ₹15,00,000'),
-        _Row('Company', 'Tech Solutions Pvt Ltd'),
-        _Row('Work Location', 'Kochi, Kerala'),
-      ]),
+      child: _DetailRows(
+        rows: const [
+          _Row('Highest Education', 'M.Tech Computer Science'),
+          _Row('Employed In', 'Private Company'),
+          _Row('Occupation', 'Software Engineer'),
+          _Row('Annual Income', '₹12,00,000 - ₹15,00,000'),
+          _Row('Company', 'Tech Solutions Pvt Ltd'),
+          _Row('Work Location', 'Kochi, Kerala'),
+        ],
+      ),
     );
   }
 
@@ -928,14 +932,16 @@ class EditProfileScreen extends StatelessWidget {
       onEdit: () {
         // TODO: navigate to edit family details screen
       },
-      child: _DetailRows(rows: const [
-        _Row('Father\'s Status', 'Employed'),
-        _Row('Mother\'s Status', 'Homemaker'),
-        _Row('Siblings', '1 Brother, 1 Sister'),
-        _Row('Family Type', 'Nuclear Family'),
-        _Row('Family Values', 'Traditional'),
-        _Row('Family Location', 'Kochi, Kerala'),
-      ]),
+      child: _DetailRows(
+        rows: const [
+          _Row('Father\'s Status', 'Employed'),
+          _Row('Mother\'s Status', 'Homemaker'),
+          _Row('Siblings', '1 Brother, 1 Sister'),
+          _Row('Family Type', 'Nuclear Family'),
+          _Row('Family Values', 'Traditional'),
+          _Row('Family Location', 'Kochi, Kerala'),
+        ],
+      ),
     );
   }
 
@@ -947,15 +953,17 @@ class EditProfileScreen extends StatelessWidget {
       onEdit: () {
         // TODO: navigate to edit horoscope screen
       },
-      child: _DetailRows(rows: const [
-        _Row('Place of Birth', 'Kochi, Kerala'),
-        _Row('Time of Birth', '06:45 AM'),
-        _Row('Star (Nakshatra)', 'Rohini'),
-        _Row('Raasi (Moon Sign)', 'Vrishabha'),
-        _Row('Gothram', 'Bharadwaja'),
-        _Row('Dosham', 'None'),
-        _Row('Horoscope Match Required', 'Yes'),
-      ]),
+      child: _DetailRows(
+        rows: const [
+          _Row('Place of Birth', 'Kochi, Kerala'),
+          _Row('Time of Birth', '06:45 AM'),
+          _Row('Star (Nakshatra)', 'Rohini'),
+          _Row('Raasi (Moon Sign)', 'Vrishabha'),
+          _Row('Gothram', 'Bharadwaja'),
+          _Row('Dosham', 'None'),
+          _Row('Horoscope Match Required', 'Yes'),
+        ],
+      ),
     );
   }
 
@@ -995,10 +1003,10 @@ class EditProfileScreen extends StatelessWidget {
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 13.5.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.coral,
+                  color: AppColors.primary,
                 ),
               ),
-              Icon(Icons.edit_outlined, size: 16.sp, color: AppColors.coral),
+              Icon(Icons.edit_outlined, size: 16.sp, color: AppColors.primary),
             ],
           ),
           SizedBox(height: 8.h),
@@ -1014,7 +1022,7 @@ class EditProfileScreen extends StatelessWidget {
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.coral,
+                  color: AppColors.primary,
                   decoration: TextDecoration.underline,
                 ),
               ),
@@ -1033,11 +1041,13 @@ class EditProfileScreen extends StatelessWidget {
       onEdit: () {
         // TODO: navigate to edit residence screen
       },
-      child: _DetailRows(rows: const [
-        _Row('Citizenship', 'India'),
-        _Row('Living Status', 'Living with Family'),
-        _Row('Visa Status', 'Not Applicable'),
-      ]),
+      child: _DetailRows(
+        rows: const [
+          _Row('Citizenship', 'India'),
+          _Row('Living Status', 'Living with Family'),
+          _Row('Visa Status', 'Not Applicable'),
+        ],
+      ),
     );
   }
 
@@ -1052,10 +1062,12 @@ class EditProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DetailRows(rows: const [
-            _Row('Email', 'aravind.k@email.com'),
-            _Row('Address', 'Kakkanad, Kochi, Kerala'),
-          ]),
+          _DetailRows(
+            rows: const [
+              _Row('Email', 'aravind.k@email.com'),
+              _Row('Address', 'Kakkanad, Kochi, Kerala'),
+            ],
+          ),
           SizedBox(height: 8.h),
           Row(
             children: [
@@ -1077,7 +1089,7 @@ class EditProfileScreen extends StatelessWidget {
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 12.5.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.coral,
+                    color: AppColors.primary,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -1144,7 +1156,7 @@ class _SectionCard extends StatelessWidget {
                 child: Icon(
                   Icons.edit_outlined,
                   size: 16.sp,
-                  color: AppColors.coral,
+                  color: AppColors.primary,
                 ),
               ),
             ],

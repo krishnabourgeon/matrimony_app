@@ -286,6 +286,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
+import 'package:matrimony_app/view/custom_widgets/gender_avatar.dart';
 import 'package:matrimony_app/view/edit_partner_preference_screen.dart';
 import 'package:matrimony_app/view/edit_profile_screen.dart';
 import 'package:matrimony_app/view/login_screen.dart';
@@ -636,16 +637,20 @@ class AppDrawer extends StatelessWidget {
             border: Border.all(color: AppColors.primary, width: 2),
           ),
           child: ClipOval(
-            child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                ? Image.network(avatarUrl!, fit: BoxFit.cover)
-                : Container(
-                    color: const Color(0xFFEFEFEF),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.black26,
-                      size: 26,
-                    ),
-                  ),
+            child: Builder(builder: (context) {
+              // The user's own avatar: boy/girl default based on their gender.
+              final fallback = genderAvatarFallback(
+                gender: UserGender.current,
+                iconSize: 26,
+              );
+              return (avatarUrl != null && avatarUrl!.isNotEmpty)
+                  ? Image.network(
+                      avatarUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => fallback,
+                    )
+                  : fallback;
+            }),
           ),
         ),
         Positioned(

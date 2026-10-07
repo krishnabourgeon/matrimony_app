@@ -12,12 +12,16 @@ class SearchPreferencesScreen extends StatefulWidget {
   const SearchPreferencesScreen({super.key});
 
   @override
-  State<SearchPreferencesScreen> createState() => _SearchPreferencesScreenState();
+  State<SearchPreferencesScreen> createState() =>
+      _SearchPreferencesScreenState();
 }
 
 class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
   RangeValues _ageRange = const RangeValues(24, 29);
-  RangeValues _heightRange = const RangeValues(59, 67); // inches: 4'11"=59in, 5'7"=67in
+  RangeValues _heightRange = const RangeValues(
+    59,
+    67,
+  ); // inches: 4'11"=59in, 5'7"=67in
 
   String _maritalStatus = 'Never Married';
   String _community = 'Open to All';
@@ -38,8 +42,19 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
   bool _isSearching = false;
 
   static const _allDistricts = [
-    'Palakkad', 'Thrissur', 'Ernakulam', 'Kozhikode', 'Kollam', 'Kannur',
-    'Alappuzha', 'Kottayam', 'Malappuram', 'Wayanad', 'Idukki', 'Pathanamthitta', 'Kasaragod',
+    'Palakkad',
+    'Thrissur',
+    'Ernakulam',
+    'Kozhikode',
+    'Kollam',
+    'Kannur',
+    'Alappuzha',
+    'Kottayam',
+    'Malappuram',
+    'Wayanad',
+    'Idukki',
+    'Pathanamthitta',
+    'Kasaragod',
   ];
 
   String _heightLabel(double inches) {
@@ -77,7 +92,11 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.searchError ?? 'Something went wrong. Please try again')),
+        SnackBar(
+          content: Text(
+            provider.searchError ?? 'Something went wrong. Please try again',
+          ),
+        ),
       );
     }
   }
@@ -98,12 +117,17 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                   children: [
                     Text(
                       'Personalise your search',
-                      style: GoogleFonts.tasaOrbiter(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
                     ),
                     SizedBox(height: 16.h),
                     _rangeSliderRow(
                       label: 'Age',
-                      valueText: 'Min ${_ageRange.start.round()} yrs - Max ${_ageRange.end.round()} yrs',
+                      valueText:
+                          'Min ${_ageRange.start.round()} yrs - Max ${_ageRange.end.round()} yrs',
                       values: _ageRange,
                       min: 18,
                       max: 60,
@@ -112,7 +136,8 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                     SizedBox(height: 18.h),
                     _rangeSliderRow(
                       label: 'Height',
-                      valueText: 'Min ${_heightLabel(_heightRange.start)} - Max ${_heightLabel(_heightRange.end)}',
+                      valueText:
+                          'Min ${_heightLabel(_heightRange.start)} - Max ${_heightLabel(_heightRange.end)}',
                       values: _heightRange,
                       min: 48,
                       max: 84,
@@ -122,31 +147,65 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                     _dropdownRow(
                       label: 'Marital Status',
                       value: _maritalStatus,
-                      options: const ['Never Married', 'Divorced', 'Widowed', 'Awaiting Divorce', 'Any'],
+                      options: const [
+                        'Never Married',
+                        'Divorced',
+                        'Widowed',
+                        'Awaiting Divorce',
+                        'Any',
+                      ],
                       onSelected: (v) => setState(() => _maritalStatus = v),
                     ),
                     _dropdownRow(
                       label: 'Community',
                       value: _community,
-                      options: const ['Open to All', 'Nair', 'Thiyya', 'Ezhava', 'Vishwakarma', 'Brahmin'],
+                      options: const [
+                        'Open to All',
+                        'Nair',
+                        'Thiyya',
+                        'Ezhava',
+                        'Vishwakarma',
+                        'Brahmin',
+                      ],
                       onSelected: (v) => setState(() => _community = v),
                     ),
                     _dropdownRow(
                       label: 'Mother Tongue',
                       value: _motherTongue,
-                      options: const ['Malayalam', 'Tamil', 'Telugu', 'Kannada', 'Hindi', 'English', 'Any'],
+                      options: const [
+                        'Malayalam',
+                        'Tamil',
+                        'Telugu',
+                        'Kannada',
+                        'Hindi',
+                        'English',
+                        'Any',
+                      ],
                       onSelected: (v) => setState(() => _motherTongue = v),
                     ),
                     _dropdownRow(
                       label: 'Country living in',
                       value: _country,
-                      options: const ['India', 'USA', 'UK', 'UAE', 'Canada', 'Australia', 'Any'],
+                      options: const [
+                        'India',
+                        'USA',
+                        'UK',
+                        'UAE',
+                        'Canada',
+                        'Australia',
+                        'Any',
+                      ],
                       onSelected: (v) => setState(() => _country = v),
                     ),
                     _dropdownRow(
                       label: 'State living in',
                       value: _state,
-                      options: const ['Kerala', 'Tamil Nadu', 'Karnataka', 'Any'],
+                      options: const [
+                        'Kerala',
+                        'Tamil Nadu',
+                        'Karnataka',
+                        'Any',
+                      ],
                       onSelected: (v) => setState(() => _state = v),
                     ),
                     _multiSelectRow(
@@ -157,23 +216,35 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                     _dropdownRow(
                       label: 'Photo Settings',
                       value: _photoSettings,
-                      options: const ['Open to All', 'With Photo Only', 'Photo Protected'],
+                      options: const [
+                        'Open to All',
+                        'With Photo Only',
+                        'Photo Protected',
+                      ],
                       onSelected: (v) => setState(() => _photoSettings = v),
                       showDivider: false,
                     ),
                     SizedBox(height: 14.h),
                     Center(
                       child: InkWell(
-                        onTap: () => setState(() => _advancedExpanded = !_advancedExpanded),
+                        onTap: () => setState(
+                          () => _advancedExpanded = !_advancedExpanded,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               'Advanced Search Options',
-                              style: GoogleFonts.tasaOrbiter(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF5A6ACF)),
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF5A6ACF),
+                              ),
                             ),
                             Icon(
-                              _advancedExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                              _advancedExpanded
+                                  ? Icons.keyboard_arrow_up_rounded
+                                  : Icons.keyboard_arrow_down_rounded,
                               size: 18.sp,
                               color: const Color(0xFF5A6ACF),
                             ),
@@ -187,40 +258,81 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                       _dropdownRow(
                         label: 'Qualification',
                         value: _qualification,
-                        options: const ['Open to All', "Bachelor's", "Master's", 'Doctorate', 'Diploma'],
+                        options: const [
+                          'Open to All',
+                          "Bachelor's",
+                          "Master's",
+                          'Doctorate',
+                          'Diploma',
+                        ],
                         onSelected: (v) => setState(() => _qualification = v),
                       ),
                       _dropdownRow(
                         label: 'Education',
                         value: _education,
-                        options: const ['Open to All', 'Engineering', 'Medicine', 'Arts', 'Commerce', 'Law'],
+                        options: const [
+                          'Open to All',
+                          'Engineering',
+                          'Medicine',
+                          'Arts',
+                          'Commerce',
+                          'Law',
+                        ],
                         onSelected: (v) => setState(() => _education = v),
                       ),
                       _dropdownRow(
                         label: 'Working With',
                         value: _workingWith,
-                        options: const ['Open to All', 'Government', 'Private', 'Business', 'Self Employed', 'Not Working'],
+                        options: const [
+                          'Open to All',
+                          'Government',
+                          'Private',
+                          'Business',
+                          'Self Employed',
+                          'Not Working',
+                        ],
                         onSelected: (v) => setState(() => _workingWith = v),
                       ),
                       _dropdownRow(
                         label: 'Profession',
                         value: _profession,
-                        options: const ['Open to All', 'Software Engineer', 'Doctor', 'Teacher', 'Finance Professional', 'Business'],
+                        options: const [
+                          'Open to All',
+                          'Software Engineer',
+                          'Doctor',
+                          'Teacher',
+                          'Finance Professional',
+                          'Business',
+                        ],
                         onSelected: (v) => setState(() => _profession = v),
                         showDivider: false,
                       ),
                       SizedBox(height: 16.h),
                       _sectionTitle('Annual Income'),
                       SizedBox(height: 8.h),
-                      _incomeOption(label: 'Open to All', selected: _incomeOpenToAll, onTap: () => setState(() => _incomeOpenToAll = true)),
+                      _incomeOption(
+                        label: 'Open to All',
+                        selected: _incomeOpenToAll,
+                        onTap: () => setState(() => _incomeOpenToAll = true),
+                      ),
                       SizedBox(height: 8.h),
-                      _incomeOption(label: 'Specify an Income range', selected: !_incomeOpenToAll, onTap: () => setState(() => _incomeOpenToAll = false)),
+                      _incomeOption(
+                        label: 'Specify an Income range',
+                        selected: !_incomeOpenToAll,
+                        onTap: () => setState(() => _incomeOpenToAll = false),
+                      ),
                       SizedBox(height: 16.h),
                       _sectionTitle('Life style & Appearance'),
                       _dropdownRow(
                         label: 'Diet',
                         value: _diet,
-                        options: const ['Open to All', 'Vegetarian', 'Non-Vegetarian', 'Eggetarian', 'Vegan'],
+                        options: const [
+                          'Open to All',
+                          'Vegetarian',
+                          'Non-Vegetarian',
+                          'Eggetarian',
+                          'Vegan',
+                        ],
                         onSelected: (v) => setState(() => _diet = v),
                         showDivider: false,
                       ),
@@ -234,16 +346,26 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                         child: Container(
                           height: 48.h,
                           alignment: Alignment.center,
-                          decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(26.r)),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(26.r),
+                          ),
                           child: _isSearching
                               ? SizedBox(
                                   width: 20.w,
                                   height: 20.w,
-                                  child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
                                 )
                               : Text(
                                   'Search Now',
-                                  style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.white),
+                                  style: GoogleFonts.tasaOrbiter(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
                                 ),
                         ),
                       ),
@@ -287,7 +409,10 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                   SizedBox(width: 8.w),
                   Text(
                     'Search by Matches',
-                    style: GoogleFonts.tasaOrbiter(fontSize: 12.5.sp, color: Colors.black45),
+                    style: GoogleFonts.tasaOrbiter(
+                      fontSize: 12.5.sp,
+                      color: Colors.black45,
+                    ),
                   ),
                 ],
               ),
@@ -301,7 +426,14 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
   Widget _sectionTitle(String text) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
-      child: Text(text, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.black87)),
+      child: Text(
+        text,
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w700,
+          color: Colors.black87,
+        ),
+      ),
     );
   }
 
@@ -320,31 +452,52 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
-        color: Color(0xFFF5F5F5)
+        color: Color(0xFFF5F5F5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black,fontWeight: FontWeight.w500)),
-                Text(valueText, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, color: Colors.black,fontWeight: FontWeight.w500)),
-              ],
-            ),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 3,
-                activeTrackColor: AppColors.coral,
-                inactiveTrackColor: const Color(0xFFE8E8E8),
-                thumbColor: AppColors.coral,
-                overlayColor: AppColors.coral.withOpacity(0.15),
-                rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 7),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 14.sp,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: RangeSlider(min: min, max: max, values: values, onChanged: onChanged),
+              Text(
+                valueText,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 14.sp,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 3,
+              activeTrackColor: AppColors.primary,
+              inactiveTrackColor: const Color(0xFFE8E8E8),
+              thumbColor: AppColors.primary,
+              overlayColor: AppColors.primary.withOpacity(0.15),
+              rangeThumbShape: const RoundRangeSliderThumbShape(
+                enabledThumbRadius: 7,
+              ),
             ),
-          ],
-        ),
+            child: RangeSlider(
+              min: min,
+              max: max,
+              values: values,
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -357,7 +510,12 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
     bool showDivider = true,
   }) {
     return InkWell(
-      onTap: () => _pickOption(label: label, options: options, current: value, onSelected: onSelected),
+      onTap: () => _pickOption(
+        label: label,
+        options: options,
+        current: value,
+        onSelected: onSelected,
+      ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10.h),
         child: Container(
@@ -366,7 +524,7 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.r),
-            color: Color(0xFFF5F5F5)
+            color: Color(0xFFF5F5F5),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,13 +536,30 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 11.5.sp, color: Colors.black)),
+                        Text(
+                          label,
+                          style: GoogleFonts.tasaOrbiter(
+                            fontSize: 11.5.sp,
+                            color: Colors.black,
+                          ),
+                        ),
                         SizedBox(height: 3.h),
-                        Text(value, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                        Text(
+                          value,
+                          style: GoogleFonts.tasaOrbiter(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black, size: 20.sp),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: Colors.black,
+                    size: 20.sp,
+                  ),
                 ],
               ),
               if (showDivider) ...[
@@ -398,7 +573,11 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
     );
   }
 
-  Widget _multiSelectRow({required String label, required String value, required VoidCallback onTap}) {
+  Widget _multiSelectRow({
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -413,13 +592,30 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 11.5.sp, color: Colors.black45)),
+                      Text(
+                        label,
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 11.5.sp,
+                          color: Colors.black45,
+                        ),
+                      ),
                       SizedBox(height: 3.h),
-                      Text(value, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
+                      Text(
+                        value,
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black38, size: 20.sp),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: Colors.black38,
+                  size: 20.sp,
+                ),
               ],
             ),
             SizedBox(height: 10.h),
@@ -430,7 +626,11 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
     );
   }
 
-  Widget _incomeOption({required String label, required bool selected, required VoidCallback onTap}) {
+  Widget _incomeOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12.r),
@@ -438,19 +638,30 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: selected ? AppColors.coral.withOpacity(0.1) : Colors.white,
+          color: selected ? AppColors.primary.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: selected ? AppColors.coral : const Color(0xFFE0E0E0)),
+          border: Border.all(
+            color: selected ? AppColors.primary : const Color(0xFFE0E0E0),
+          ),
         ),
         child: Row(
           children: [
             Icon(
-              selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
               size: 18.sp,
-              color: selected ? AppColors.coral : Colors.black38,
+              color: selected ? AppColors.primary : Colors.black38,
             ),
             SizedBox(width: 10.w),
-            Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 12.5.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
+            Text(
+              label,
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 12.5.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
           ],
         ),
       ),
@@ -466,7 +677,9 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
   }) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
       builder: (context) {
         return SafeArea(
           child: Padding(
@@ -475,17 +688,37 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-                  child: Text(label, style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black87)),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 6.h,
+                  ),
+                  child: Text(
+                    label,
+                    style: GoogleFonts.tasaOrbiter(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ),
-                ...options.map((o) => ListTile(
-                      title: Text(o, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black87)),
-                      trailing: o == current ? Icon(Icons.check_rounded, color: AppColors.coral) : null,
-                      onTap: () {
-                        onSelected(o);
-                        Navigator.pop(context);
-                      },
-                    )),
+                ...options.map(
+                  (o) => ListTile(
+                    title: Text(
+                      o,
+                      style: GoogleFonts.tasaOrbiter(
+                        fontSize: 13.sp,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    trailing: o == current
+                        ? Icon(Icons.check_rounded, color: AppColors.primary)
+                        : null,
+                    onTap: () {
+                      onSelected(o);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -498,7 +731,9 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
     final selected = Set<String>.from(_districts);
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -509,22 +744,42 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-                      child: Text('City / District', style: GoogleFonts.tasaOrbiter(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black87)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 6.h,
+                      ),
+                      child: Text(
+                        'City / District',
+                        style: GoogleFonts.tasaOrbiter(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
                     ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: 340.h),
                       child: ListView(
                         shrinkWrap: true,
                         children: _allDistricts
-                            .map((d) => CheckboxListTile(
-                                  value: selected.contains(d),
-                                  activeColor: AppColors.coral,
-                                  title: Text(d, style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: Colors.black87)),
-                                  onChanged: (checked) => setSheetState(() {
-                                    checked == true ? selected.add(d) : selected.remove(d);
-                                  }),
-                                ))
+                            .map(
+                              (d) => CheckboxListTile(
+                                value: selected.contains(d),
+                                activeColor: AppColors.primary,
+                                title: Text(
+                                  d,
+                                  style: GoogleFonts.tasaOrbiter(
+                                    fontSize: 13.sp,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                onChanged: (checked) => setSheetState(() {
+                                  checked == true
+                                      ? selected.add(d)
+                                      : selected.remove(d);
+                                }),
+                              ),
+                            )
                             .toList(),
                       ),
                     ),
@@ -545,8 +800,18 @@ class _SearchPreferencesScreenState extends State<SearchPreferencesScreen> {
                           child: Container(
                             height: 44.h,
                             alignment: Alignment.center,
-                            decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(24.r)),
-                            child: Text('Done', style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(24.r),
+                            ),
+                            child: Text(
+                              'Done',
+                              style: GoogleFonts.tasaOrbiter(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),

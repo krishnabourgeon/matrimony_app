@@ -36,22 +36,27 @@ class Customer {
     int id;
     String name;
     String mobileNumber;
+    // Not always sent by the API; used to pick the default avatar.
+    dynamic gender;
 
     Customer({
         required this.id,
         required this.name,
         required this.mobileNumber,
+        this.gender,
     });
 
     factory Customer.fromJson(Map<String, dynamic> json) => Customer(
         id: json["id"],
         name: json["name"],
         mobileNumber: json["mobile_number"],
+        gender: json["gender"] ?? json["gender_id"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
         "mobile_number": mobileNumber,
+        if (gender != null) "gender": gender,
     };
 }

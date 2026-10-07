@@ -563,7 +563,7 @@ import 'package:matrimony_app/view/login_screen.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 import 'package:matrimony_app/view/onboarding_screen.dart';
 
-/// Simple, bold splash screen: a solid coral field with the wordmark
+/// Simple, bold splash screen: a solid primary field with the wordmark
 /// fading and scaling gently into place, then handing off to onboarding.
 /// No ornamentation — the color and typography carry the brand.
 class SplashScreen extends StatefulWidget {
@@ -612,21 +612,22 @@ class _SplashScreenState extends State<SplashScreen>
       // lives in SharedPreferences, which is wiped on uninstall) skips
       // straight to sign-in instead of the new-user wizard.
       final token = await SharedPreferenceHelper.getToken();
-      final alreadyRegistered = await SharedPreferenceHelper.isRegistrationComplete();
+      final alreadyRegistered =
+          await SharedPreferenceHelper.isRegistrationComplete();
       if (!mounted) return;
 
       final Widget target = token.isNotEmpty
           ? const MainShell()
-          : (alreadyRegistered ? const SignInScreen() : const OnboardingScreen());
+          : (alreadyRegistered
+                ? const SignInScreen()
+                : const OnboardingScreen());
 
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 450),
-          pageBuilder: (_, animation, __) => FadeTransition(
-            opacity: animation,
-            child: target,
-          ),
+          pageBuilder: (_, animation, __) =>
+              FadeTransition(opacity: animation, child: target),
         ),
       );
     });
@@ -641,7 +642,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.coral,
+      backgroundColor: AppColors.primary,
       body: AnimatedOpacity(
         opacity: _exiting ? 0.0 : 1.0,
         duration: const Duration(milliseconds: 350),

@@ -15,7 +15,6 @@
 // import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 // import 'package:matrimony_app/view/professional_details_screen.dart';
 
-
 // class CommunityLocationScreen extends StatefulWidget {
 //   const CommunityLocationScreen({super.key});
 
@@ -323,9 +322,6 @@
 //   }
 // }
 
-
-
-
 // ═══════════════════════════════════════════════════════════════
 //  3b. COMMUNITY & LOCATION
 // ═══════════════════════════════════════════════════════════════
@@ -334,6 +330,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/cast_model.dart';
 import 'package:matrimony_app/model/countries_model.dart';
@@ -347,18 +344,6 @@ import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/professional_details_screen.dart';
 
 /// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
-
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-  static const Color error = Color(0xFFE53935);
-  static const Color grey = Color(0xFFBDBDBD);
-}
 
 class CommunityLocationScreen extends StatefulWidget {
   const CommunityLocationScreen({super.key});
@@ -510,13 +495,19 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
     _currentCountry = d['currentCountry'] as Country?;
     _currentState = d['currentState'] as states_model.State?;
     _currentDistrict = d['currentDistrict'] as District?;
-    _nativeStates = List.of(d['nativeStates'] as List<states_model.State>? ?? []);
+    _nativeStates = List.of(
+      d['nativeStates'] as List<states_model.State>? ?? [],
+    );
     _nativeDistricts = List.of(d['nativeDistricts'] as List<District>? ?? []);
-    _permanentStates =
-        List.of(d['permanentStates'] as List<states_model.State>? ?? []);
-    _permanentDistricts =
-        List.of(d['permanentDistricts'] as List<District>? ?? []);
-    _currentStates = List.of(d['currentStates'] as List<states_model.State>? ?? []);
+    _permanentStates = List.of(
+      d['permanentStates'] as List<states_model.State>? ?? [],
+    );
+    _permanentDistricts = List.of(
+      d['permanentDistricts'] as List<District>? ?? [],
+    );
+    _currentStates = List.of(
+      d['currentStates'] as List<states_model.State>? ?? [],
+    );
     _currentDistricts = List.of(d['currentDistricts'] as List<District>? ?? []);
     return true;
   }
@@ -530,7 +521,10 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
     if (!mounted) return;
 
     final india = _findByName<Country>(
-        provider.countriesModel?.countries ?? [], (c) => c.name, 'india');
+      provider.countriesModel?.countries ?? [],
+      (c) => c.name,
+      'india',
+    );
     if (india == null) return;
 
     setState(() {
@@ -545,8 +539,11 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
     await provider.getStates(india.id);
     if (!mounted) return;
     final states = provider.statesModel?.states ?? [];
-    final kerala =
-        _findByName<states_model.State>(states, (s) => s.name, 'kerala');
+    final kerala = _findByName<states_model.State>(
+      states,
+      (s) => s.name,
+      'kerala',
+    );
 
     setState(() {
       _loadingNativeStates = false;
@@ -589,7 +586,8 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
       if (permanentNeeds && _permanentState == kerala) {
         _permanentDistricts = districts;
       }
-      if (currentNeeds && _currentState == kerala) _currentDistricts = districts;
+      if (currentNeeds && _currentState == kerala)
+        _currentDistricts = districts;
     });
   }
 
@@ -811,16 +809,23 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
 
     if (_religion == null) return _showSnack('Please select religion');
     if (_caste == null) return _showSnack('Please select caste');
-    if (_nativeCountry == null || _nativeState == null || _nativeDistrict == null) {
+    if (_nativeCountry == null ||
+        _nativeState == null ||
+        _nativeDistrict == null) {
       return _showSnack('Please complete native place / ancestral origin');
     }
-    if (_permanentCountry == null || _permanentState == null || _permanentDistrict == null) {
+    if (_permanentCountry == null ||
+        _permanentState == null ||
+        _permanentDistrict == null) {
       return _showSnack('Please complete permanent residence');
     }
-    if (_homePinCtrl.text.trim().isEmpty) return _showSnack('Please enter PIN/Zip code');
+    if (_homePinCtrl.text.trim().isEmpty)
+      return _showSnack('Please enter PIN/Zip code');
     if (_homeAddressError != null) return;
     if (!_sameAsAbove &&
-        (_currentCountry == null || _currentState == null || _currentDistrict == null)) {
+        (_currentCountry == null ||
+            _currentState == null ||
+            _currentDistrict == null)) {
       return _showSnack('Please complete current residence');
     }
 
@@ -829,55 +834,69 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
     final provider = context.read<RegisterProvider>();
     final currentCountry = _sameAsAbove ? _permanentCountry : _currentCountry;
     final currentState = _sameAsAbove ? _permanentState : _currentState;
-    final currentDistrict = _sameAsAbove ? _permanentDistrict : _currentDistrict;
-    final currentAddress =
-        _sameAsAbove ? _homeAddressCtrl.text.trim() : _currentAddressCtrl.text.trim();
-    final currentPincode =
-        _sameAsAbove ? _homePinCtrl.text.trim() : _currentPinCtrl.text.trim();
+    final currentDistrict = _sameAsAbove
+        ? _permanentDistrict
+        : _currentDistrict;
+    final currentAddress = _sameAsAbove
+        ? _homeAddressCtrl.text.trim()
+        : _currentAddressCtrl.text.trim();
+    final currentPincode = _sameAsAbove
+        ? _homePinCtrl.text.trim()
+        : _currentPinCtrl.text.trim();
 
     provider
         .communityAndLocation(
-      nativeCountryId: _nativeCountry!.id,
-      nativeStateId: _nativeState!.id,
-      nativeDistrictId: _nativeDistrict!.id,
-      nativeDescription: _nativeDescriptionCtrl.text.trim(),
-      permanentCountryId: _permanentCountry!.id,
-      permanentStateId: _permanentState!.id,
-      permanentDistrictId: _permanentDistrict!.id,
-      permanentAddress: _homeAddressCtrl.text.trim(),
-      permanentPincode: _homePinCtrl.text.trim(),
-      currentCountryId: currentCountry!.id,
-      currentStateId: currentState!.id,
-      currentDistrictId: currentDistrict!.id,
-      currentAddress: currentAddress,
-      currentPincode: currentPincode,
-      religionId: _religion!.id,
-      casteId: _caste!.id,
-      subCasteId: _subCaste?.id ?? 0,
-      gotraId: _gotra?.id ?? 0,
-      casteMatch: (_otherCastes ?? 'No').toLowerCase(),
-    )
+          nativeCountryId: _nativeCountry!.id,
+          nativeStateId: _nativeState!.id,
+          nativeDistrictId: _nativeDistrict!.id,
+          nativeDescription: _nativeDescriptionCtrl.text.trim(),
+          permanentCountryId: _permanentCountry!.id,
+          permanentStateId: _permanentState!.id,
+          permanentDistrictId: _permanentDistrict!.id,
+          permanentAddress: _homeAddressCtrl.text.trim(),
+          permanentPincode: _homePinCtrl.text.trim(),
+          currentCountryId: currentCountry!.id,
+          currentStateId: currentState!.id,
+          currentDistrictId: currentDistrict!.id,
+          currentAddress: currentAddress,
+          currentPincode: currentPincode,
+          religionId: _religion!.id,
+          casteId: _caste!.id,
+          subCasteId: _subCaste?.id ?? 0,
+          gotraId: _gotra?.id ?? 0,
+          casteMatch: (_otherCastes ?? 'No').toLowerCase(),
+        )
         .then((success) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      if (success) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ProfessionalDetailsScreen()),
-        );
-      } else {
-        _showSnack(provider.communityLocationError ?? 'Something went wrong. Please try again');
-      }
-    });
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          if (success) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ProfessionalDetailsScreen(),
+              ),
+            );
+          } else {
+            _showSnack(
+              provider.communityLocationError ??
+                  'Something went wrong. Please try again',
+            );
+          }
+        });
   }
 
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -885,7 +904,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -903,7 +922,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -914,7 +933,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
-                        color: _Palette.hintText,
+                        color: AppColors.hintText,
                       ),
                     ),
                     SizedBox(height: 20.h),
@@ -923,11 +942,15 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final religions = provider.religionsModel?.religions ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final religions =
+                            provider.religionsModel?.religions ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.religionsModel == null;
                         return _buildDropdownField<Religion>(
-                          hint: loading ? 'Loading religions...' : 'Select Religion',
+                          hint: loading
+                              ? 'Loading religions...'
+                              : 'Select Religion',
                           value: _religion,
                           items: religions,
                           labelBuilder: (r) => r.name,
@@ -946,7 +969,9 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                         return _buildDropdownField<Caste>(
                           hint: _religion == null
                               ? 'Select religion first'
-                              : (_loadingCastes ? 'Loading castes...' : 'Select Caste'),
+                              : (_loadingCastes
+                                    ? 'Loading castes...'
+                                    : 'Select Caste'),
                           value: _caste,
                           items: castes,
                           labelBuilder: (c) => c.name,
@@ -958,7 +983,9 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Looking for matches from other castes ( other than own sub castes )?'),
+                    _FieldLabel(
+                      'Looking for matches from other castes ( other than own sub castes )?',
+                    ),
                     SizedBox(height: 8.h),
                     _buildDropdownField<String>(
                       hint: 'No',
@@ -973,11 +1000,14 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final subCastes = provider.subcastesModel?.subCastes ?? [];
+                        final subCastes =
+                            provider.subcastesModel?.subCastes ?? [];
                         return _buildDropdownField<SubCaste>(
                           hint: _caste == null
                               ? 'Select caste first'
-                              : (_loadingSubCastes ? 'Loading...' : 'Select an Option'),
+                              : (_loadingSubCastes
+                                    ? 'Loading...'
+                                    : 'Select an Option'),
                           value: _subCaste,
                           items: subCastes,
                           labelBuilder: (s) => s.name,
@@ -994,7 +1024,8 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
                         final gotras = provider.gotrasModel?.gotras ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.gotrasModel == null;
                         return _buildDropdownField<Gotra>(
                           hint: loading ? 'Loading...' : "Don't Know",
@@ -1008,12 +1039,17 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     ),
 
                     SizedBox(height: 20.h),
-                    _FieldLabel('Native Place / Ancestral Origin', required: true),
+                    _FieldLabel(
+                      'Native Place / Ancestral Origin',
+                      required: true,
+                    ),
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final countries = provider.countriesModel?.countries ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final countries =
+                            provider.countriesModel?.countries ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.countriesModel == null;
                         return _buildDropdownField<Country>(
                           hint: loading ? 'Loading...' : 'Country',
@@ -1041,7 +1077,9 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     _buildDropdownField<District>(
                       hint: _nativeState == null
                           ? 'Select state first'
-                          : (_loadingNativeDistricts ? 'Loading...' : 'District'),
+                          : (_loadingNativeDistricts
+                                ? 'Loading...'
+                                : 'District'),
                       value: _nativeDistrict,
                       items: _nativeDistricts,
                       labelBuilder: (d) => d.name,
@@ -1050,18 +1088,20 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                       onChanged: (v) => setState(() => _nativeDistrict = v),
                     ),
                     SizedBox(height: 8.h),
+
                     // _buildTextField(
                     //   controller: _nativeDescriptionCtrl,
                     //   hint: 'Tell about your ancestral origin',
                     // ),
-
                     SizedBox(height: 20.h),
                     _FieldLabel('Permanent Residence', required: true),
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final countries = provider.countriesModel?.countries ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final countries =
+                            provider.countriesModel?.countries ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.countriesModel == null;
                         return _buildDropdownField<Country>(
                           hint: loading ? 'Loading...' : 'Country',
@@ -1089,7 +1129,9 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     _buildDropdownField<District>(
                       hint: _permanentState == null
                           ? 'Select state first'
-                          : (_loadingPermanentDistricts ? 'Loading...' : 'District'),
+                          : (_loadingPermanentDistricts
+                                ? 'Loading...'
+                                : 'District'),
                       value: _permanentDistrict,
                       items: _permanentDistricts,
                       labelBuilder: (d) => d.name,
@@ -1115,7 +1157,8 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                       errorText: _homeAddressError,
                       onChanged: (_) {
                         setState(() {
-                          if (_homeAddressError != null) _homeAddressError = null;
+                          if (_homeAddressError != null)
+                            _homeAddressError = null;
                         });
                       },
                     ),
@@ -1128,15 +1171,19 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                           width: 20.h,
                           child: Checkbox(
                             value: _sameAsAbove,
-                            activeColor: _Palette.coral,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            activeColor: AppColors.primary,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                             onChanged: _toggleSameAsAbove,
                           ),
                         ),
                         SizedBox(width: 8.w),
                         Text(
                           'Current address same as above',
-                          style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink),
+                          style: GoogleFonts.tasaOrbiter(
+                            fontSize: 13.sp,
+                            color: AppColors.ink,
+                          ),
                         ),
                       ],
                     ),
@@ -1152,8 +1199,11 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                           children: [
                             Consumer<RegisterProvider>(
                               builder: (context, provider, _) {
-                                final countries = provider.countriesModel?.countries ?? [];
-                                final loading = provider.loaderState == LoaderState.loading &&
+                                final countries =
+                                    provider.countriesModel?.countries ?? [];
+                                final loading =
+                                    provider.loaderState ==
+                                        LoaderState.loading &&
                                     provider.countriesModel == null;
                                 return _buildDropdownField<Country>(
                                   hint: loading ? 'Loading...' : 'Country',
@@ -1169,7 +1219,9 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                             _buildDropdownField<states_model.State>(
                               hint: _currentCountry == null
                                   ? 'Select country first'
-                                  : (_loadingCurrentStates ? 'Loading...' : 'State'),
+                                  : (_loadingCurrentStates
+                                        ? 'Loading...'
+                                        : 'State'),
                               value: _currentState,
                               items: _currentStates,
                               labelBuilder: (s) => s.name,
@@ -1181,13 +1233,16 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                             _buildDropdownField<District>(
                               hint: _currentState == null
                                   ? 'Select state first'
-                                  : (_loadingCurrentDistricts ? 'Loading...' : 'District'),
+                                  : (_loadingCurrentDistricts
+                                        ? 'Loading...'
+                                        : 'District'),
                               value: _currentDistrict,
                               items: _currentDistricts,
                               labelBuilder: (d) => d.name,
                               loading: _loadingCurrentDistricts,
                               enabled: _currentState != null,
-                              onChanged: (v) => setState(() => _currentDistrict = v),
+                              onChanged: (v) =>
+                                  setState(() => _currentDistrict = v),
                             ),
                             SizedBox(height: 8.h),
                             _buildTextField(
@@ -1211,7 +1266,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                     //   child: Text(
                     //     'You can edit your profile anytime from your dashboard',
                     //     textAlign: TextAlign.center,
-                    //     style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+                    //     style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: AppColors.hintText),
                     //   ),
                     // ),
                     SizedBox(height: 32.h),
@@ -1240,10 +1295,14 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -1254,8 +1313,10 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                 // Initial Info → OTP Verify → Basic Info → Community & Location (4th)
                 value: 3 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -1283,9 +1344,11 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
           height: 44.h,
           alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
-            color: _Palette.fieldBg,
+            color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(14.r),
-            border: errorText != null ? Border.all(color: _Palette.error, width: 1.2) : null,
+            border: errorText != null
+                ? Border.all(color: AppColors.error, width: 1.2)
+                : null,
           ),
           child: TextFormField(
             controller: controller,
@@ -1293,17 +1356,28 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
             textCapitalization: textCapitalization,
             inputFormatters: inputFormatters,
             onChanged: onChanged,
-            style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 13.sp,
+              color: AppColors.ink,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+              hintStyle: GoogleFonts.tasaOrbiter(
+                fontSize: 13.sp,
+                color: AppColors.hintText,
+                fontWeight: FontWeight.w400,
+              ),
               border: InputBorder.none,
               errorBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
               isDense: true,
               isCollapsed: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 18.w,
+                vertical: 10.h,
+              ),
             ),
           ),
         ),
@@ -1311,7 +1385,11 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
           SizedBox(height: 6.h),
           Text(
             errorText,
-            style: GoogleFonts.tasaOrbiter(fontSize: 11.sp, color: _Palette.error, fontWeight: FontWeight.w500),
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 11.sp,
+              color: AppColors.error,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ],
@@ -1335,7 +1413,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: loading
@@ -1344,13 +1422,19 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                 SizedBox(
                   width: 14.w,
                   height: 14.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             )
@@ -1358,7 +1442,11 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
               child: DropdownButtonFormField<T>(
                 initialValue: items.contains(value) ? value : null,
                 isExpanded: true,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.ink,
+                  size: 22.sp,
+                ),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
@@ -1367,16 +1455,28 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                 hint: Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-                dropdownColor: _Palette.subtleWhite,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: AppColors.ink,
+                  fontWeight: FontWeight.w500,
+                ),
+                dropdownColor: AppColors.subtleWhite,
                 borderRadius: BorderRadius.circular(14.r),
                 items: items
-                    .map((item) => DropdownMenuItem<T>(
-                          value: item,
-                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
-                        ))
+                    .map(
+                      (item) => DropdownMenuItem<T>(
+                        value: item,
+                        child: Text(
+                          labelBuilder(item),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: enabled ? onChanged : null,
               ),
@@ -1385,7 +1485,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
   }
 
   // ---------------------------------------------------------------------
-  // Bottom area: Continue button (coral once the form is valid, grey otherwise)
+  // Bottom area: Continue button (primary once the form is valid, grey otherwise)
   // ---------------------------------------------------------------------
   Widget _buildBottomArea() {
     return Padding(
@@ -1396,9 +1496,9 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
         child: ElevatedButton(
           onPressed: _isSubmitting ? null : _handleContinue,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
-            disabledBackgroundColor: _Palette.coral,
-            foregroundColor: _Palette.subtleWhite,
+            backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
+            disabledBackgroundColor: AppColors.primary,
+            foregroundColor: AppColors.subtleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(28.r),
@@ -1411,7 +1511,7 @@ class _CommunityLocationState extends State<CommunityLocationScreen> {
                   child: const CircularProgressIndicator(
                     strokeWidth: 2.4,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _Palette.subtleWhite,
+                      AppColors.subtleWhite,
                     ),
                   ),
                 )
@@ -1443,7 +1543,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.tasaOrbiter(
           fontSize: 13.sp,
           fontWeight: FontWeight.w600,
-          color: _Palette.ink,
+          color: AppColors.ink,
         ),
         children: required
             ? [
@@ -1452,7 +1552,7 @@ class _FieldLabel extends StatelessWidget {
                   style: GoogleFonts.tasaOrbiter(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
-                    color: _Palette.error,
+                    color: AppColors.error,
                   ),
                 ),
               ]
@@ -1461,4 +1561,3 @@ class _FieldLabel extends StatelessWidget {
     );
   }
 }
-

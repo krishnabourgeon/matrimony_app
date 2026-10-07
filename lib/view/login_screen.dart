@@ -284,11 +284,6 @@
 //   }
 // }
 
-
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -298,6 +293,7 @@ import 'package:matrimony_app/provider/register_provider.dart';
 import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 import 'package:matrimony_app/view/otp_verify_screen.dart';
+
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 
@@ -334,13 +330,16 @@ class _SignInScreenState extends State<SignInScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => OtpVerifyScreen(mobile: mobile, nextScreen: const MainShell()),
+            builder: (_) =>
+                OtpVerifyScreen(mobile: mobile, nextScreen: const MainShell()),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(provider.signInError ?? 'Something went wrong. Please try again'),
+            content: Text(
+              provider.signInError ?? 'Something went wrong. Please try again',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -368,7 +367,6 @@ class _SignInScreenState extends State<SignInScreen> {
               //     Expanded(child: _buildProgressBar(progress: 0.18)),
               //   ],
               // ),
-
               SizedBox(height: 32.h),
 
               // Title
@@ -428,11 +426,7 @@ class _SignInScreenState extends State<SignInScreen> {
           color: const Color(0xFFF2F2F2),
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          Icons.arrow_back,
-          size: 20.sp,
-          color: Colors.black,
-        ),
+        child: Icon(Icons.arrow_back, size: 20.sp, color: Colors.black),
       ),
     );
   }
@@ -444,7 +438,7 @@ class _SignInScreenState extends State<SignInScreen> {
         value: progress,
         minHeight: 6.h,
         backgroundColor: const Color(0xFFEAEAEA),
-        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.coral),
+        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
       ),
     );
   }
@@ -511,11 +505,7 @@ class _SignInScreenState extends State<SignInScreen> {
               height: 15.h,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFFF9933),
-                    Colors.white,
-                    Color(0xFF138808),
-                  ],
+                  colors: [Color(0xFFFF9933), Colors.white, Color(0xFF138808)],
                   stops: [0.33, 0.5, 0.67],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -543,10 +533,12 @@ class _SignInScreenState extends State<SignInScreen> {
       width: double.infinity,
       height: 56.h,
       child: ElevatedButton(
-        onPressed: (_isPhoneValid && !_isSubmitting) ? _onContinuePressed : null,
+        onPressed: (_isPhoneValid && !_isSubmitting)
+            ? _onContinuePressed
+            : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.coral,
-          disabledBackgroundColor: AppColors.coral.withOpacity(0.5),
+          backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28.r),

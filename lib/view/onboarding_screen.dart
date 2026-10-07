@@ -534,7 +534,7 @@ import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:matrimony_app/view/initial_info_screen.dart';
 
 /// Single-screen welcome/onboarding: a full-bleed photo up top, a bold
-/// headline with the brand name picked out in coral, a short subtitle,
+/// headline with the brand name picked out in primary, a short subtitle,
 /// and a pill-shaped "Get Started" CTA. Fully responsive via
 /// flutter_screenutil so spacing, radii, and type scale correctly
 /// across phone sizes.
@@ -622,7 +622,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                               const TextSpan(text: 'Match with '),
                               TextSpan(
                                 text: 'Vivah',
-                                style: TextStyle(color: AppColors.coral),
+                                style: TextStyle(color: AppColors.primary),
                               ),
                             ],
                           ),
@@ -647,7 +647,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           child: ElevatedButton(
                             onPressed: _getStarted,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.coral,
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -700,7 +700,7 @@ class _HeroPlaceholder extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.coral.withOpacity(0.85), AppColors.coralDark],
+          colors: [AppColors.primary.withOpacity(0.85), AppColors.primaryDark],
         ),
       ),
       child: Center(

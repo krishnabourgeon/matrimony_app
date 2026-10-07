@@ -2,7 +2,6 @@
 // //  3d. PERSONAL & PHYSICAL
 // // ═══════════════════════════════════════════════════════════════
 
-
 // import 'package:flutter/material.dart';
 // import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 // import 'package:matrimony_app/view/custom_widgets/counter_button.dart';
@@ -16,7 +15,6 @@
 // import 'package:matrimony_app/view/custom_widgets/toggle_button.dart';
 // import 'package:matrimony_app/view/custom_widgets/top_bar.dart';
 // import 'package:matrimony_app/view/family_details_screen.dart';
-
 
 // class PersonalPhysicalScreen extends StatefulWidget {
 //   const PersonalPhysicalScreen({super.key});
@@ -282,18 +280,14 @@
 //   }
 // }
 
-
-
-
-
 // ═══════════════════════════════════════════════════════════════
 //  3d. PERSONAL & PHYSICAL
 // ═══════════════════════════════════════════════════════════════
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:matrimony_app/view/custom_widgets/app_color.dart';
 import 'package:provider/provider.dart';
 import 'package:matrimony_app/model/blood_group.dart';
 import 'package:matrimony_app/model/body_type.dart';
@@ -306,19 +300,6 @@ import 'package:matrimony_app/services/provider_helper_class.dart';
 import 'package:matrimony_app/view/main_screen.dart';
 import 'package:matrimony_app/view/photos_about_screen.dart';
 
-/// Brand colors used on this screen — mirrors BasicInfoScreen's palette.
-class _Palette {
-  _Palette._();
-  static const Color coral = Color(0xFFFF3356);
-  static const Color ink = Color(0xFF1A1A1A);
-  static const Color subtleWhite = Color(0xFFFFFFFF);
-
-  static const Color fieldBg = Color(0xFFF5F5F7);
-  static const Color hintText = Color(0xFF8A8A8E);
-  static const Color trackBg = Color(0xFFECECEE);
-  static const Color grey = Color(0xFFBDBDBD);
-}
-
 class PersonalPhysicalScreen extends StatefulWidget {
   const PersonalPhysicalScreen({super.key});
 
@@ -327,8 +308,14 @@ class PersonalPhysicalScreen extends StatefulWidget {
 }
 
 class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
-  static final List<int> _heightOptions = List.generate(210 - 120 + 1, (i) => 120 + i);
-  static final List<int> _weightOptions = List.generate(150 - 30 + 1, (i) => 30 + i);
+  static final List<int> _heightOptions = List.generate(
+    210 - 120 + 1,
+    (i) => 120 + i,
+  );
+  static final List<int> _weightOptions = List.generate(
+    150 - 30 + 1,
+    (i) => 30 + i,
+  );
 
   MaritalStatus? _marital;
   String _surgery = 'No';
@@ -437,7 +424,9 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
       bodyTypeId: _bodyType?.id ?? 0,
       bloodGroupId: _bloodGroup?.id ?? 0,
       disabilityStatus: _disability == 'Yes' ? 1 : 0,
-      disabilityDesc: _disability == 'Yes' ? _disabilityDescCtrl.text.trim() : '',
+      disabilityDesc: _disability == 'Yes'
+          ? _disabilityDescCtrl.text.trim()
+          : '',
       majorSurgery: _surgery == 'Yes' ? 1 : 0,
       dietId: _diet?.id ?? 0,
       drinkingHabitId: _drinking?.id ?? 0,
@@ -460,7 +449,9 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
           MaterialPageRoute(builder: (_) => const PhotosAboutScreen()),
         );
       } else {
-        _showSnack(provider.personalError ?? 'Something went wrong. Please try again');
+        _showSnack(
+          provider.personalError ?? 'Something went wrong. Please try again',
+        );
       }
     });
   }
@@ -482,7 +473,9 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
           (route) => false,
         );
       } else {
-        _showSnack(provider.personalError ?? 'Something went wrong. Please try again');
+        _showSnack(
+          provider.personalError ?? 'Something went wrong. Please try again',
+        );
       }
     });
   }
@@ -490,7 +483,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.subtleWhite,
+      backgroundColor: AppColors.subtleWhite,
       body: SafeArea(
         child: Column(
           children: [
@@ -508,7 +501,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                       style: GoogleFonts.tasaOrbiter(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w800,
-                        color: _Palette.ink,
+                        color: AppColors.ink,
                         letterSpacing: -0.6,
                         height: 1.25,
                       ),
@@ -519,7 +512,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     //   style: GoogleFonts.tasaOrbiter(
                     //     fontSize: 14.sp,
                     //     fontWeight: FontWeight.w400,
-                    //     color: _Palette.hintText,
+                    //     color: AppColors.hintText,
                     //   ),
                     // ),
                     SizedBox(height: 20.h),
@@ -528,14 +521,20 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     SizedBox(height: 10.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final options = provider.maritalStatusesModel?.maritalStatuses ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final options =
+                            provider.maritalStatusesModel?.maritalStatuses ??
+                            [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.maritalStatusesModel == null;
                         if (loading) {
                           return SizedBox(
                             height: 30.h,
                             child: Center(
-                              child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primary,
+                              ),
                             ),
                           );
                         }
@@ -580,8 +579,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final skinTypes = provider.skinTypeModel?.skinTypes ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final skinTypes =
+                            provider.skinTypeModel?.skinTypes ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.skinTypeModel == null;
                         return _buildDropdownField<SkinType>(
                           hint: loading ? 'Loading...' : 'Skin Color',
@@ -596,8 +597,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final bodyTypes = provider.bodyTypeModel?.bodyTypes ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final bodyTypes =
+                            provider.bodyTypeModel?.bodyTypes ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.bodyTypeModel == null;
                         return _buildDropdownField<BodyType>(
                           hint: loading ? 'Loading...' : 'Body Type',
@@ -612,8 +615,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     SizedBox(height: 8.h),
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
-                        final bloodGroups = provider.bloodGroupModel?.bloodGroups ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final bloodGroups =
+                            provider.bloodGroupModel?.bloodGroups ?? [];
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.bloodGroupModel == null;
                         return _buildDropdownField<BloodGroup>(
                           hint: loading ? 'Loading...' : 'Blood Group',
@@ -643,6 +648,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                         count: _disabilityDescCtrl.text.length,
                       ),
                     ],
+
                     //SizedBox(height: 8.h),
                     // _buildTextAreaField(
                     //   controller: _descriptionCtrl,
@@ -651,9 +657,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     //   onChanged: (v) => setState(() => _descCount = v.length),
                     //   count: _descCount,
                     // ),
-
                     SizedBox(height: 20.h),
-                    _FieldLabel('Any major surgical treatment or organ replacing done?'),
+                    _FieldLabel(
+                      'Any major surgical treatment or organ replacing done?',
+                    ),
                     SizedBox(height: 10.h),
                     _buildChipSelector<String>(
                       options: const ['No', 'Yes'],
@@ -665,7 +672,8 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                       SizedBox(height: 8.h),
                       _buildTextAreaField(
                         controller: _surgeryDescCtrl,
-                        hint: 'Briefly describe the surgery / organ replacement',
+                        hint:
+                            'Briefly describe the surgery / organ replacement',
                         maxLength: 255,
                         onChanged: (v) => setState(() {}),
                         count: _surgeryDescCtrl.text.length,
@@ -678,7 +686,8 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
                         final diets = provider.dietsModel?.diets ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.dietsModel == null;
                         return _buildDropdownField<Diet>(
                           hint: loading ? 'Loading...' : 'Diet',
@@ -697,7 +706,8 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
                         final options = provider.choicesModel?.choices ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.choicesModel == null;
                         return _buildDropdownField<Choice>(
                           hint: loading ? 'Loading...' : 'Smoking',
@@ -716,7 +726,8 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     Consumer<RegisterProvider>(
                       builder: (context, provider, _) {
                         final options = provider.choicesModel?.choices ?? [];
-                        final loading = provider.loaderState == LoaderState.loading &&
+                        final loading =
+                            provider.loaderState == LoaderState.loading &&
                             provider.choicesModel == null;
                         return _buildDropdownField<Choice>(
                           hint: loading ? 'Loading...' : 'Drinking',
@@ -744,7 +755,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                     //   child: Text(
                     //     'You can edit your profile anytime from your dashboard',
                     //     textAlign: TextAlign.center,
-                    //     style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+                    //     style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: AppColors.hintText),
                     //   ),
                     // ),
                     SizedBox(height: 32.h),
@@ -773,10 +784,14 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
               width: 36.w,
               height: 36.w,
               decoration: const BoxDecoration(
-                color: _Palette.fieldBg,
+                color: AppColors.fieldBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back_rounded, color: _Palette.ink, size: 18.sp),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColors.ink,
+                size: 18.sp,
+              ),
             ),
           ),
           SizedBox(width: 14.w),
@@ -787,8 +802,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                 // ... Community & Location → Professional Details → Personal & Physical (6th)
                 value: 5 / 8,
                 minHeight: 6.h,
-                backgroundColor: _Palette.trackBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_Palette.coral),
+                backgroundColor: AppColors.trackBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -817,10 +834,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
             duration: const Duration(milliseconds: 150),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
             decoration: BoxDecoration(
-              color: isSelected ? _Palette.coral : _Palette.fieldBg,
+              color: isSelected ? AppColors.primary : AppColors.fieldBg,
               borderRadius: BorderRadius.circular(24.r),
               border: Border.all(
-                color: isSelected ? _Palette.coral : Colors.transparent,
+                color: isSelected ? AppColors.primary : Colors.transparent,
                 width: 1.2,
               ),
             ),
@@ -829,7 +846,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
               style: GoogleFonts.tasaOrbiter(
                 fontSize: 10.5.sp,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? _Palette.subtleWhite : _Palette.ink,
+                color: isSelected ? AppColors.subtleWhite : AppColors.ink,
               ),
             ),
           ),
@@ -854,10 +871,10 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
           height: 40.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _Palette.fieldBg,
+            color: AppColors.fieldBg,
             borderRadius: BorderRadius.circular(12.r),
           ),
-          child: Icon(icon, color: _Palette.ink, size: 18.sp),
+          child: Icon(icon, color: AppColors.ink, size: 18.sp),
         ),
       );
     }
@@ -868,7 +885,11 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
         SizedBox(width: 12.w),
         Text(
           '$value',
-          style: GoogleFonts.tasaOrbiter(fontSize: 16.sp, fontWeight: FontWeight.w700, color: _Palette.ink),
+          style: GoogleFonts.tasaOrbiter(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.ink,
+          ),
         ),
         SizedBox(width: 12.w),
         counterBtn(Icons.add_rounded, onIncrement),
@@ -888,7 +909,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: TextFormField(
@@ -896,17 +917,31 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
         maxLines: 3,
         maxLength: maxLength,
         onChanged: onChanged,
-        style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
+        style: GoogleFonts.tasaOrbiter(
+          fontSize: 13.sp,
+          color: AppColors.ink,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+          hintStyle: GoogleFonts.tasaOrbiter(
+            fontSize: 13.sp,
+            color: AppColors.hintText,
+            fontWeight: FontWeight.w400,
+          ),
           border: InputBorder.none,
           errorBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 18.w,
+            vertical: 10.h,
+          ),
           counterText: '$count/$maxLength',
-          counterStyle: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: _Palette.hintText),
+          counterStyle: GoogleFonts.tasaOrbiter(
+            fontSize: 10.sp,
+            color: AppColors.hintText,
+          ),
         ),
       ),
     );
@@ -929,7 +964,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: _Palette.fieldBg,
+        color: AppColors.fieldBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: loading
@@ -938,13 +973,19 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                 SizedBox(
                   width: 14.w,
                   height: 14.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _Palette.coral),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
                 SizedBox(width: 10.w),
                 Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             )
@@ -952,7 +993,11 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
               child: DropdownButtonFormField<T>(
                 initialValue: items.contains(value) ? value : null,
                 isExpanded: true,
-                icon: Icon(Icons.keyboard_arrow_down_rounded, color: _Palette.ink, size: 22.sp),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.ink,
+                  size: 22.sp,
+                ),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
@@ -961,16 +1006,28 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                 hint: Text(
                   hint,
                   style: GoogleFonts.tasaOrbiter(
-                      fontSize: 13.sp, color: _Palette.hintText, fontWeight: FontWeight.w400),
+                    fontSize: 13.sp,
+                    color: AppColors.hintText,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                style: GoogleFonts.tasaOrbiter(fontSize: 13.sp, color: _Palette.ink, fontWeight: FontWeight.w500),
-                dropdownColor: _Palette.subtleWhite,
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 13.sp,
+                  color: AppColors.ink,
+                  fontWeight: FontWeight.w500,
+                ),
+                dropdownColor: AppColors.subtleWhite,
                 borderRadius: BorderRadius.circular(14.r),
                 items: items
-                    .map((item) => DropdownMenuItem<T>(
-                          value: item,
-                          child: Text(labelBuilder(item), overflow: TextOverflow.ellipsis),
-                        ))
+                    .map(
+                      (item) => DropdownMenuItem<T>(
+                        value: item,
+                        child: Text(
+                          labelBuilder(item),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: enabled ? onChanged : null,
               ),
@@ -984,17 +1041,22 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.tasaOrbiter(color: _Palette.subtleWhite)),
-        backgroundColor: _Palette.ink,
+        content: Text(
+          message,
+          style: GoogleFonts.tasaOrbiter(color: AppColors.subtleWhite),
+        ),
+        backgroundColor: AppColors.ink,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
 
   // ---------------------------------------------------------------------
-  // Bottom area: Continue (filled, coral once valid/grey otherwise) +
-  // Submit (outlined coral — finishes the profile now, skipping the
+  // Bottom area: Continue (filled, primary once valid/grey otherwise) +
+  // Submit (outlined primary — finishes the profile now, skipping the
   // remaining steps).
   // ---------------------------------------------------------------------
   Widget _buildBottomArea() {
@@ -1009,13 +1071,13 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
               child: ElevatedButton(
                 onPressed: busy ? null : _handleContinue,
                 style: ElevatedButton.styleFrom(
-                  // backgroundColor: _isFormValid ? _Palette.coral : _Palette.grey,
+                  // backgroundColor: _isFormValid ? AppColors.primary : AppColors.grey,
                   // disabledBackgroundColor:
-                  //     (_isFormValid ? _Palette.coral : _Palette.grey).withOpacity(0.6),
-                  // foregroundColor: _Palette.subtleWhite,
-                  backgroundColor: _Palette.coral,
-                  disabledBackgroundColor: _Palette.coral,
-                  foregroundColor: _Palette.subtleWhite,
+                  //     (_isFormValid ? AppColors.primary : AppColors.grey).withOpacity(0.6),
+                  // foregroundColor: AppColors.subtleWhite,
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.subtleWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),
@@ -1028,7 +1090,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                         child: const CircularProgressIndicator(
                           strokeWidth: 2.4,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.subtleWhite,
+                            AppColors.subtleWhite,
                           ),
                         ),
                       )
@@ -1050,9 +1112,9 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
               child: OutlinedButton(
                 onPressed: busy ? null : _handleSubmit,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: _Palette.coral,
-                  disabledForegroundColor: _Palette.coral.withOpacity(0.6),
-                  side: BorderSide(color: _Palette.coral, width: 1.4),
+                  foregroundColor: AppColors.primary,
+                  disabledForegroundColor: AppColors.primary.withOpacity(0.6),
+                  side: BorderSide(color: AppColors.primary, width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),
                   ),
@@ -1064,7 +1126,7 @@ class _PersonalPhysicalState extends State<PersonalPhysicalScreen> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _Palette.coral,
+                            AppColors.primary,
                           ),
                         ),
                       )
@@ -1099,7 +1161,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.tasaOrbiter(
           fontSize: 13.sp,
           fontWeight: FontWeight.w600,
-          color: _Palette.ink,
+          color: AppColors.ink,
         ),
         children: required
             ? [
@@ -1117,10 +1179,3 @@ class _FieldLabel extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-

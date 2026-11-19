@@ -120,7 +120,7 @@ class _InterestsScreenState extends State<InterestsScreen>
                         color: s.$3, letterSpacing: -0.5)),
                 const SizedBox(height: 2),
                 Text(s.$1,
-                    style: TextStyle(fontSize: 11, color: s.$3.withOpacity(0.8),
+                    style: TextStyle(fontSize: 11, color: s.$3.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600)),
               ],
             ),

@@ -1467,7 +1467,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary.withOpacity(0.1)
+                  ? AppColors.primary.withValues(alpha: 0.1)
                   : AppColors.fieldBg,
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(
@@ -1569,7 +1569,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetailsScreen> {
                                       vertical: 5.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withOpacity(0.1),
+                                      color: AppColors.primary.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(20.r),
                                     ),
                                     child: Text(

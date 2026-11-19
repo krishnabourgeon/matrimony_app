@@ -1541,7 +1541,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24.r)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -1739,7 +1739,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -2233,7 +2233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -2358,7 +2358,7 @@ class _ActivityTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2454,7 +2454,7 @@ class _MatchCardState extends State<_MatchCard> {
                       decoration: BoxDecoration(
                         color: _shortlisted
                             ? AppColors.primary
-                            : Colors.black.withOpacity(0.55),
+                            : Colors.black.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Row(
@@ -2491,7 +2491,7 @@ class _MatchCardState extends State<_MatchCard> {
                         vertical: 3.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Row(

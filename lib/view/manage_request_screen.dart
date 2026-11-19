@@ -1385,7 +1385,7 @@ class _ReceivedRequestCard extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.8),
+                        Colors.black.withValues(alpha: 0.8),
                       ],
                       stops: const [0.5, 1.0],
                     ),
@@ -1502,7 +1502,7 @@ class _ReceivedRequestCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(26.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),

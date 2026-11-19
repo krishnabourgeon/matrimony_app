@@ -21,7 +21,7 @@ class StepBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
               color: done || active
                   ? AppColors.kAccent
-                  : AppColors.kAccent.withOpacity(0.2),
+                  : AppColors.kAccent.withValues(alpha: 0.2),
             ),
           ),
         );

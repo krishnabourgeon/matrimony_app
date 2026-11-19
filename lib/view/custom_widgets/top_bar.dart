@@ -20,7 +20,7 @@ class TopBar extends StatelessWidget {
               child: Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.kWhite.withOpacity(0.7),
+                  color: AppColors.kWhite.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.kBorder),
                 ),

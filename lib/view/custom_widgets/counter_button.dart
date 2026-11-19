@@ -15,9 +15,9 @@ class CountBtn extends StatelessWidget {
         width: 40, height: 40,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.kAccent.withOpacity(0.1),
+          color: AppColors.kAccent.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.kAccent.withOpacity(0.3)),
+          border: Border.all(color: AppColors.kAccent.withValues(alpha: 0.3)),
         ),
         child: Text(label,
             style: const TextStyle(

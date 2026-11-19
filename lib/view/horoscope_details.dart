@@ -1072,7 +1072,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 onPressed: busy ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                  disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
                   foregroundColor: AppColors.subtleWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -1109,7 +1109,7 @@ class _HoroscopeState extends State<HoroscopeScreen> {
                 onPressed: busy ? null : _handleSkip,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
-                  disabledForegroundColor: AppColors.primary.withOpacity(0.6),
+                  disabledForegroundColor: AppColors.primary.withValues(alpha: 0.6),
                   side: BorderSide(color: AppColors.primary, width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),

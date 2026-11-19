@@ -555,7 +555,7 @@ class _VerifyProfileScreenState extends State<VerifyProfileScreen> {
           child: Container(
             width: 110,
             height: 110,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.06)),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.06)),
           ),
         ),
         Row(
@@ -565,9 +565,9 @@ class _VerifyProfileScreenState extends State<VerifyProfileScreen> {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
               ),
               child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
             ),
@@ -583,7 +583,7 @@ class _VerifyProfileScreenState extends State<VerifyProfileScreen> {
                   const SizedBox(height: 6),
                   Text(
                     "Verified profiles get more trust & responses. Follow these steps to complete yours.",
-                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.85), height: 1.4),
+                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85), height: 1.4),
                   ),
                 ],
               ),

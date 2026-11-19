@@ -437,7 +437,7 @@ class AppDrawer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(AppColors.r32),
-                    border: Border.all(color: AppColors.primary.withOpacity(0.5)),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -521,7 +521,7 @@ class AppDrawer extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(

@@ -325,7 +325,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                 "We'll sent a 4 digit code to verify\n+91 ${widget.mobile.isEmpty ? "XXXXXXXXXX" : widget.mobile}",
                 style: GoogleFonts.tasaOrbiter(
                   fontSize: 14,
-                  color: AppColors.ink.withOpacity(0.55),
+                  color: AppColors.ink.withValues(alpha: 0.55),
                   height: 1.4,
                 ),
               ),
@@ -370,7 +370,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             "Didn't receive a code?",
                             style: GoogleFonts.tasaOrbiter(
                               fontSize: 13,
-                              color: AppColors.ink.withOpacity(0.45),
+                              color: AppColors.ink.withValues(alpha: 0.45),
                             ),
                           ),
                           Text(
@@ -593,7 +593,7 @@ class _CTAButton extends StatelessWidget {
           boxShadow: isEnabled
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.35),
+                    color: AppColors.primary.withValues(alpha: 0.35),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),

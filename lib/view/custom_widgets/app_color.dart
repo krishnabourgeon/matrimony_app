@@ -73,62 +73,62 @@ class AppColors {
   // Shadows
   static List<BoxShadow> get shadowXs => [
     BoxShadow(
-      color: const Color(0xFF8B1538).withOpacity(0.05),
+      color: const Color(0xFF8B1538).withValues(alpha: 0.05),
       blurRadius: 6,
       offset: const Offset(0, 2),
     ),
   ];
   static List<BoxShadow> get shadowSm => [
     BoxShadow(
-      color: const Color(0xFF8B1538).withOpacity(0.08),
+      color: const Color(0xFF8B1538).withValues(alpha: 0.08),
       blurRadius: 14,
       offset: const Offset(0, 4),
     ),
     BoxShadow(
-      color: Colors.black.withOpacity(0.03),
+      color: Colors.black.withValues(alpha: 0.03),
       blurRadius: 4,
       offset: const Offset(0, 1),
     ),
   ];
   static List<BoxShadow> get shadowMd => [
     BoxShadow(
-      color: const Color(0xFF8B1538).withOpacity(0.10),
+      color: const Color(0xFF8B1538).withValues(alpha: 0.10),
       blurRadius: 24,
       offset: const Offset(0, 8),
     ),
     BoxShadow(
-      color: Colors.black.withOpacity(0.04),
+      color: Colors.black.withValues(alpha: 0.04),
       blurRadius: 8,
       offset: const Offset(0, 2),
     ),
   ];
   static List<BoxShadow> get shadowPrimary => [
     BoxShadow(
-      color: primary.withOpacity(0.30),
+      color: primary.withValues(alpha: 0.30),
       blurRadius: 24,
       offset: const Offset(0, 10),
     ),
     BoxShadow(
-      color: primary.withOpacity(0.12),
+      color: primary.withValues(alpha: 0.12),
       blurRadius: 8,
       offset: const Offset(0, 3),
     ),
   ];
   static List<BoxShadow> get shadowGold => [
     BoxShadow(
-      color: gold.withOpacity(0.30),
+      color: gold.withValues(alpha: 0.30),
       blurRadius: 20,
       offset: const Offset(0, 8),
     ),
   ];
   static List<BoxShadow> get shadowNav => [
     BoxShadow(
-      color: const Color(0xFF8B1538).withOpacity(0.12),
+      color: const Color(0xFF8B1538).withValues(alpha: 0.12),
       blurRadius: 32,
       offset: const Offset(0, -8),
     ),
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withValues(alpha: 0.05),
       blurRadius: 10,
       offset: const Offset(0, -2),
     ),

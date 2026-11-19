@@ -110,7 +110,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                         _buildBasicDetailsRows(item),
                         Divider(
                           thickness: 4,
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                         ),
                         SizedBox(height: 20.h),
                         _sectionTitle('Contact Details'),
@@ -118,19 +118,19 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                         SizedBox(height: 10.h),
                         Divider(
                           thickness: 4,
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                         ),
                         SizedBox(height: 20.h),
                         _buildFamilyDetailsSection(item),
                         Divider(
                           thickness: 4,
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                         ),
                         SizedBox(height: 20.h),
                         _buildCareerEducationSection(item),
                         Divider(
                           thickness: 4,
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                         ),
                         SizedBox(height: 20.h),
                         _buildYouAndHerSection(item),
@@ -199,9 +199,9 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withOpacity(0.30),
+                  Colors.black.withValues(alpha: 0.30),
                   Colors.transparent,
-                  Colors.black.withOpacity(0.55),
+                  Colors.black.withValues(alpha: 0.55),
                 ],
                 stops: const [0.0, 0.45, 1.0],
               ),
@@ -226,7 +226,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                     //padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                     padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.35),
+                      color: Colors.black.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Icon(Icons.arrow_back, color: Colors.white),
@@ -246,7 +246,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: Row(
@@ -363,7 +363,7 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
         height: 36.w,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.35),
+          color: Colors.black.withValues(alpha: 0.35),
           shape: BoxShape.circle,
         ),
         child: child,
@@ -838,8 +838,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFD8DF).withOpacity(0.01),
-                            Color(0xFFFA889D).withOpacity(0.5),
+                            Color(0xFFFFD8DF).withValues(alpha: 0.01),
+                            Color(0xFFFA889D).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -853,8 +853,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFD8DF).withOpacity(0.01),
-                            Color(0xFFFFA7B6).withOpacity(0.5),
+                            Color(0xFFFFD8DF).withValues(alpha: 0.01),
+                            Color(0xFFFFA7B6).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -868,8 +868,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFD8DF).withOpacity(0.01),
-                            Color(0xFFFFD3E0).withOpacity(0.5),
+                            Color(0xFFFFD8DF).withValues(alpha: 0.01),
+                            Color(0xFFFFD3E0).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -883,8 +883,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFD8DF).withOpacity(0.01),
-                            Color(0xFFFFDCE6).withOpacity(0.5),
+                            Color(0xFFFFD8DF).withValues(alpha: 0.01),
+                            Color(0xFFFFDCE6).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -898,8 +898,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFD8DF).withOpacity(0.01),
-                            Color(0xFFFFF1F5).withOpacity(0.5),
+                            Color(0xFFFFD8DF).withValues(alpha: 0.01),
+                            Color(0xFFFFF1F5).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -913,8 +913,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFA7B6).withOpacity(0.3),
-                            Color(0xFFFFDCE6).withOpacity(0.5),
+                            Color(0xFFFFA7B6).withValues(alpha: 0.3),
+                            Color(0xFFFFDCE6).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -928,8 +928,8 @@ class _MatchProfileDetailScreenState extends State<MatchProfileDetailScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFA7B6).withOpacity(0.01),
-                            Color(0xFFFFF1F5).withOpacity(0.5),
+                            Color(0xFFFFA7B6).withValues(alpha: 0.01),
+                            Color(0xFFFFF1F5).withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -1252,7 +1252,7 @@ class _MatchPreferencesSectionState extends State<MatchPreferencesSection> {
           ),
         ),
         SizedBox(height: 16.h),
-        Divider(thickness: 10, color: Colors.black.withOpacity(0.05)),
+        Divider(thickness: 10, color: Colors.black.withValues(alpha: 0.05)),
         SizedBox(height: 20.h),
         _buildActionBar(),
       ],

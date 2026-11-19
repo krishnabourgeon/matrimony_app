@@ -159,7 +159,7 @@ class _MessageScreenState extends State<MessageScreen> {
     padding: EdgeInsets.fromLTRB(10, 10, 10, MediaQuery.of(context).padding.bottom + 10),
     decoration: BoxDecoration(
       color: AppColors.surface,
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, -3))],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, -3))],
     ),
     child: Row(
       children: [
@@ -283,7 +283,7 @@ class _MessageBubble extends StatelessWidget {
                     message.time,
                     style: TextStyle(
                       fontSize: 9.5,
-                      color: isMe ? Colors.white.withOpacity(0.75) : AppColors.textHint,
+                      color: isMe ? Colors.white.withValues(alpha: 0.75) : AppColors.textHint,
                     ),
                   ),
                 ],

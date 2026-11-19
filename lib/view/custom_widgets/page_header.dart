@@ -21,7 +21,7 @@ class PageHeader extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.kWhite.withOpacity(0.8),
+                color: AppColors.kWhite.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.kBorder),
               ),

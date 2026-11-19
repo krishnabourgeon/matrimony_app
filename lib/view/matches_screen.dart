@@ -888,6 +888,7 @@
 
 
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -954,6 +955,7 @@ class MatchProfileItem {
   final List<String> images;
   final int photoCount;
   final bool isPremium;
+  final bool isFeatured;
   final bool isOnline;
   final String lastSeen;
   final String contactNo;
@@ -994,6 +996,7 @@ class MatchProfileItem {
     this.images = const [],
     this.photoCount = 1,
     this.isPremium = false,
+    this.isFeatured = false,
     this.isOnline = false,
     this.lastSeen = '',
     this.age = 0,
@@ -1066,6 +1069,20 @@ class _MatchesScreenState extends State<MatchesScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
   String _query = '';
 
+  // Search-profiles icon in the header expands into a text field when tapped.
+  bool _searchOpen = false;
+
+  void _toggleSearch() {
+    setState(() {
+      _searchOpen = !_searchOpen;
+      if (!_searchOpen) {
+        _searchCtrl.clear();
+        _query = '';
+        FocusScope.of(context).unfocus();
+      }
+    });
+  }
+
   List<_MatchTab> get _visibleTabs => [
     if (_hasSearched) _MatchTab.search,
     _MatchTab.all,
@@ -1134,6 +1151,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
         _flag(() => m.isPaid) ||
         _flag(() => m.isPaidMember);
     final isOnline = _flag(() => m.isOnline) || _flag(() => m.online);
+    final isFeatured = _flag(() => m.isFeatured) ||
+        _flag(() => m.featured) ||
+        _flag(() => m.isFeaturedProfile);
 
     final line1 = [
       if (age > 0) '$age Yrs',
@@ -1161,6 +1181,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
       location: location,
       profileId: id,
       isPremium: isPremium,
+      isFeatured: isFeatured,
       isOnline: isOnline,
       lastSeen: lastSeen,
     );
@@ -1285,55 +1306,93 @@ class _MatchesScreenState extends State<MatchesScreen> {
     );
   }
 
-  // ---------------- Header: dropdown | bell | profile, then search ----------------
+  // ---------------- Header (one row): dropdown | search icon | bell | profile ----------------
+  // Tapping the search icon swaps the dropdown for a search field (with a
+  // close button); closing it restores the row.
   Widget _buildHeader(int unreadCount) {
     return Container(
       color: Colors.white,
       padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: _buildSearchDropdown()),
-              SizedBox(width: 12.w),
-              _buildBell(unreadCount),
-              SizedBox(width: 12.w),
-              GestureDetector(
-                onTap: () {
-                  // TODO: open profile
-                },
-                child: Container(
-                  padding: EdgeInsets.all(2.w),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: ClipOval(
-                    child: genderAvatarFallback(
-                      gender: UserGender.current,
-                      width: 34.w,
-                      height: 34.w,
-                      fit: BoxFit.cover,
-                      iconSize: 18.sp,
+      child: _searchOpen
+          ? Row(
+              children: [
+                Expanded(child: _buildSearchField()),
+                SizedBox(width: 10.w),
+                GestureDetector(
+                  onTap: _toggleSearch,
+                  child: Icon(Icons.close, size: 24.sp, color: Colors.black87),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(child: _buildSearchDropdown()),
+                SizedBox(width: 10.w),
+                _headerCircleIcon(Icons.search, onTap: _toggleSearch),
+                SizedBox(width: 10.w),
+                _buildBell(unreadCount),
+                SizedBox(width: 10.w),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: open profile
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(2.w),
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: ClipOval(
+                      child: genderAvatarFallback(
+                        gender: UserGender.current,
+                        width: 32.w,
+                        height: 32.w,
+                        fit: BoxFit.cover,
+                        iconSize: 18.sp,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          _buildSearchField(),
-        ],
+              ],
+            ),
+    );
+  }
+
+  Widget _headerCircleIcon(IconData icon, {required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(7.w),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.primary),
+        ),
+        child: Icon(icon, size: 20.sp, color: AppColors.primary),
       ),
     );
   }
 
+  /// "New or Saved Search" dropdown.
   Widget _buildSearchDropdown() {
     return PopupMenuButton<String>(
+      tooltip: 'New or Saved Search',
       offset: Offset(0, 46.h),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       onSelected: _onSearchMenu,
       itemBuilder: (_) => <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+          enabled: false,
+          height: 30.h,
+          child: Text(
+            'NEW OR SAVED SEARCH',
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black45,
+              letterSpacing: 0.6,
+            ),
+          ),
+        ),
         PopupMenuItem<String>(
           value: 'new',
           child: Row(
@@ -1471,23 +1530,26 @@ class _MatchesScreenState extends State<MatchesScreen> {
 
   Widget _buildSearchField() {
     return Container(
-      height: 42.h,
-      padding: EdgeInsets.only(left: 16.w, right: 4.w),
+      height: 40.h,
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
         color: const Color(0xFFEDEAE4),
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: BorderRadius.circular(22.r),
       ),
       child: Row(
         children: [
+          Icon(Icons.search, size: 18.sp, color: Colors.black45),
+          SizedBox(width: 6.w),
           Expanded(
             child: TextField(
               controller: _searchCtrl,
+              autofocus: true,
               onChanged: (v) => setState(() => _query = v),
               style: GoogleFonts.tasaOrbiter(fontSize: 13.sp),
               decoration: InputDecoration(
                 hintText: 'Search Profiles...',
                 hintStyle: GoogleFonts.tasaOrbiter(
-                  fontSize: 13.sp,
+                  fontSize: 12.sp,
                   color: Colors.black45,
                 ),
                 border: InputBorder.none,
@@ -1495,28 +1557,15 @@ class _MatchesScreenState extends State<MatchesScreen> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-              if (_query.isNotEmpty) {
+          if (_query.isNotEmpty)
+            GestureDetector(
+              onTap: () {
                 _searchCtrl.clear();
+                FocusScope.of(context).unfocus();
                 setState(() => _query = '');
-              }
-            },
-            child: Container(
-              width: 34.w,
-              height: 34.w,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _query.isEmpty ? Icons.search : Icons.close,
-                size: 18.sp,
-                color: Colors.white,
-              ),
+              },
+              child: Icon(Icons.close, size: 18.sp, color: Colors.black54),
             ),
-          ),
         ],
       ),
     );
@@ -1564,10 +1613,11 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 }
 
-/// A single match card (mobile version of the website card): photo with
-/// Shortlist chip on the left; Verified / Paid chips, name, ID + activity,
-/// details and quick-contact icons on the right; Don't show + interest
-/// buttons underneath.
+/// A single match card (mobile version of the website card): large photo on
+/// top with the Shortlist chip, and all the details underneath — chips,
+/// name, ID + last seen, details line, contact icons and action buttons.
+/// Featured profiles also get a primary-coloured border and a
+/// "Featured Profile" tab.
 class _MatchProfileCard extends StatefulWidget {
   final MatchProfileItem item;
   final List<MatchProfileItem> allProfiles;
@@ -1607,217 +1657,324 @@ class _MatchProfileCardState extends State<_MatchProfileCard> {
     return 'Recently no activity';
   }
 
+  void _openDetail() => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => MatchProfileDetailScreen(
+        item: item,
+        allProfiles: widget.allProfiles,
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16.r),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MatchProfileDetailScreen(
-            item: item,
-            allProfiles: widget.allProfiles,
+      onTap: _openDetail,
+      child: _buildCard(),
+    );
+  }
+
+  Widget _buildCard() {
+    final featured = item.isFeatured;
+
+    final body = Container(
+      padding: EdgeInsets.fromLTRB(12.w, featured ? 24.h : 12.h, 12.w, 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: featured
+            ? Border.all(color: AppColors.primary, width: 1.5)
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: featured
+                ? AppColors.primary.withValues(alpha: 0.22)
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: featured ? 16 : 10,
+            offset: Offset(0, featured ? 4 : 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Large, eye-catching photo
+          _photo(
+            width: double.infinity,
+            height: 240.h,
+            radius: 14.r,
+            gradient: true,
+          ),
+          SizedBox(height: 12.h),
+          // Verified / Paid chips + contact icons
+          Row(
+            children: [
+              Expanded(child: _badges()),
+              _contactIcons(),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          _nameRow(fontSize: 20.sp),
+          SizedBox(height: 2.h),
+          _idLine(),
+          SizedBox(height: 8.h),
+          _detailsText(maxLines: 5, fontSize: 13.sp),
+          SizedBox(height: 14.h),
+          _actionButtons(),
+        ],
+      ),
+    );
+
+    if (!featured) return body;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        body,
+        // "Featured Profile" tab hanging from the top border
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 3.h),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                border: Border.all(color: AppColors.primary, width: 1.5),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(10.r),
+                ),
+              ),
+              child: Text(
+                'Featured Profile',
+                style: GoogleFonts.tasaOrbiter(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
           ),
         ),
-      ),
-      child: Container(
-        padding: EdgeInsets.all(12.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      ],
+    );
+  }
+
+  // ---------------- Shared pieces ----------------
+
+  Widget _photo({
+    required double width,
+    required double height,
+    required double radius,
+    bool gradient = false,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Photo + Shortlist
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: SizedBox(
-                    width: 112.w,
-                    height: 150.h,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        matchProfileImage(
-                          item.image,
-                          width: 112.w,
-                          height: 150.h,
-                          errorIconSize: 40.sp,
-                        ),
-                        Positioned(
-                          top: 6.h,
-                          left: 6.w,
-                          child: ShortlistBadge(profile: item),
-                        ),
-                      ],
-                    ),
+            matchProfileImage(
+              item.image,
+              width: width,
+              height: height,
+              errorIconSize: 48.sp,
+            ),
+            if (gradient)
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.25)],
+                    stops: const [0.65, 1.0],
                   ),
                 ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            Positioned(
+              top: 8.h,
+              left: 8.w,
+              child: ShortlistBadge(profile: item),
+            ),
+            if (gradient)
+              Positioned(
+                bottom: 10.h,
+                right: 10.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Wrap(
-                        spacing: 6.w,
-                        runSpacing: 4.h,
-                        children: [
-                          _chip(
-                            Icons.verified,
-                            'Verified',
-                            _verifiedBlue,
-                            const Color(0xFFEAF2FF),
-                          ),
-                          if (item.isPremium)
-                            _chip(
-                              Icons.workspace_premium,
-                              'Paid Member',
-                              _paidPurple,
-                              const Color(0xFFEFEAF8),
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              item.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.tasaOrbiter(
-                                fontSize: 17.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                          if (item.isOnline) ...[
-                            SizedBox(width: 6.w),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 6.w,
-                                vertical: 1.h,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r),
-                                border: Border.all(
-                                  color: const Color(0xFF2E8B57),
-                                ),
-                              ),
-                              child: Text(
-                                'Online',
-                                style: GoogleFonts.tasaOrbiter(
-                                  fontSize: 9.sp,
-                                  color: const Color(0xFF2E8B57),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      SizedBox(height: 2.h),
+                      Icon(Icons.photo_camera_outlined,
+                          size: 13.sp, color: Colors.white),
+                      SizedBox(width: 4.w),
                       Text(
-                        [
-                          if (item.profileId.isNotEmpty) item.profileId,
-                          _activity,
-                        ].join('  |  '),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        '${item.photoCount}',
                         style: GoogleFonts.tasaOrbiter(
-                          fontSize: 10.sp,
-                          color: Colors.black45,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        _details,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.tasaOrbiter(
-                          fontSize: 12.sp,
-                          color: Colors.black87,
-                          height: 1.35,
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          _roundIcon(Icons.share),
-                          SizedBox(width: 8.w),
-                          _roundIcon(Icons.call),
-                          SizedBox(width: 8.w),
-                          // No WhatsApp icon in Material Icons; swap in a
-                          // brand asset if you have one.
-                          _roundIcon(Icons.chat),
-                        ],
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: widget.onDontShow,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black87),
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Text(
-                      "Don't show",
-                      style: GoogleFonts.tasaOrbiter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _interestSent
-                        ? null
-                        : () => setState(() => _interestSent = true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: AppColors.primary.withOpacity(
-                        0.55,
-                      ),
-                      elevation: 0,
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Text(
-                      _interestSent ? 'Awaiting Response' : 'Send Interest',
-                      style: GoogleFonts.tasaOrbiter(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _badges() {
+    return Wrap(
+      spacing: 6.w,
+      runSpacing: 4.h,
+      children: [
+        _chip(
+          Icons.verified,
+          'Verified',
+          _verifiedBlue,
+          const Color(0xFFEAF2FF),
+        ),
+        if (item.isPremium)
+          _chip(
+            Icons.workspace_premium,
+            'Paid Member',
+            _paidPurple,
+            const Color(0xFFEFEAF8),
+          ),
+      ],
+    );
+  }
+
+  Widget _nameRow({required double fontSize}) {
+    return Row(
+      children: [
+        Flexible(
+          child: Text(
+            item.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.tasaOrbiter(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        if (item.isOnline) ...[
+          SizedBox(width: 6.w),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: const Color(0xFF2E8B57)),
+            ),
+            child: Text(
+              'Online',
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 9.sp,
+                color: const Color(0xFF2E8B57),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _idLine() {
+    return Text(
+      [if (item.profileId.isNotEmpty) item.profileId, _activity].join('  |  '),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: GoogleFonts.tasaOrbiter(fontSize: 10.sp, color: Colors.black45),
+    );
+  }
+
+  Widget _detailsText({required int maxLines, double? fontSize}) {
+    return Text(
+      _details,
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+      style: GoogleFonts.tasaOrbiter(
+        fontSize: fontSize ?? 12.sp,
+        color: Colors.black87,
+        height: 1.35,
+      ),
+    );
+  }
+
+  Widget _contactIcons() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _roundIcon(Icons.share),
+        SizedBox(width: 8.w),
+        _roundIcon(Icons.call),
+        SizedBox(width: 8.w),
+        // No WhatsApp icon in Material Icons; swap in a brand asset if you
+        // have one.
+        _roundIcon(Icons.chat),
+      ],
+    );
+  }
+
+  Widget _actionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: widget.onDontShow,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.black87),
+              padding: EdgeInsets.symmetric(vertical: 10.h),
+              shape: const StadiumBorder(),
+            ),
+            child: Text(
+              "Don't show",
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 10.w),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: _interestSent
+                ? null
+                : () => setState(() => _interestSent = true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.55),
+              elevation: 0,
+              padding: EdgeInsets.symmetric(vertical: 10.h),
+              shape: const StadiumBorder(),
+            ),
+            child: Text(
+              _interestSent ? 'Awaiting Response' : 'Send Interest',
+              style: GoogleFonts.tasaOrbiter(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

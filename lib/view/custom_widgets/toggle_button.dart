@@ -26,7 +26,7 @@ class Pill extends StatelessWidget {
           boxShadow: selected
               ? [
                   BoxShadow(
-                      color: AppColors.kAccent.withOpacity(0.25),
+                      color: AppColors.kAccent.withValues(alpha: 0.25),
                       blurRadius: 8,
                       offset: const Offset(0, 3))
                 ]

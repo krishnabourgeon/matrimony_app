@@ -434,7 +434,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                   //     (_isFormValid ? AppColors.primary : AppColors.grey).withOpacity(0.6),
                   // foregroundColor: AppColors.subtleWhite,
                   backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+                  disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
                   foregroundColor: AppColors.subtleWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -471,7 +471,7 @@ class _PhotosAboutState extends State<PhotosAboutScreen> {
                 onPressed: busy ? null : _handleSubmit,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
-                  disabledForegroundColor: AppColors.primary.withOpacity(0.6),
+                  disabledForegroundColor: AppColors.primary.withValues(alpha: 0.6),
                   side: BorderSide(color: AppColors.primary, width: 1.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.r),

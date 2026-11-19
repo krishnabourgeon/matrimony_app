@@ -323,7 +323,7 @@ class _ManagePhotosScreenState extends State<ManagePhotosScreen> {
           Positioned(
             bottom: 0,
             child: Icon(Icons.local_florist_rounded,
-                color: Colors.white.withOpacity(0.5), size: 46),
+                color: Colors.white.withValues(alpha: 0.5), size: 46),
           ),
           Positioned(
             left: 6,

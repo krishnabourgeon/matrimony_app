@@ -65,7 +65,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           onTap: () => setState(() { for (final n in _notifs) { n.read = true; } }),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
             child: const Text('Mark all read', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
           ),
         ),
@@ -91,7 +91,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             Icon(t.$5, size: 20, color: t.$3),
             const SizedBox(height: 6),
             Text('${t.$2}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: t.$3)),
-            Text(t.$1, style: TextStyle(fontSize: 10, color: t.$3.withOpacity(0.8), fontWeight: FontWeight.w600)),
+            Text(t.$1, style: TextStyle(fontSize: 10, color: t.$3.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
           ]),
         ),
       )).toList()),
@@ -131,9 +131,9 @@ class _NotifCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: notif.read ? AppColors.surface : AppColors.primaryLight.withOpacity(0.5),
+          color: notif.read ? AppColors.surface : AppColors.primaryLight.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(AppColors.r16),
-          border: notif.read ? Border.all(color: AppColors.border) : Border.all(color: AppColors.primary.withOpacity(0.2)),
+          border: notif.read ? Border.all(color: AppColors.border) : Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
           boxShadow: notif.read ? null : AppColors.shadowSm,
         ),
         child: Padding(

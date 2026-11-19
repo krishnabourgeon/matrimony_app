@@ -17,7 +17,7 @@ class FloatingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.kAccent.withOpacity(0.12),
+            color: AppColors.kAccent.withValues(alpha: 0.12),
             blurRadius: 32,
             offset: const Offset(0, 8),
           ),

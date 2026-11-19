@@ -700,7 +700,7 @@ class _HeroPlaceholder extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primary.withOpacity(0.85), AppColors.primaryDark],
+          colors: [AppColors.primary.withValues(alpha: 0.85), AppColors.primaryDark],
         ),
       ),
       child: Center(

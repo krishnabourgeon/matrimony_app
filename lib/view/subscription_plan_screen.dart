@@ -581,7 +581,7 @@ class _PlanCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.25),
+            color: AppColors.primary.withValues(alpha: 0.25),
             blurRadius: 14,
             offset: const Offset(0, 8),
           ),

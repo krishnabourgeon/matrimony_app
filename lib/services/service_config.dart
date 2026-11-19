@@ -1068,22 +1068,6 @@ class ServiceConfig {
   // Endpoint name is a guess (no catalog endpoint was ever wired to the
   // pre-existing but unused ImageTypesModel) — confirm against the real API
   // if this 404s, and swap the string below.
-  Future<Result> getImageTypes() async {
-    Result res = await BaseClient.get('image-types');
-    if (res.isError) {
-      ErrorResponseModel errorResponseModel = ErrorResponseModel(
-        errorMessage: 'OOps...!, Something went wrong',
-      );
-      return Result.error(errorResponseModel);
-    } else {
-      var response = res.asValue!.value;
-      debugPrint('photos type response $response');
-      ImageTypesModel imageTypesModel = ImageTypesModel.fromJson(response);
-      return (imageTypesModel.imageTypes.isNotEmpty)
-          ? Result.value(imageTypesModel)
-          : Result.error(imageTypesModel);
-    }
-  }
 
   Future<Result> uploadPhotos(
     Map<String, String> fields,

@@ -237,7 +237,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           colors: [Color(0xFFFFF5EC), Color(0xFFFFF8F0)],
         ),
         borderRadius: BorderRadius.circular(AppColors.r16),
-        border: Border.all(color: AppColors.roseGold.withOpacity(0.4)),
+        border: Border.all(color: AppColors.roseGold.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
